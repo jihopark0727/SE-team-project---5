@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>signin</title>
+</head>
+<body>
+<form action="/api/auth/signUp" method="post">
+    이메일: <input type="text" name="email"> <br>
+    비밀번호: <input type="password" name="password"> <br>
+    이름: <input type="text" name="name"> <br>
+    역할:
+    <select name="userType">
+        <option value="admin">admin</option>
+        <option value="pl">pl</option>
+        <option value="dev">dev</option>
+        <option value="tester">tester</option>
+    </select> <br>
+    전화번호: <input type="tel" name="phoneNumber"><br>
+    경력: <input type="number" name="career"> <br>
+    <input type="submit" value="회원가입">
+</form>
+</body>
+</html>
