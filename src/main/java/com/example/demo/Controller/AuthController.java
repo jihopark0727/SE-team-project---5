@@ -6,6 +6,11 @@ import com.example.demo.DTO.LoginDto;
 import com.example.demo.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import java.net.URI;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,9 +23,22 @@ public class AuthController {
         return result;
     }
 
+//    @PostMapping("/login")
+//    public ResponseDto<?> login(@ModelAttribute LoginDto requestBody) {
+//        ResponseDto<?> result = authService.login(requestBody);
+//        return result;
+//    }
+    // 리다이렉트 로그인 성공하면 홈화면 실패하면 다시 로그인화면
     @PostMapping("/login")
-    public ResponseDto<?> login(@ModelAttribute LoginDto requestBody) {
+    public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody) {
         ResponseDto<?> result = authService.login(requestBody);
-        return result;
+        HttpHeaders headers = new HttpHeaders();
+        if(result.isResult()) {
+            headers.setLocation(URI.create("/home.html"));
+        }
+        else{
+            headers.setLocation(URI.create("/index.html"));
+        }
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
