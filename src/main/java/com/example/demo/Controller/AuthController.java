@@ -35,9 +35,8 @@ public class AuthController {
         HttpHeaders headers = new HttpHeaders();
         if(result.isResult()) {
             headers.setLocation(URI.create("/home.html"));
-        }
-        else{
-            headers.setLocation(URI.create("/index.html"));
+        } else {
+            headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
         }
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
