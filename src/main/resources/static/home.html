@@ -23,17 +23,26 @@
             color: white;
             padding: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1000;
         }
+        .home-icon a {
+            font-size: 25px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
         .top-navbar .nav-item {
             position: relative;
             margin: 0 10px;
             cursor: pointer;
+        }
+        .account {
+            float: right;
         }
         .top-navbar .dropdown-content {
             display: none;
@@ -195,6 +204,9 @@
 
 <!-- Top Navigation Bar -->
 <div class="top-navbar">
+    <div class="home-icon">
+        <a href="home.html">IMS</a>
+    </div>
     <div class="nav-item" id="projectNav" onmouseover="showDropdown()" onmouseout="hideDropdown()">
         Projects
         <div class="dropdown-content" id="projectDropdown">
@@ -203,6 +215,7 @@
             <a href="#" onclick="selectProject('project3')">Project 3</a>
             <a href="#" onclick="showAllProjects()">All Projects</a>
         </div>
+        <a href="#"></a>
     </div>
 </div>
 
