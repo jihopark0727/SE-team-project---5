@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .top-navbar {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .home-icon a {
+            font-size: 25px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .top-navbar .nav-item {
+            position: relative;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        .account {
+            float: right;
+        }
+        .top-navbar .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            top: 100%;
+            left: 0;
+        }
+        .top-navbar .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .top-navbar .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .left-navbar {
+            width: 200px;
+            background-color: #f4f4f4;
+            padding: 10px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            height: calc(100% - 50px);
+            margin-top: 50px; /* Adjust for top navbar height */
+        }
+        .left-navbar a {
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        .left-navbar a:hover {
+            background-color: #ddd;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-top: 50px;
+            margin-left: 50px;
+            margin-right: 50px;
+            width: 90%;
+        }
+        .content h2 {
+            height: 50px;
+        }
+        .project-header {
+            height: 50px;
+        }
+        .project-header h2 {
+            float: left;
+            margin-top: 10px;
+        }
+        .open-modal-btn {
+            float: right;
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .open-modal-btn:hover {
+            background-color: #45a049;
+        }
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .project-table th, .project-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .project-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 40%;
+            height: 33%;
+        }
+        .modal-content h2 {
+            height: 50px;
+        }
+        .modal-input-wrap {
+            height: 60%;
+        }
+        .modal-input {
+            height: 35px;
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .add-project-btn {
+            float: right;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .add-project-btn:hover {
+            background-color: #45a049;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .issue-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .issue-table th, .issue-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .issue-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="top-navbar">
+    <div class="home-icon">
+        <a href="#">IMS</a>
+    </div>
+    <div class="nav-item" id="projectNav" onmouseover="showDropdown()" onmouseout="hideDropdown()">
+        Projects
+        <div class="dropdown-content" id="projectDropdown">
+            <a href="#" onclick="selectProject('project1')">Project 1</a>
+            <a href="#" onclick="selectProject('project2')">Project 2</a>
+            <a href="#" onclick="selectProject('project3')">Project 3</a>
+            <a href="#" onclick="showAllProjects()">All Projects</a>
+        </div>
+        <a href="#"></a>
+    </div>
+</div>
+
+<!-- Left Navigation Bar -->
+<div class="left-navbar" id="leftNavBar">
+    <a href="#" onclick="showIssues()">Issues</a>
+</div>
+
+<!-- Main Content Area -->
+<div class="content" id="contentArea">
+    <h2>Welcome</h2>
+    <p>Select a project from the top navbar to see details.</p>
+</div>
+
+<!-- The Modal -->
+<div id="addProjectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add New Project</h2>
+        <div class="modal-input-wrap">
+            <input type="text" class="modal-input" id="newProjectName" placeholder="Project Name">
+            <input type="text" class="modal-input" id="newProjectDesc" placeholder="Description">
+            <button class="add-project-btn" onclick="addNewProject()">Add Project</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var currentProject; // Make currentProject a global variable
+
+    // Project data
+    const contentData = {
+        project1: `
+                <h2>Project 1</h2>
+                <p>Description for Project 1.</p>`,
+        project2: `
+                <h2>Project 2</h2>
+                <p>Description for Project 2.</p>`,
+        project3: `
+                <h2>Project 3</h2>
+                <p>Description for Project 3.</p>`
+    };
+
+    // Issue data
+    const issueData = {
+        project1: `
+                <h2>Project 1 - Issues</h2>
+                <table class="issue-table">
+                    <thead>
+                        <tr>
+                            <th>Issue ID</th>
+                            <th>Issue Name</th>
+                            <th>Description</th>
+                            <th>Creation Time</th>
+                            <th>Last Modified Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Issue Alpha</td>
+                            <td>abcde.</td>
+                            <td>2024-01-13</td>
+                            <td>2024-05-11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Issue Beta</td>
+                            <td>adsadsadas</td>
+                            <td>2024-03-11</td>
+                            <td>2024-04-18</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Issue Gamma</td>
+                            <td>wqgkwqnll</td>
+                            <td>2024-02-25</td>
+                            <td>2024-05-05</td>
+                        </tr>
+                    </tbody>
+                </table>`,
+        project2: `
+                <h2>Project 2 - Issues</h2>
+                <table class="issue-table">
+                    <thead>
+                        <tr>
+                            <th>Issue ID</th>
+                            <th>Issue Name</th>
+                            <th>Description</th>
+                            <th>Creation Time</th>
+                            <th>Last Modified Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Issue Alpha</td>
+                            <td>abcde.</td>
+                            <td>2024-01-13</td>
+                            <td>2024-05-11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Issue Beta</td>
+                            <td>adsadsadas</td>
+                            <td>2024-03-11</td>
+                            <td>2024-04-18</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Issue Gamma</td>
+                            <td>wqgkwqnll</td>
+                            <td>2024-02-25</td>
+                            <td>2024-05-05</td>
+                        </tr>
+                    </tbody>
+                </table>`,
+        project3: `
+                <h2>Project 3 - Issues</h2>
+                <table class="issue-table">
+                    <thead>
+                        <tr>
+                            <th>Issue ID</th>
+                            <th>Issue Name</th>
+                            <th>Description</th>
+                            <th>Creation Time</th>
+                            <th>Last Modified Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Issue Alpha</td>
+                            <td>abcde.</td>
+                            <td>2024-01-13</td>
+                            <td>2024-05-11</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Issue Beta</td>
+                            <td>adsadsadas</td>
+                            <td>2024-03-11</td>
+                            <td>2024-04-18</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Issue Gamma</td>
+                            <td>wqgkwqnll</td>
+                            <td>2024-02-25</td>
+                            <td>2024-05-05</td>
+                        </tr>
+                    </tbody>
+                </table>`
+    };
+
+    function showDropdown() {
+        document.getElementById('projectDropdown').style.display = 'block';
+    }
+
+    function hideDropdown() {
+        document.getElementById('projectDropdown').style.display = 'none';
+    }
+
+    function selectProject(project) {
+        currentProject = project; // Update the global currentProject variable
+        document.getElementById('contentArea').innerHTML = contentData[project];
+        document.getElementById('leftNavBar').style.display = 'flex';
+    }
+
+    function showAllProjects() {
+        document.getElementById('leftNavBar').style.display = 'none';
+        document.getElementById('contentArea').innerHTML = `
+                <div class="project-header">
+                    <h2>All Projects</h2>
+                    <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+                </div>
+                <table class="project-table">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Project Name</th>
+                            <th>Description</th>
+                            <th>Creation Time</th>
+                            <th>Last Modified Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Project 1</td>
+                            <td>Description for Project 1</td>
+                            <td>2024-03-11</td>
+                            <td>2024-04-18</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Project 2</td>
+                            <td>Description for Project 2</td>
+                            <td>2024-01-13</td>
+                            <td>2024-05-11</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Project 3</td>
+                            <td>Description for Project 3</td>
+                            <td>2024-02-25</td>
+                            <td>2024-05-05</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+    }
+
+    function showIssues() {
+        if (currentProject && issueData[currentProject]) {
+            document.getElementById('contentArea').innerHTML = issueData[currentProject];
+        } else {
+            document.getElementById('contentArea').innerHTML = '<h2>No issues available for this project.</h2>';
+        }
+    }
+
+    function openModal() {
+        document.getElementById('addProjectModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('addProjectModal').style.display = 'none';
+    }
+
+    function addNewProject() {
+        const projectName = document.getElementById('newProjectName').value;
+        const projectDescription = document.getElementById('newProjectDesc').value;
+        const currentTime = new Date().toISOString().split('T')[0];
+
+        if (projectName && projectDescription) {
+            // Create a new table row for the new project
+            const newRow = `
+            <tr>
+                <td>${Object.keys(contentData).length + 1}</td>
+                <td>${projectName}</td>
+                <td>${projectDescription}</td>
+                <td>${currentTime}</td>
+                <td>${currentTime}</td>
+            </tr>
+        `;
+
+            // Add the new project to the contentData and issueData
+            const projectId = Object.keys(contentData).length + 1;
+            contentData[projectId] = `
+                <h2>${projectName}</h2>
+                <p>${projectDescription}</p>`;
+            issueData[projectId] = `
+                <h2>${projectName} - Issues</h2>
+                <table class="issue-table">
+                <thead>
+                    <tr>
+                        <th>Issue ID</th>
+                        <th>Issue Name</th>
+                        <th>Description</th>
+                        <th>Creation Time</th>
+                        <th>Last Modified Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Issue Alpha</td>
+                        <td>Example description.</td>
+                        <td>${currentTime}</td>
+                        <td>${currentTime}</td>
+                    </tr>
+                </tbody>
+            </table>`;
+
+            // Add the new row to the project table
+            const tableBody = document.querySelector('.project-table tbody');
+            tableBody.insertAdjacentHTML('beforeend', newRow);
+
+            // Close the modal and clear input fields
+            closeModal();
+            document.getElementById('newProjectName').value = '';
+            document.getElementById('newProjectDesc').value = '';
+
+            // Show all projects to update the display
+            showAllProjects();
+        } else {
+            alert('Please enter a project name and description.');
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
