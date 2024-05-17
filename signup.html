@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ForgotPassword</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Signup</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
@@ -30,16 +29,16 @@
             -moz-box-shadow: 27px 43px 43px -26px rgba(89,89,89,0.39);
             box-shadow: 27px 43px 43px -26px rgba(89,89,89,0.39);
         }
-        .forgotpassword-form-container{
+        .signup-form-container{
             background:#f5f5f5 ;
             width: 860px;
-            height: 500px;
+            height: 600px;
             display: flex;
             flex-direction: row;
             box-shadow: 10px black;
             border-radius: 10px;
         }
-        .forgotpassword-form-left-side{
+        .signup-form-left-side{
             width: 40%; 
             border-radius: 10px 0px 0px 10px;
             padding:75px;
@@ -50,19 +49,19 @@
             color: #ffffff;
             background-color: #2178ff;
         }
-        .forgotpassword-form-left-side h1{
+        .signup-form-left-side h1{
             color: #ffffff;
             width: 100%;
             text-align: right;
             opacity: 0.9;
         }
-        .forgotpassword-form-left-side p{
+        .signup-form-left-side p{
             padding-top: 50px;
             font-size: 13px;
             text-align: right;
             opacity: 0.8;
         }
-        .forgotpassword-form-right-side{
+        .signup-form-right-side{
             width: 60%;
             border-radius: 0px 10px 10px 0px;
             display: flex;
@@ -71,18 +70,18 @@
             padding: 60px;
             background: #ffffff;
         }
-        .forgotpassword-form-right-side h1{
+        .signup-form-right-side h1{
             color: #2178ff;
             width: 100%;
             text-align: center;
             opacity: 0.9;
             margin-top: 10px;
         }
-        .forgotpassword-input-container{ /*전체 로그인 입력 컨테이너*/
+        .signup-input-container{ /*전체 로그인 입력 컨테이너*/
             padding-top: 40px;
             width: 300px;
         }
-        .forgotpassword-input-wrap {
+        .signup-input-wrap {
             position: relative; /* 상대 위치 지정 */
             width: 300px;
             height: 45px;
@@ -94,24 +93,34 @@
             padding-left: 35px; /* 아이콘을 고려한 패딩 추가 */
         }
 
-        .forgotpassword-input-wrap i {
+        .signup-input-wrap i {
             position: absolute; /* 절대 위치 지정 */
             left: 10px; /* 왼쪽에서 10px의 위치에 아이콘 배치 */
             color: #2178ff;
             line-height: 45px;
         }
 
-        .forgotpassword-input-wrap input {
+        .signup-input-wrap input {
             background: none;
             border: none;
             height: 30px;
             line-height: 30px;
             width: 100%; /* 전체 너비 사용 */
         }
-        .forgotpassword-input-wrap input:focus {
+
+        .signup-input-wrap select {
+            background: none;
+            height: 30px;
+            line-height: 30px;
+            width: 40%;
+            color: #2178ff;
+        }
+
+        .signup-input-wrap input:focus, .signup-input-wrap select:focus {
             outline: none;
         }
-        .submit-btn{
+
+        .signup-btn{ /*회원가입 버튼*/
             margin-top: 40px;
             text-align: center;
             height: 40px;
@@ -122,37 +131,71 @@
             background: #69a2ff;
             cursor: pointer;
         }
-        .submit-btn:hover{
+        .signup-btn:hover{
             background : #2178ff;
+        }
+        .extra-func {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 30px;
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .extra-func a {
+            text-decoration: none;
+            color: gray;
         }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <div class="forgotpassword-form-container shadow">
-            <div class="forgotpassword-form-left-side">
+        <div class="signup-form-container shadow">
+            <div class="signup-form-left-side">
                 <h1>Issue Management System</h1>
                 <p>We support the followings :<br />Issue Creation & Browse & Comment & Details view & Status Change & Analytics, etc.</p>
             </div>
-            <div class="forgotpassword-form-right-side">
-                <h1>Forgot Password?</h1>
-                <form class="forgotpassword-input-container" action="/api/auth/goresetpassword" method="post">
-                    <div class="forgotpassword-input-wrap input-email">
+            <div class="signup-form-right-side">
+                <h1>Sign Up</h1>
+                <form class="signup-input-container" action="/api/auth/signUp" method="post">
+                    <div class="signup-input-wrap input-email">
                         <i class="fas fa-envelope"></i>
                         <input placeholder="Email" type="text" name="email">
                     </div>
-                    <div class="forgotpassword-input-wrap input-name">
-                        <i class="fas fa-user"></i>
-                        <input placeholder="Name" type="text" name="name">
+                    <div class="signup-input-wrap input-password">
+                        <i class="fas fa-key"></i>
+                        <input placeholder="Password" type="password" name="password">
                     </div>
-                    <div class="forgotpassword-input-wrap input-tel">
+                    <div class="signup-input-wrap input-user">
+                        <i class="fas fa-user"></i>
+                        <input class="user_name" placeholder="Name" type="text" name="name">
+                        <select class="input-userType" name="userType">
+                            <option value="admin">admin</option>
+                            <option value="pl">pl</option>
+                            <option value="dev">dev</option>
+                            <option value="tester">tester</option>
+                        </select>
+                    </div>
+                    <div class="signup-input-wrap input-tel">
                         <i class="fas fa-phone"></i>
                         <input placeholder="Tel" type="tel" name="tel">
                     </div>
-                    <input type="submit" class="submit-btn" value="submit"></button>
-                </form>           
+                    <div class="signup-input-wrap input-career">
+                        <i class="fas fa-suitcase"></i>
+                        <input placeholder="Career" type="number" name="career">
+                    </div>
+                    <input type="submit" class="signup-btn" value="sign up"></button>
+                </form>
             </div>
         </div>
     </div>
 </body>
+<script>
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'true') {
+            alert('회원가입 실패! 다시 시도해주세요.')
+        }
+    };
+</script>
 </html>

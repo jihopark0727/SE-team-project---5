@@ -82,27 +82,33 @@
             padding-top: 40px;
             width: 300px;
         }
-        .login-input-wrap{ /*입력 전체*/
+        .login-input-wrap {
+            position: relative; /* 상대 위치 지정 */
             width: 300px;
             height: 45px;
             margin-top: 20px;
             border-radius: 2px;
             border-bottom: solid 2px #2178ff;
-        
+            display: flex;
+            align-items: center; /* 내부 요소를 세로 중앙으로 정렬 */
+            padding-left: 35px; /* 아이콘을 고려한 패딩 추가 */
         }
-        .login-input-wrap i{ /*아이콘*/
+
+        .login-input-wrap i {
+            position: absolute; /* 절대 위치 지정 */
+            left: 10px; /* 왼쪽에서 10px의 위치에 아이콘 배치 */
             color: #2178ff;
             line-height: 45px;
         }
 
-        .login-input-wrap input{ /*실제 입력 부분*/
+        .login-input-wrap input {
             background: none;
             border: none;
-            line-height: 45px;
-            padding-left:10px;
-            width: 270px;
+            height: 30px;
+            line-height: 30px;
+            width: 100%; /* 전체 너비 사용 */
         }
-        .login-input-wrap input:focus{
+        .login-input-wrap input:focus {
             outline: none;
         }
         .login-btn{ /*로그인 버튼*/
@@ -142,6 +148,7 @@
             </div>
             <div class="login-form-right-side">
                 <h1>Login</h1>
+                <div id="message"></div> <!-- 메시지를 표시할 요소 -->
                 <form class="login-input-container" action="/api/auth/login" method="post">
                     <div class="login-input-wrap input-email">
                         <i class="fas fa-envelope"></i>
@@ -155,10 +162,23 @@
                 </form>    
                 <div class="extra-func">
                     <a id="forgotpassword" href="#">Forgot Password</a>
-                    <a id="signup" href="#">Sign up</a>
+                    <a id="signup" href="C:\Users\chaey\IMS\html\signup.html">Sign up</a>
                 </div>
             </div>
         </div>
     </div>
 </body>
+<script>
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('signup') === 'success') {
+            alert('회원가입 성공! 로그인 해주세요.')
+        }
+        else if (params.get('login') === 'success') {
+            alert('로그인 성공!')
+        } else if (params.get('error') === 'true') {
+            alert('로그인 실패! 다시 시도해주세요.')
+        }
+    };
+</script>
 </html>
