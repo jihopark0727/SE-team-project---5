@@ -21,4 +21,12 @@
     <input type="submit" value="회원가입">
 </form>
 </body>
+<script>
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'true') {
+            alert('회원가입 실패! 다시 시도해주세요.')
+        }
+    };
+</script>
 </html>
