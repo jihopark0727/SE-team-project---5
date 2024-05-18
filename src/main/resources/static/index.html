@@ -145,7 +145,7 @@
             <form class="login-input-container" action="/api/auth/login" method="post">
                 <div class="login-input-wrap input-email">
                     <i class="fas fa-envelope"></i>
-                    <input placeholder="Email" type="text" name="email">
+                    <input placeholder="Email" type="text" name="id">
                 </div>
                 <div class="login-input-wrap input-password">
                     <i class="fas fa-key"></i>
@@ -166,7 +166,8 @@
         const params = new URLSearchParams(window.location.search);
         if (params.get('signup') === 'success') {
             alert('회원가입 성공! 로그인 해주세요.')
-        } else if (params.get('error') === 'true') {
+        }
+        else if (params.get('error') === 'true') {
             alert('로그인 실패! 아이디와 비밀번호를 확인해주세요.')
         }
     };

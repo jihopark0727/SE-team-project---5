@@ -19,26 +19,26 @@ import java.time.LocalDateTime;
 @Table(name="user")				// 본인 테이블명과 맞춰주어야 함
 public class UserEntity {
     @Id
-    private String email;
+    private String id;
     private String password;
     private String name;
-    private String phoneNumber;
-    private String userType;
-    private String token;
+    private String tel;
+    private String user_type;
     private String career;
-    private LocalDateTime createdAt;
-    private LocalDateTime editedAt;
-    private LocalDateTime lastLoginAt;
+    private String token;
+    private LocalDateTime created_at;
+    private LocalDateTime edited_at;
+    private LocalDateTime last_login_at;
 
     public UserEntity(SignUpDto dto) {
-        this.email = dto.getEmail();
+        this.id = dto.getId();
         this.password = dto.getPassword();
         this.name = dto.getName();
-        this.phoneNumber = dto.getPhoneNumber();
-        this.userType = dto.getUserType();
+        this.tel = dto.getTel();
+        this.user_type = dto.getUser_type();
         this.career = dto.getCareer();
         this.token = "";
-        this.createdAt = LocalDateTime.now();
-        this.editedAt = LocalDateTime.now();
+        this.created_at = LocalDateTime.now();
+        this.edited_at = LocalDateTime.now();
     }
 }

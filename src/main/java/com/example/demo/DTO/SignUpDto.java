@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignUpDto {
-    private String email;
+    private String id;
     private String name;
     private String password;
-    private String confirmPassword;
-    private String phoneNumber;
-    private String userType;
+    private String confirm_password;
+    private String tel;
+    private String user_type;
     private String career;
-    private LocalDateTime createdAt;
-    private LocalDateTime editedAt;
-    private LocalDateTime lastLoginAt;
+    private LocalDateTime created_at;
+    private LocalDateTime edited_at;
+    private LocalDateTime last_login_at;
     private String token;
 }

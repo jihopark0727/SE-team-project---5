@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginResponseDto {
     private String token;
-    private int exprTime;
+    private int expr_time;
     private UserEntity user;
 }

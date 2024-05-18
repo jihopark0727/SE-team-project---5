@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginDto {
     @NotBlank   // *spring-boot-starter-validation, 필수값
-    private String email;
+    private String id;
     @NotBlank
     private  String password;
 }

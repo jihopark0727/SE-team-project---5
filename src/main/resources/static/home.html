@@ -223,7 +223,6 @@
     </style>
 </head>
 <body>
-
 <!-- Top Navigation Bar -->
 <div class="top-navbar">
     <div class="home-icon">
@@ -233,10 +232,7 @@
         <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
             Projects
             <div class="dropdown-content" id="projectDropdown">
-                <a href="#" onclick="selectProject('project1')">Project 1</a>
-                <a href="#" onclick="selectProject('project2')">Project 2</a>
-                <a href="#" onclick="selectProject('project3')">Project 3</a>
-                <a href="#" onclick="showAllProjects()">All Projects</a>
+                <!-- Project links will be dynamically populated -->
             </div>
         </div>
     </div>
@@ -249,8 +245,6 @@
         </div>
     </div>
 </div>
-
-
 
 <!-- Left Navigation Bar -->
 <div class="left-navbar" id="leftNavBar">
@@ -275,281 +269,169 @@
         </div>
     </div>
 </div>
-
 <script>
+    // Fetch projects from the server and update UI components
+    function fetchProjects() {
+        fetch('/api/projects')
+            .then(response => response.json())
+            .then(data => {
+                updateProjectDropdown(data);
+                updateProjectTable(data);
+                if (!data.length) {
+                    document.getElementById('contentArea').innerHTML = '<h2>No projects available.</h2>';
+                }
+            })
+            .catch(error => console.error('Error loading the projects:', error));
+    }
+
+    // Update the dropdown menu with fetched projects
+    function updateProjectDropdown(projects) {
+        const dropdown = document.getElementById('projectDropdown');
+        dropdown.innerHTML = ''; // Clear previous entries
+        projects.forEach(project => {
+            const projectLink = document.createElement('a');
+            projectLink.href = '#';
+            projectLink.textContent = project.name;
+            projectLink.onclick = () => selectProject(project);
+            dropdown.appendChild(projectLink);
+        });
+    }
+
+
+    // Update the main content area to show all projects in a table
+    function updateProjectTable(projects) {
+        let htmlContent = `
+        <div class="project-header">
+            <h2>All Projects</h2>
+            <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+        </div>
+        <table class="project-table">
+            <thead>
+                <tr>
+                    <th>Project ID</th>
+                    <th>Project Name</th>
+                    <th>Description</th>
+                    <th>Creation Time</th>
+                    <th>Last Modified Time</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        projects.forEach(project => {
+            htmlContent += `<tr>
+            <td>${project.id}</td>
+            <td>${project.name}</td>
+            <td>${project.description}</td>
+            <td>${formatDate(project.creationTime)}</td>
+            <td>${formatDate(project.modifiedTime)}</td>
+        </tr>`;
+        });
+
+        htmlContent += `</tbody></table>`;
+        document.getElementById('contentArea').innerHTML = htmlContent;
+    }
+
+    // Display detailed information for a selected project
+    function selectProject(project) {
+        document.getElementById('contentArea').innerHTML = `
+            <h2>${project.name}</h2>
+            <p>${project.description}</p>`;
+    }
+
+    // Show modal for adding a new project
+    function openModal() {
+        document.getElementById('addProjectModal').style.display = 'block';
+    }
+
+    // Close the modal
+    function closeModal() {
+        document.getElementById('addProjectModal').style.display = 'none';
+    }
+
+    // Add a new project using form data
+    function addNewProject() {
+        const projectName = document.getElementById('newProjectName').value;
+        const projectDescription = document.getElementById('newProjectDesc').value;
+
+        const project = {
+            name: projectName,
+            description: projectDescription,
+            creationTime: new Date().toISOString(),
+            modifiedTime: new Date().toISOString()
+        };
+
+        fetch('/api/projects', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(project)
+        })
+            .then(response => response.json())
+            .then(newProject => {
+                alert('Project added successfully');
+                closeModal();
+                fetchProjects(); // Re-fetch projects to update the list
+            })
+            .catch(error => {
+                alert('Error adding project');
+                console.error('Error:', error);
+            });
+    }
+
+    // Load projects when the page loads
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
         if (params.get('login') === 'success') {
             alert('로그인 성공!')
         }
+        fetchProjects();
     };
 
-    var currentProject; // Make currentProject a global variable
-
-    // Project data
-    const contentData = {
-        project1: `
-                <h2>Project 1</h2>
-                <p>Description for Project 1.</p>`,
-        project2: `
-                <h2>Project 2</h2>
-                <p>Description for Project 2.</p>`,
-        project3: `
-                <h2>Project 3</h2>
-                <p>Description for Project 3.</p>`
-    };
-
-    // Issue data
-    const issueData = {
-        project1: `
-                <h2>Project 1 - Issues</h2>
-                <table class="issue-table">
-                    <thead>
-                        <tr>
-                            <th>Issue ID</th>
-                            <th>Issue Name</th>
-                            <th>Description</th>
-                            <th>Creation Time</th>
-                            <th>Last Modified Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Issue Alpha</td>
-                            <td>abcde.</td>
-                            <td>2024-01-13</td>
-                            <td>2024-05-11</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Issue Beta</td>
-                            <td>adsadsadas</td>
-                            <td>2024-03-11</td>
-                            <td>2024-04-18</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Issue Gamma</td>
-                            <td>wqgkwqnll</td>
-                            <td>2024-02-25</td>
-                            <td>2024-05-05</td>
-                        </tr>
-                    </tbody>
-                </table>`,
-        project2: `
-                <h2>Project 2 - Issues</h2>
-                <table class="issue-table">
-                    <thead>
-                        <tr>
-                            <th>Issue ID</th>
-                            <th>Issue Name</th>
-                            <th>Description</th>
-                            <th>Creation Time</th>
-                            <th>Last Modified Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Issue Alpha</td>
-                            <td>abcde.</td>
-                            <td>2024-01-13</td>
-                            <td>2024-05-11</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Issue Beta</td>
-                            <td>adsadsadas</td>
-                            <td>2024-03-11</td>
-                            <td>2024-04-18</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Issue Gamma</td>
-                            <td>wqgkwqnll</td>
-                            <td>2024-02-25</td>
-                            <td>2024-05-05</td>
-                        </tr>
-                    </tbody>
-                </table>`,
-        project3: `
-                <h2>Project 3 - Issues</h2>
-                <table class="issue-table">
-                    <thead>
-                        <tr>
-                            <th>Issue ID</th>
-                            <th>Issue Name</th>
-                            <th>Description</th>
-                            <th>Creation Time</th>
-                            <th>Last Modified Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Issue Alpha</td>
-                            <td>abcde.</td>
-                            <td>2024-01-13</td>
-                            <td>2024-05-11</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Issue Beta</td>
-                            <td>adsadsadas</td>
-                            <td>2024-03-11</td>
-                            <td>2024-04-18</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Issue Gamma</td>
-                            <td>wqgkwqnll</td>
-                            <td>2024-02-25</td>
-                            <td>2024-05-05</td>
-                        </tr>
-                    </tbody>
-                </table>`
-    };
-
-    function showDropdown(dropdownId) {
-        var dropdown = document.getElementById(dropdownId);
-        dropdown.style.display = 'block';
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
     }
 
-    function hideDropdown(dropdownId) {
-        var dropdown = document.getElementById(dropdownId);
-        dropdown.style.display = 'none';
-    }
-
-
-    function selectProject(project) {
-        currentProject = project; // Update the global currentProject variable
-        document.getElementById('contentArea').innerHTML = contentData[project];
-        document.getElementById('leftNavBar').style.display = 'flex';
-    }
-
+    // showAllProjects 함수 수정
     function showAllProjects() {
         document.getElementById('leftNavBar').style.display = 'none';
-        document.getElementById('contentArea').innerHTML = `
-                <div class="project-header">
-                    <h2>All Projects</h2>
-                    <button class="open-modal-btn" onclick="openModal()">Add Project</button>
-                </div>
-                <table class="project-table">
-                    <thead>
-                        <tr>
-                            <th>Project ID</th>
-                            <th>Project Name</th>
-                            <th>Description</th>
-                            <th>Creation Time</th>
-                            <th>Last Modified Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Project 1</td>
-                            <td>Description for Project 1</td>
-                            <td>2024-03-11</td>
-                            <td>2024-04-18</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Project 2</td>
-                            <td>Description for Project 2</td>
-                            <td>2024-01-13</td>
-                            <td>2024-05-11</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Project 3</td>
-                            <td>Description for Project 3</td>
-                            <td>2024-02-25</td>
-                            <td>2024-05-05</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
-    }
-
-    function showIssues() {
-        if (currentProject && issueData[currentProject]) {
-            document.getElementById('contentArea').innerHTML = issueData[currentProject];
-        } else {
-            document.getElementById('contentArea').innerHTML = '<h2>No issues available for this project.</h2>';
-        }
-    }
-
-    function openModal() {
-        document.getElementById('addProjectModal').style.display = 'block';
-    }
-
-    function closeModal() {
-        document.getElementById('addProjectModal').style.display = 'none';
-    }
-
-    function addNewProject() {
-        const projectName = document.getElementById('newProjectName').value;
-        const projectDescription = document.getElementById('newProjectDesc').value;
-        const currentTime = new Date().toISOString().split('T')[0];
-
-        if (projectName && projectDescription) {
-            // Create a new table row for the new project
-            const newRow = `
-            <tr>
-                <td>${Object.keys(contentData).length + 1}</td>
-                <td>${projectName}</td>
-                <td>${projectDescription}</td>
-                <td>${currentTime}</td>
-                <td>${currentTime}</td>
-            </tr>
-        `;
-
-            // Add the new project to the contentData and issueData
-            const projectId = Object.keys(contentData).length + 1;
-            contentData[projectId] = `
-                <h2>${projectName}</h2>
-                <p>${projectDescription}</p>`;
-            issueData[projectId] = `
-                <h2>${projectName} - Issues</h2>
-                <table class="issue-table">
-                <thead>
+        fetch('/api/projects')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = data.map(project => `
                     <tr>
-                        <th>Issue ID</th>
-                        <th>Issue Name</th>
-                        <th>Description</th>
-                        <th>Creation Time</th>
-                        <th>Last Modified Time</th>
+                        <td>${project.id}</td>
+                        <td>${project.name}</td>
+                        <td>${project.description}</td>
+                        <td>${project.creationTime ? formatDate(project.creationTime) : 'null'}</td>
+                        <td>${project.lastModifiedTime ? formatDate(project.lastModifiedTime) : 'undefined'}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Issue Alpha</td>
-                        <td>Example description.</td>
-                        <td>${currentTime}</td>
-                        <td>${currentTime}</td>
-                    </tr>
-                </tbody>
-            </table>`;
+                `).join('');
 
-            // Add the new row to the project table
-            const tableBody = document.querySelector('.project-table tbody');
-            tableBody.insertAdjacentHTML('beforeend', newRow);
-
-            // Close the modal and clear input fields
-            closeModal();
-            document.getElementById('newProjectName').value = '';
-            document.getElementById('newProjectDesc').value = '';
-
-            // Show all projects to update the display
-            showAllProjects();
-        } else {
-            alert('Please enter a project name and description.');
-        }
+                document.getElementById('contentArea').innerHTML = `
+                    <div class="project-header">
+                        <h2>All Projects</h2>
+                        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+                    </div>
+                    <table class="project-table">
+                        <thead>
+                            <tr>
+                                <th>Project ID</th>
+                                <th>Project Name</th>
+                                <th>Description</th>
+                                <th>Creation Time</th>
+                                <th>Last Modified Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableBody}
+                        </tbody>
+                    </table>
+                `;
+            });
     }
-
-
 </script>
 
 </body>

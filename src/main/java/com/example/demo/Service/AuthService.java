@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     @Autowired UserRepository userRepository;
     public ResponseDto<?> signUp(SignUpDto dto) {
-        String email = dto.getEmail();
+        String id = dto.getId();
         String password = dto.getPassword();
-        String confirmPassword = dto.getConfirmPassword();
+        String confirmPassword = dto.getConfirm_password();
 
         // email(id) 중복 확인
         try {
             // 존재하는 경우 : true / 존재하지 않는 경우 : false
-            if(userRepository.existsById(email)) {
+            if(userRepository.existsById(id)) {
                 return ResponseDto.setFailed("중복된 Email 입니다.");
             }
         } catch (Exception e) {
@@ -46,12 +46,12 @@ public class AuthService {
         return ResponseDto.setSuccess("회원 생성에 성공했습니다.");
     }
     public ResponseDto<LoginResponseDto> login(LoginDto dto) {
-        String email = dto.getEmail();
+        String id = dto.getId();
         String password = dto.getPassword();
 
         try {
             // 사용자 id/password 일치하는지 확인
-            boolean existed = userRepository.existsByEmailAndPassword(email, password);
+            boolean existed = userRepository.existsByIdAndPassword(id, password);
             if(!existed) {
                 return ResponseDto.setFailed("입력하신 로그인 정보가 존재하지 않습니다.");
             }
@@ -63,7 +63,7 @@ public class AuthService {
 
         try {
             // 값이 존재하는 경우 사용자 정보 불러옴 (기준 email)
-            userEntity = userRepository.findById(email).get();
+            userEntity = userRepository.findById(id).get();
         } catch (Exception e) {
             return ResponseDto.setFailed("데이터베이스 연결에 실패하였습니다.");
         }
