@@ -241,9 +241,39 @@
 
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
-    <h2>Welcome!</h2>
+    <div class="project-header">
+        <h2>All Projects</h2>
+        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+    </div>
+    <table class="project-table">
+        <thead>
+        <tr>
+            <th>Project ID</th>
+            <th>Project Name</th>
+            <th>Description</th>
+            <th>Creation Time</th>
+            <th>Last Modified Time</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+        </tbody>
+
+    </table>
 </div>
 
+<!-- The Modal -->
+<div id="addProjectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add New Project</h2>
+        <div class="modal-input-wrap">
+            <input type="text" class="modal-input" id="newProjectName" placeholder="Project Name">
+            <input type="text" class="modal-input" id="newProjectDesc" placeholder="Description">
+            <button class="add-project-btn" onclick="addNewProject()">Add Project</button>
+        </div>
+    </div>
+</div>
 <script>
     // Fetch projects from the server and update UI components
     function fetchProjects() {
@@ -252,6 +282,7 @@
             .then(data => {
                 const topProjects = data.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
                 updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
+                updateProjectTable(data); // 전체 프로젝트 목록을 테이블에 표시
             })
             .catch(error => console.error('Error loading the projects:', error));
     }
@@ -277,6 +308,7 @@
         dropdown.appendChild(allProjectsLink);
     }
 
+
     // 모든 프로젝트를 보는 페이지로 이동하는 함수
     function showAllProjects() {
         window.location.href = 'all-projects.html'; // 'all-projects.html' 페이지로 이동
@@ -291,21 +323,109 @@
         document.getElementById(item).style.display = 'none';
     }
 
+    // Update the main content area to show all projects in a table
+    function updateProjectTable(projects) {
+        let tableContent = '';
+
+        projects.forEach(project => {
+            tableContent += `<tr>
+            <td>${project.id}</td>
+            <td><a href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
+            <td>${project.description}</td>
+            <td>${formatDate(project.creation_time)}</td>
+            <td>${formatDate(project.last_modified_time)}</td>
+        </tr>`;
+        });
+        document.getElementById('tableBody').innerHTML = tableContent;
+    }
+
+    // 선택된 프로젝트를 localStorage에 저장하고 이슈 페이지로 이동
+    function selectProject(projectId) {
+        fetch(`/api/projects/${projectId}`)
+            .then(response => response.json())
+            .then(project => {
+                localStorage.setItem('selectedProject', JSON.stringify(project));
+                window.location.href = 'issue.html';
+            })
+            .catch(error => console.error('Error selecting the project:', error));
+    }
+
+
+    // Show modal for adding a new project
+    function openModal() {
+        document.getElementById('addProjectModal').style.display = 'block';
+    }
+
+    // Close the modal
+    function closeModal() {
+        document.getElementById('addProjectModal').style.display = 'none';
+    }
+
+    // Add a new project using form data
+    function addNewProject() {
+        const projectName = document.getElementById('newProjectName').value;
+        const projectDescription = document.getElementById('newProjectDesc').value;
+
+        const project = {
+            name: projectName,
+            description: projectDescription,
+            creation_time: new Date().toISOString(),
+            last_modified_time: new Date().toISOString()
+        };
+
+        fetch('/api/projects', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(project)
+        })
+            .then(response => response.json())
+            .then(newProject => {
+                alert('Project added successfully');
+                closeModal();
+                fetchProjects(); // Re-fetch projects to update the list
+            })
+            .catch(error => {
+                alert('Error adding project');
+                console.error('Error:', error);
+            });
+    }
 
     // Load projects when the page loads
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const loginSuccess = urlParams.get('login');
-        if (loginSuccess === 'success') {
-            alert('로그인 성공!');
-            // 쿼리 파라미터 제거
-            urlParams.delete('login'); // 'login' 파라미터 제거
-            window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
-        }
         fetchProjects();
     };
 
 
+    function formatDate(dateString) {
+        if (!dateString) return 'No Date Provided'; // 날짜 데이터가 없을 경우
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {  // 유효하지 않은 날짜인지 확인
+            return 'Invalid Date';
+        }
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // showAllProjects 함수 수정
+    function showAllProjects() {
+        document.getElementById('leftNavBar').style.display = 'none';
+        fetch('/api/projects')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = data.map(project => `
+                    <tr>
+                        <td>${project.id}</td>
+                        <td>${project.name}</td>
+                        <td>${project.description}</td>
+                        <td>${project.creation_time ? formatDate(project.creation_time) : 'null'}</td>
+                        <td>${project.last_modified_time ? formatDate(project.last_modified_time) : 'undefined'}</td>
+                    </tr>
+                `).join('');
+            });
+    }
 </script>
 
 </body>

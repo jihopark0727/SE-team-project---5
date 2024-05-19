@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Management</title>
+    <title>Project Issues</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <style>
         * {
@@ -117,10 +117,10 @@
         .content h2 {
             height: 50px;
         }
-        .project-header {
+        .issue-header {
             height: 50px;
         }
-        .project-header h2 {
+        .issue-header h2 {
             float: left;
             margin-top: 10px;
         }
@@ -137,16 +137,16 @@
         .open-modal-btn:hover {
             background-color: #45a049;
         }
-        .project-table {
+        .issue-table {
             width: 100%;
             border-collapse: collapse;
         }
-        .project-table th, .project-table td {
+        .issue-table th, .issue-table td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
         }
-        .project-table th {
+        .issue-table th {
             background-color: #f2f2f2;
             text-align: center;
         }
@@ -183,7 +183,7 @@
             padding: 10px;
             margin-bottom: 20px;
         }
-        .add-project-btn {
+        .add-issue-btn {
             float: right;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -192,7 +192,7 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        .add-project-btn:hover {
+        .add-issue-btn:hover {
             background-color: #45a049;
         }
         .close {
@@ -210,102 +210,76 @@
     </style>
 </head>
 <body>
-<!-- Top Navigation Bar -->
-<div class="top-navbar">
-    <div class="home-icon">
-        <a href="#">IMS</a>
+<h1 id="projectTitle">Project Issues</h1>
+<div id="issuesContainer">
+    <div class="issue-header">
+        <h2>All Issues</h2>
+        <button class="open-modal-btn" onclick="openModal()">Add Issue</button>
     </div>
+    <table class="issue-table">
+        <thead>
+        <tr>
+            <th>Issue ID</th>
+            <th>Issue Name</th>
+            <th>Description</th>
+            <th>Creation Time</th>
+            <th>Last Modified Time</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+        </tbody>
 
-    <div class="nav-items">
-        <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
-            Projects
-            <div class="dropdown-content" id="projectDropdown">
-                <!-- Project links will be dynamically populated -->
-            </div>
-        </div>
-    </div>
-    <div class="nav-item" onmouseover="showDropdown('accountDropdown')" onmouseout="hideDropdown('accountDropdown')">
-        <i class="fas fa-user account"></i>
-        <div class="dropdown-content right" id="accountDropdown">
-            <a href="#">Profile</a>
-            <a href="#">Settings</a>
-            <a href="#">Logout</a>
-        </div>
-    </div>
-</div>
-
-<!-- Left Navigation Bar -->
-<div class="left-navbar" id="leftNavBar">
-    <a href="#" onclick="showIssues()">Issues</a>
-</div>
-
-<!-- Main Content Area -->
-<div class="content" id="contentArea">
-    <h2>Welcome!</h2>
+    </table>
 </div>
 
 <script>
-    // Fetch projects from the server and update UI components
-    function fetchProjects() {
-        fetch('/api/projects')
-            .then(response => response.json())
-            .then(data => {
-                const topProjects = data.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
-                updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
-            })
-            .catch(error => console.error('Error loading the projects:', error));
-    }
-
-    // Update the dropdown menu with fetched projects
-    function updateProjectDropdown(projects) {
-        const dropdown = document.getElementById('projectDropdown');
-        dropdown.innerHTML = ''; // 기존 목록을 지웁니다.
-
-        projects.forEach(project => {
-            const projectLink = document.createElement('a');
-            projectLink.href = '#';
-            projectLink.textContent = project.name;
-            projectLink.onclick = () => selectProject(project.id);
-            dropdown.appendChild(projectLink);
-        });
-
-        // '모든 프로젝트 보기' 링크 추가
-        const allProjectsLink = document.createElement('a');
-        allProjectsLink.href = '#';
-        allProjectsLink.textContent = '모든 프로젝트 보기';
-        allProjectsLink.onclick = showAllProjects; // 이 함수는 모든 프로젝트를 보는 페이지로 이동하도록 정의해야 함
-        dropdown.appendChild(allProjectsLink);
-    }
-
-    // 모든 프로젝트를 보는 페이지로 이동하는 함수
-    function showAllProjects() {
-        window.location.href = 'all-projects.html'; // 'all-projects.html' 페이지로 이동
-    }
-
-
-    function showDropdown(item) {
-        document.getElementById(item).style.display = 'block';
-    }
-
-    function hideDropdown(item) {
-        document.getElementById(item).style.display = 'none';
-    }
-
-
-    // Load projects when the page loads
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const loginSuccess = urlParams.get('login');
-        if (loginSuccess === 'success') {
-            alert('로그인 성공!');
-            // 쿼리 파라미터 제거
-            urlParams.delete('login'); // 'login' 파라미터 제거
-            window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
+    function loadIssues() {
+        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
+        if (!selectedProject) {
+            document.getElementById('projectTitle').textContent = 'No project selected';
+            return;
         }
-        fetchProjects();
-    };
 
+        document.getElementById('projectTitle').textContent = 'Issues for ' + selectedProject.name;
+        fetchIssues(selectedProject.id);
+    }
 
+    function fetchIssues(projectId) {
+        fetch(`/api/projects/${projectId}/issues`)
+            .then(response => response.json())
+            .then(issues => {
+                updateIssueTable(issues);
+            })
+            .catch(error => console.error('Error loading the issues:', error));
+    }
+
+    function updateIssueTable(issues) {
+        let tableContent = '';
+
+        issues.forEach(issue => {
+            tableContent += `<tr>
+                <td>${issue.id}</td>
+                <td>${issue.name}</td>
+                <td>${issue.description}</td>
+                <td>${formatDate(issue.creation_time)}</td>
+                <td>${formatDate(issue.last_modified_time)}</td>
+            </tr>`;
+        });
+        document.getElementById('tableBody').innerHTML = tableContent;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'No Date Provided';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return 'Invalid Date';
+        }
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    window.onload = loadIssues;
 </script>
 
 </body>
