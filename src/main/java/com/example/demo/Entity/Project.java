@@ -14,9 +14,6 @@ public class Project {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Issue> issues;
-
     private Date creation_time;
     private Date last_modified_time;
 
@@ -43,14 +40,6 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<Issue> getIssues() {
-        return issues;
-    }
-
-    public void setIssues(List<Issue> issues) {
-        this.issues = issues;
     }
 
     public Date getCreation_time() {
