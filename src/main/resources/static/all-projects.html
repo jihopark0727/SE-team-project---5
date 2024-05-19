@@ -4,216 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Management</title>
+    <link rel="stylesheet" href="homeStyle.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .top-navbar {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
 
-        .nav-items {
-            display: flex;
-            flex-grow: 1; /* Allows this container to take up all available space */
-        }
-
-        .account {
-            margin-left: auto; /* Pushes the account icon to the far right */
-            margin-right: 15px;
-            cursor: pointer;
-            color: white;
-        }
-
-        .home-icon a {
-            font-size: 25px;
-            cursor: pointer;
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        .top-navbar .nav-item {
-            position: relative;
-            float: left;
-            margin: 0 10px;
-            cursor: pointer;
-        }
-
-        .top-navbar .nav-item .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            top: 100%;
-            left: 0;  /* 기본적으로 왼쪽에 정렬 */
-        }
-
-        .top-navbar .nav-item .dropdown-content.right {
-            right: 0;  /* 오른쪽에 정렬을 위한 속성 추가 */
-            left: auto; /* 기존 left 속성 무시 */
-        }
-
-
-        .top-navbar .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .top-navbar .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-
-        .left-navbar {
-            width: 200px;
-            background-color: #f4f4f4;
-            padding: 10px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            display: none;
-            flex-direction: column;
-            height: calc(100% - 50px);
-            margin-top: 50px; /* Adjust for top navbar height */
-        }
-        .left-navbar a {
-            padding: 10px;
-            color: #333;
-            text-decoration: none;
-            margin-bottom: 5px;
-            border-radius: 4px;
-        }
-        .left-navbar a:hover {
-            background-color: #ddd;
-        }
-        .content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-top: 50px;
-            margin-left: 50px;
-            margin-right: 50px;
-            width: 90%;
-        }
-        .content h2 {
-            height: 50px;
-        }
-        .project-header {
-            height: 50px;
-        }
-        .project-header h2 {
-            float: left;
-            margin-top: 10px;
-        }
-        .open-modal-btn {
-            float: right;
-            margin-right: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .open-modal-btn:hover {
-            background-color: #45a049;
-        }
-        .project-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .project-table th, .project-table td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        .project-table th {
-            background-color: #f2f2f2;
-            text-align: center;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 60px;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 30px;
-            border: 1px solid #888;
-            width: 40%;
-            height: 33%;
-        }
-        .modal-content h2 {
-            height: 50px;
-        }
-        .modal-input-wrap {
-            height: 60%;
-        }
-        .modal-input {
-            height: 35px;
-            width: 60%;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .add-project-btn {
-            float: right;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .add-project-btn:hover {
-            background-color: #45a049;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
 <!-- Top Navigation Bar -->
 <div class="top-navbar">
     <div class="home-icon">
-        <a href="#">IMS</a>
+        <a href="home.html">IMS</a>
     </div>
 
     <div class="nav-items">
@@ -224,28 +25,26 @@
             </div>
         </div>
     </div>
-    <div class="nav-item" onmouseover="showDropdown('accountDropdown')" onmouseout="hideDropdown('accountDropdown')">
-        <i class="fas fa-user account"></i>
-        <div class="dropdown-content right" id="accountDropdown">
-            <a href="#">Profile</a>
-            <a href="#">Settings</a>
-            <a href="#">Logout</a>
-        </div>
+    <div class="nav-item account" id="userAccount">
+        <!-- 동적으로 아이디 표시 -->
+        <span id="userIdDisplay"></span>
+        <!-- 로그아웃 버튼 -->
+        <button id="logoutButton" class="logoutButton">Logout</button>
     </div>
 </div>
 
 <!-- Left Navigation Bar -->
 <div class="left-navbar" id="leftNavBar">
-    <a href="#" onclick="showIssues()">Issues</a>
+    <a href="issue.html">Issues</a>
 </div>
 
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
-    <div class="project-header">
+    <div class="header project-header">
         <h2>All Projects</h2>
-        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+        <button class="open-modal-btn" onclick="openModal('project')">Add Project</button>
     </div>
-    <table class="project-table">
+    <table class="table project-table">
         <thead>
         <tr>
             <th>Project ID</th>
@@ -255,7 +54,7 @@
             <th>Last Modified Time</th>
         </tr>
         </thead>
-        <tbody id="tableBody">
+        <tbody id="projectTableBody">
         <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
         </tbody>
 
@@ -265,63 +64,17 @@
 <!-- The Modal -->
 <div id="addProjectModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
+        <span class="close" onclick="closeModal('project')">&times;</span>
         <h2>Add New Project</h2>
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newProjectName" placeholder="Project Name">
             <input type="text" class="modal-input" id="newProjectDesc" placeholder="Description">
-            <button class="add-project-btn" onclick="addNewProject()">Add Project</button>
+            <button class="add-btn" onclick="addNewProject()">Add Project</button>
         </div>
     </div>
 </div>
+<script src="commonFunctions.js"></script>
 <script>
-    // Fetch projects from the server and update UI components
-    function fetchProjects() {
-        fetch('/api/projects')
-            .then(response => response.json())
-            .then(data => {
-                const topProjects = data.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
-                updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
-                updateProjectTable(data); // 전체 프로젝트 목록을 테이블에 표시
-            })
-            .catch(error => console.error('Error loading the projects:', error));
-    }
-
-    // Update the dropdown menu with fetched projects
-    function updateProjectDropdown(projects) {
-        const dropdown = document.getElementById('projectDropdown');
-        dropdown.innerHTML = ''; // 기존 목록을 지웁니다.
-
-        projects.forEach(project => {
-            const projectLink = document.createElement('a');
-            projectLink.href = '#';
-            projectLink.textContent = project.name;
-            projectLink.onclick = () => selectProject(project.id);
-            dropdown.appendChild(projectLink);
-        });
-
-        // '모든 프로젝트 보기' 링크 추가
-        const allProjectsLink = document.createElement('a');
-        allProjectsLink.href = '#';
-        allProjectsLink.textContent = '모든 프로젝트 보기';
-        allProjectsLink.onclick = showAllProjects; // 이 함수는 모든 프로젝트를 보는 페이지로 이동하도록 정의해야 함
-        dropdown.appendChild(allProjectsLink);
-    }
-
-
-    // 모든 프로젝트를 보는 페이지로 이동하는 함수
-    function showAllProjects() {
-        window.location.href = 'all-projects.html'; // 'all-projects.html' 페이지로 이동
-    }
-
-
-    function showDropdown(item) {
-        document.getElementById(item).style.display = 'block';
-    }
-
-    function hideDropdown(item) {
-        document.getElementById(item).style.display = 'none';
-    }
 
     // Update the main content area to show all projects in a table
     function updateProjectTable(projects) {
@@ -336,32 +89,10 @@
             <td>${formatDate(project.last_modified_time)}</td>
         </tr>`;
         });
-        document.getElementById('tableBody').innerHTML = tableContent;
+        document.getElementById('projectTableBody').innerHTML = tableContent;
     }
 
-    // 선택된 프로젝트를 localStorage에 저장하고 이슈 페이지로 이동
-    function selectProject(projectId) {
-        fetch(`/api/projects/${projectId}`)
-            .then(response => response.json())
-            .then(project => {
-                localStorage.setItem('selectedProject', JSON.stringify(project));
-                window.location.href = 'issue.html';
-            })
-            .catch(error => console.error('Error selecting the project:', error));
-    }
-
-
-    // Show modal for adding a new project
-    function openModal() {
-        document.getElementById('addProjectModal').style.display = 'block';
-    }
-
-    // Close the modal
-    function closeModal() {
-        document.getElementById('addProjectModal').style.display = 'none';
-    }
-
-    // Add a new project using form data
+        // Add a new project using form data
     function addNewProject() {
         const projectName = document.getElementById('newProjectName').value;
         const projectDescription = document.getElementById('newProjectDesc').value;
@@ -390,42 +121,34 @@
                 alert('Error adding project');
                 console.error('Error:', error);
             });
+
+        document.getElementById('newProjectName').value = '';
+        document.getElementById('newProjectDesc').value = '';
     }
 
     // Load projects when the page loads
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         fetchProjects();
+        showLeftNavbar();
     };
 
-
-    function formatDate(dateString) {
-        if (!dateString) return 'No Date Provided'; // 날짜 데이터가 없을 경우
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {  // 유효하지 않은 날짜인지 확인
-            return 'Invalid Date';
-        }
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return date.toLocaleDateString('en-US', options);
-    }
-
-    // showAllProjects 함수 수정
-    function showAllProjects() {
-        document.getElementById('leftNavBar').style.display = 'none';
-        fetch('/api/projects')
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = data.map(project => `
-                    <tr>
-                        <td>${project.id}</td>
-                        <td>${project.name}</td>
-                        <td>${project.description}</td>
-                        <td>${project.creation_time ? formatDate(project.creation_time) : 'null'}</td>
-                        <td>${project.last_modified_time ? formatDate(project.last_modified_time) : 'undefined'}</td>
-                    </tr>
-                `).join('');
+    // Logout function
+    document.getElementById('logoutButton').addEventListener('click', function() {
+        fetch('/api/auth/logout', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
+                } else {
+                    response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed', error);
+                alert('Logout error: ' + error.message);
             });
-    }
+    });
+
 </script>
 
 </body>

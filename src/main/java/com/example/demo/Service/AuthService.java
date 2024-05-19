@@ -7,6 +7,10 @@ import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,5 +80,19 @@ public class AuthService {
         LoginResponseDto loginResponseDto = new LoginResponseDto(token, exprTime, userEntity);
 
         return ResponseDto.setSuccessData("로그인에 성공하였습니다.", loginResponseDto);
+    }
+
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        // 세션 무효화 후 클라이언트 측 쿠키 삭제
+        jakarta.servlet.http.Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // 쿠키 삭제
+        response.addCookie(cookie);
+        return ResponseDto.setSuccess("로그아웃에 성공하였습니다.");
     }
 }
