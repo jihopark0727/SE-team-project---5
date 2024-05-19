@@ -4,8 +4,6 @@ import com.example.demo.DTO.ResponseDto;
 import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
 import com.example.demo.Service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,7 @@ import java.net.URI;
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    AuthService authService;
 
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@ModelAttribute SignUpDto requestBody) {
@@ -41,14 +39,6 @@ public class AuthController {
         } else {
             headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
         }
-        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        ResponseDto<?> result = authService.logout(request, response);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/index.html?logout=success")); // 로그아웃 후 로그인 화면으로 리다이렉트
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
