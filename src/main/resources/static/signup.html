@@ -191,12 +191,32 @@
 </div>
 </body>
 <script>
-    window.onload = function() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('error') === 'true') {
-            alert('회원가입 실패! 다시 시도해주세요.')
-        }
-    };
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch("/api/auth/signUp", {
+                method: "POST",
+                body: new URLSearchParams(formData),
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.messages);
+                    }
+                    alert(data.message);  // 성공 메시지를 확실히 출력
+                    window.location.href = '/index.html';
+                })
+                .catch(error => {
+                    alert('회원가입 실패: ' + error.message);
+                });
+        });
+    });
+
 </script>
 
 </html>
