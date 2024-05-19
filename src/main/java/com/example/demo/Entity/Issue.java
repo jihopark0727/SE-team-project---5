@@ -1,6 +1,5 @@
 package com.example.demo.Entity;
 
-
 import jakarta.persistence.*;
 import java.util.Date;
 
@@ -11,17 +10,19 @@ public class Issue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String title;
     private String description;
+    private String reporter;
+    private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
+
     private Date creation_time;
     private Date last_modified_time;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
-
     // Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -30,12 +31,12 @@ public class Issue {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -44,6 +45,30 @@ public class Issue {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public Date getCreation_time() {
@@ -60,13 +85,5 @@ public class Issue {
 
     public void setLast_modified_time(Date last_modified_time) {
         this.last_modified_time = last_modified_time;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 }

@@ -12,15 +12,19 @@ import java.util.List;
 public class ProjectService {
 
     @Autowired
-    private ProjectRepository project_repository;
+    private ProjectRepository projectRepository;
 
     public List<Project> getAllProjects() {
-        return project_repository.findAll();
+        return projectRepository.findAll();
+    }
+
+    public Project getProjectById(Long projectId) {
+        return projectRepository.findById(projectId).orElse(null);
     }
 
     public Project addProject(Project project) {
         project.setCreation_time(new Date());
         project.setLast_modified_time(new Date());
-        return project_repository.save(project);
+        return projectRepository.save(project);
     }
 }

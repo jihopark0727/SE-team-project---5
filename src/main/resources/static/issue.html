@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Issues</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .content {
+            padding: 20px;
+        }
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .open-modal-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .open-modal-btn:hover {
+            background-color: #45a049;
+        }
+        .issue-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .issue-table th, .issue-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .issue-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 40%;
+            height: 33%;
+        }
+        .modal-content h2 {
+            height: 50px;
+        }
+        .modal-input-wrap {
+            height: 60%;
+        }
+        .modal-input {
+            height: 35px;
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .add-issue-btn {
+            float: right;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .add-issue-btn:hover {
+            background-color: #45a049;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <div class="issue-header">
+        <h2 id="projectName">Project Issues</h2>
+        <button class="open-modal-btn" onclick="openModal()">Add Issue</button>
+    </div>
+    <table class="issue-table" id="issueTable">
+        <thead>
+        <tr>
+            <th>Issue ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Reporter</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Issues will be dynamically populated here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- The Modal -->
+<div id="addIssueModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add New Issue</h2>
+        <div class="modal-input-wrap">
+            <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
+            <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
+            <button class="add-issue-btn" onclick="addNewIssue()">Add Issue</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL에서 프로젝트 ID 파라미터를 가져오기
+    function getProjectIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('projectId');
+    }
+
+    // 선택된 프로젝트의 이슈를 서버에서 가져와서 UI 구성 요소를 업데이트
+    function fetchIssues(projectId) {
+        fetch(`/api/projects/${projectId}/issues`)
+            .then(response => response.json())
+            .then(data => {
+                updateIssueTable(data);
+            })
+            .catch(error => console.error('Error loading the issues:', error));
+    }
+
+    // 가져온 이슈를 이슈 테이블에 업데이트
+    function updateIssueTable(issues) {
+        const tableBody = document.querySelector('#issueTable tbody');
+        tableBody.innerHTML = ''; // 이전 항목 제거
+        issues.forEach(issue => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${issue.id}</td>
+                <td>${issue.title}</td>
+                <td>${issue.description}</td>
+                <td>${issue.reporter}</td>
+                <td>${issue.status}</td>
+                <td><button onclick="viewIssue(${issue.id})">View</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // 새 이슈 추가 모달 열기
+    function openModal() {
+        document.getElementById('addIssueModal').style.display = 'block';
+    }
+
+    // 모달 닫기
+    function closeModal() {
+        document.getElementById('addIssueModal').style.display = 'none';
+    }
+
+    // 폼 데이터를 사용하여 새 이슈 추가
+    function addNewIssue() {
+        const issueTitle = document.getElementById('newIssueTitle').value;
+        const issueDescription = document.getElementById('newIssueDesc').value;
+        const projectId = getProjectIdFromUrl();
+
+        const issue = {
+            title: issueTitle,
+            description: issueDescription,
+            reporter: 'current user', // 실제 사용자 정보로 대체해야 함
+            status: 'new',
+            projectId: projectId
+        };
+
+        fetch(`/api/projects/${projectId}/issues`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(issue)
+        })
+            .then(response => response.json())
+            .then(newIssue => {
+                alert('Issue added successfully');
+                closeModal();
+                fetchIssues(projectId); // 리스트를 업데이트하기 위해 이슈 다시 가져오기
+            })
+            .catch(error => {
+                alert('Error adding issue');
+                console.error('Error:', error);
+            });
+    }
+
+    // 페이지 로드 시 선택된 프로젝트의 이슈 로드
+    window.onload = function() {
+        const projectId = getProjectIdFromUrl();
+        if (projectId) {
+            fetch(`/api/projects/${projectId}`)
+                .then(response => response.json())
+                .then(project => {
+                    document.getElementById('projectName').textContent = project.name;
+                    fetchIssues(projectId);
+                })
+                .catch(error => console.error('Error loading the project:', error));
+        } else {
+            document.querySelector('.content').innerHTML = '<h2>No project selected.</h2>';
+        }
+    };
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // 이슈 상세 보기 기능 추가
+    function viewIssue(issueId) {
+        // 이슈 상세 보기 기능 추가
+    }
+</script>
+</body>
+</html>

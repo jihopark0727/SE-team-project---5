@@ -16,7 +16,7 @@ import java.net.URI;
 public class AuthController {
 
     @Autowired
-    AuthService authService;
+    private AuthService authService;
 
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@ModelAttribute SignUpDto requestBody) {

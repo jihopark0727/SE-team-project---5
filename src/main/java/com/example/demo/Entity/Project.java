@@ -1,8 +1,8 @@
 package com.example.demo.Entity;
 
 import jakarta.persistence.*;
-import java.util.Date;
 import java.util.List;
+import java.util.Date;
 
 @Entity
 public class Project {
@@ -13,14 +13,14 @@ public class Project {
 
     private String name;
     private String description;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Issue> issues;
+
     private Date creation_time;
     private Date last_modified_time;
 
-    @OneToMany(mappedBy = "project")
-    private List<Issue> issues;
-
     // Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -45,6 +45,14 @@ public class Project {
         this.description = description;
     }
 
+    public List<Issue> getIssues() {
+        return issues;
+    }
+
+    public void setIssues(List<Issue> issues) {
+        this.issues = issues;
+    }
+
     public Date getCreation_time() {
         return creation_time;
     }
@@ -59,13 +67,5 @@ public class Project {
 
     public void setLast_modified_time(Date last_modified_time) {
         this.last_modified_time = last_modified_time;
-    }
-
-    public List<Issue> getIssues() {
-        return issues;
-    }
-
-    public void setIssues(List<Issue> issues) {
-        this.issues = issues;
     }
 }

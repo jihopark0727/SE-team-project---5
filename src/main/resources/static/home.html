@@ -253,8 +253,25 @@
 
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
-    <h2>Welcome</h2>
-    <p>Select a project from the top navbar to see details.</p>
+    <div class="project-header">
+        <h2>All Projects</h2>
+        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+    </div>
+    <table class="project-table">
+        <thead>
+        <tr>
+            <th>Project ID</th>
+            <th>Project Name</th>
+            <th>Description</th>
+            <th>Creation Time</th>
+            <th>Last Modified Time</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+        </tbody>
+
+    </table>
 </div>
 
 <!-- The Modal -->
@@ -277,9 +294,6 @@
             .then(data => {
                 updateProjectDropdown(data);
                 updateProjectTable(data);
-                if (!data.length) {
-                    document.getElementById('contentArea').innerHTML = '<h2>No projects available.</h2>';
-                }
             })
             .catch(error => console.error('Error loading the projects:', error));
     }
@@ -301,42 +315,48 @@
     // Update the main content area to show all projects in a table
     function updateProjectTable(projects) {
         let htmlContent = `
-        <div class="project-header">
-            <h2>All Projects</h2>
-            <button class="open-modal-btn" onclick="openModal()">Add Project</button>
-        </div>
-        <table class="project-table">
-            <thead>
-                <tr>
-                    <th>Project ID</th>
-                    <th>Project Name</th>
-                    <th>Description</th>
-                    <th>Creation Time</th>
-                    <th>Last Modified Time</th>
-                </tr>
-            </thead>
-            <tbody>`;
+    <div class="project-header">
+        <h2>All Projects</h2>
+        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
+    </div>
+    <table class="project-table">
+        <thead>
+            <tr>
+                <th>Project ID</th>
+                <th>Project Name</th>
+                <th>Description</th>
+                <th>Creation Time</th>
+                <th>Last Modified Time</th>
+            </tr>
+        </thead>
+        <tbody>`;
 
         projects.forEach(project => {
             htmlContent += `<tr>
-            <td>${project.id}</td>
-            <td>${project.name}</td>
-            <td>${project.description}</td>
-            <td>${formatDate(project.creationTime)}</td>
-            <td>${formatDate(project.modifiedTime)}</td>
-        </tr>`;
+        <td>${project.id}</td>
+        <td><a href="issues.html?projectId=${project.id}">${project.name}</a></td>
+        <td>${project.description}</td>
+        <td>${formatDate(project.creation_time)}</td>
+        <td>${formatDate(project.last_modified_time)}</td>
+    </tr>`;
         });
 
         htmlContent += `</tbody></table>`;
         document.getElementById('contentArea').innerHTML = htmlContent;
     }
 
-    // Display detailed information for a selected project
-    function selectProject(project) {
-        document.getElementById('contentArea').innerHTML = `
-            <h2>${project.name}</h2>
-            <p>${project.description}</p>`;
+
+    // 선택된 프로젝트를 localStorage에 저장하고 이슈 페이지로 이동
+    function selectProject(projectId) {
+        fetch(`/api/projects/${projectId}`)
+            .then(response => response.json())
+            .then(project => {
+                localStorage.setItem('selectedProject', JSON.stringify(project));
+                window.location.href = 'issues.html';
+            })
+            .catch(error => console.error('Error selecting the project:', error));
     }
+
 
     // Show modal for adding a new project
     function openModal() {
@@ -356,8 +376,8 @@
         const project = {
             name: projectName,
             description: projectDescription,
-            creationTime: new Date().toISOString(),
-            modifiedTime: new Date().toISOString()
+            creation_time: new Date().toISOString(),
+            last_modified_time: new Date().toISOString()
         };
 
         fetch('/api/projects', {
@@ -381,15 +401,24 @@
 
     // Load projects when the page loads
     window.onload = function() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('login') === 'success') {
-            alert('로그인 성공!')
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginSuccess = urlParams.get('login');
+        if (loginSuccess === 'success') {
+            alert('로그인 성공!');
+            // 쿼리 파라미터 제거
+            urlParams.delete('login'); // 'login' 파라미터 제거
+            window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
         }
         fetchProjects();
     };
 
+
     function formatDate(dateString) {
+        if (!dateString) return 'No Date Provided'; // 날짜 데이터가 없을 경우
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) {  // 유효하지 않은 날짜인지 확인
+            return 'Invalid Date';
+        }
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
         return date.toLocaleDateString('en-US', options);
     }
@@ -405,31 +434,10 @@
                         <td>${project.id}</td>
                         <td>${project.name}</td>
                         <td>${project.description}</td>
-                        <td>${project.creationTime ? formatDate(project.creationTime) : 'null'}</td>
-                        <td>${project.lastModifiedTime ? formatDate(project.lastModifiedTime) : 'undefined'}</td>
+                        <td>${project.creation_time ? formatDate(project.creation_time) : 'null'}</td>
+                        <td>${project.last_modified_time ? formatDate(project.last_modified_time) : 'undefined'}</td>
                     </tr>
                 `).join('');
-
-                document.getElementById('contentArea').innerHTML = `
-                    <div class="project-header">
-                        <h2>All Projects</h2>
-                        <button class="open-modal-btn" onclick="openModal()">Add Project</button>
-                    </div>
-                    <table class="project-table">
-                        <thead>
-                            <tr>
-                                <th>Project ID</th>
-                                <th>Project Name</th>
-                                <th>Description</th>
-                                <th>Creation Time</th>
-                                <th>Last Modified Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${tableBody}
-                        </tbody>
-                    </table>
-                `;
             });
     }
 </script>
