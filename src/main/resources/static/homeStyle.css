@@ -130,6 +130,10 @@ body {
 .open-modal-btn:hover {
     background-color: #45a049;
 }
+
+#project-modal {
+    display: none;
+}
 .table {
     width: 100%;
     border-collapse: collapse;

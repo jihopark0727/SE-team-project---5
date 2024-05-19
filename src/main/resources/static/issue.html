@@ -19,7 +19,7 @@
 
     <div class="nav-items">
         <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
-            Projects
+            <div id="project-btn">Projects</div>
             <div class="dropdown-content" id="projectDropdown">
                 <!-- Project links will be dynamically populated -->
             </div>
@@ -69,7 +69,7 @@
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
-            <button class="add-btn" onclick="addNewIssue()">Add Project</button>
+            <button class="add-btn" onclick="addNewIssue()">Add Issue</button>
         </div>
     </div>
 </div>
@@ -85,6 +85,7 @@
 
         const projectName = selectedProject.name;
         const projectId = selectedProject.id;
+        document.getElementById('project-btn').innerText='Project: ' + projectName;
         fetchIssues(projectId);
     }
 
@@ -147,7 +148,6 @@
     }
 
     window.onload = function() {
-        fetchCurrentUser();
         fetchProjects();
         showLeftNavbar();
         loadIssues();

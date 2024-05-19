@@ -42,7 +42,7 @@
 <div class="content" id="contentArea">
     <div class="header project-header">
         <h2>All Projects</h2>
-        <button class="open-modal-btn" onclick="openModal('project')">Add Project</button>
+        <button class="open-modal-btn"  id="project-modal" onclick="openModal('project')">Add Project</button>
     </div>
     <table class="table project-table">
         <thead>
@@ -92,7 +92,7 @@
         document.getElementById('projectTableBody').innerHTML = tableContent;
     }
 
-        // Add a new project using form data
+    // Add a new project using form data
     function addNewProject() {
         const projectName = document.getElementById('newProjectName').value;
         const projectDescription = document.getElementById('newProjectDesc').value;
@@ -114,7 +114,7 @@
             .then(response => response.json())
             .then(newProject => {
                 alert('Project added successfully');
-                closeModal();
+                closeModal('project');
                 fetchProjects(); // Re-fetch projects to update the list
             })
             .catch(error => {
@@ -131,6 +131,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         fetchProjects();
         showLeftNavbar();
+        fetchUserProfile();
     };
 
     // Logout function

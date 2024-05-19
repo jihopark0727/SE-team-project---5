@@ -19,9 +19,9 @@ public class IssueService {
     }
 
     public Issue addIssue(Issue issue) {
-        Date now = new Date();
-        issue.setCreation_time(now);
-        issue.setLast_modified_time(now);
+        issue.setStatus("new");
+        issue.setReportedTime(new Date());
+        issue.setLastModifiedTime(new Date());
         return issueRepository.save(issue);
     }
 }

@@ -4,23 +4,42 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "Issue")
 public class Issue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 50)
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
-    private String reporter;
+
+    @Column(nullable = false, length = 10)
     private String status;
+
+    @Column(name = "reported_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date reportedTime;
+
+    @Column(name = "last_modified_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedTime;
+
+    @Column(name = "reporter_id")
+    private String reporterId;
+
+    @Column(name = "assignee_id")
+    private String assigneeId;
+
+    @Column(name = "fixer_id")
+    private String fixerId;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
-
-    private Date creation_time;
-    private Date last_modified_time;
 
     // Getters and Setters
     public Long getId() {
@@ -47,12 +66,28 @@ public class Issue {
         this.description = description;
     }
 
-    public String getReporter() {
-        return reporter;
+    public String getReporterId() {
+        return reporterId;
     }
 
-    public void setReporter(String reporter) {
-        this.reporter = reporter;
+    public void setReporterId(String reporterId) {
+        this.reporterId = reporterId;
+    }
+
+    public String getAssigneeId() {
+        return assigneeId;
+    }
+
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
+    }
+
+    public String getFixerId() {
+        return fixerId;
+    }
+
+    public void setFixerId(String fixerId) {
+        this.fixerId = fixerId;
     }
 
     public String getStatus() {
@@ -71,19 +106,19 @@ public class Issue {
         this.project = project;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getReportedTime() {
+        return reportedTime;
     }
 
-    public void setCreation_time(Date creation_time) {
-        this.creation_time = creation_time;
+    public void setReportedTime(Date reportedTime) {
+        this.reportedTime = reportedTime;
     }
 
-    public Date getLast_modified_time() {
-        return last_modified_time;
+    public Date getLastModifiedTime() {
+        return lastModifiedTime;
     }
 
-    public void setLast_modified_time(Date last_modified_time) {
-        this.last_modified_time = last_modified_time;
+    public void setLastModifiedTime(Date lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 }

@@ -55,6 +55,7 @@
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
         localStorage.clear();
+        sessionStorage.clear();
         if (params.get('signup') === 'success') {
             alert('회원가입 성공! 로그인 해주세요.')
         }

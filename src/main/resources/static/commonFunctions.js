@@ -111,12 +111,30 @@ function showLeftNavbar() {
     }
 }
 
-function fetchCurrentUser() {
-    fetch('/api/current-user')
+
+function fetchUserProfile() {
+    fetch('/api/user/profile', { method: 'GET' })
         .then(response => response.json())
         .then(user => {
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            console.log(user);  // 응답 출력
+            saveUserInfo(user);
+            adjustUIBasedOnRole(user.user_type);
         })
-        .catch(error => console.error('Error loading current user:', error));
+        .catch(error => console.error('Error fetching user data:', error));
 }
 
+
+
+function saveUserInfo(user) {
+    sessionStorage.setItem('userId', user.id);
+    sessionStorage.setItem('userType', user.user_type);
+}
+
+function adjustUIBasedOnRole(userType) {
+    if (userType === 'admin') {
+        const addProjectButton = document.getElementById('project-modal');
+        if (addProjectButton) {
+            addProjectButton.style.display = 'block'; // admin한테만 보여주기
+        }
+    }
+}

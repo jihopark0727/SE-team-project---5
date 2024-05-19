@@ -41,4 +41,5 @@ public class UserEntity {
         this.created_at = LocalDateTime.now();
         this.edited_at = LocalDateTime.now();
     }
+
 }
