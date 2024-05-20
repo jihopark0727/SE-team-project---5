@@ -15,8 +15,4 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public String getUserType(String id) {
-        UserEntity user = userRepository.findById(id).orElse(null);
-        return (user != null) ? user.getUser_type() : null;
-    }
 }

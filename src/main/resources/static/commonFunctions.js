@@ -1,4 +1,3 @@
-
 // Show modal for adding a new project
 function openModal(content) {
     let modal = '';
@@ -42,13 +41,12 @@ function hideDropdown(item) {
 }
 
 // Fetch projects from the server and update UI components
-function fetchProjects() {
+function fetchProjectList() {
     fetch('/api/projects')
         .then(response => response.json())
-        .then(data => {
-            const topProjects = data.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
+        .then(projects => {
+            const topProjects = projects.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
             updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
-            updateProjectTable(data); // 전체 프로젝트 목록을 테이블에 표시
         })
         .catch(error => console.error('Error loading the projects:', error));
 }
@@ -111,30 +109,75 @@ function showLeftNavbar() {
     }
 }
 
-
 function fetchUserProfile() {
     fetch('/api/user/profile', { method: 'GET' })
         .then(response => response.json())
         .then(user => {
-            console.log(user);  // 응답 출력
-            saveUserInfo(user);
-            adjustUIBasedOnRole(user.user_type);
+            console.log(user);
+            localStorage.setItem('user', JSON.stringify(user));
+            adjustUser();
         })
         .catch(error => console.error('Error fetching user data:', error));
 }
 
 
-
-function saveUserInfo(user) {
-    sessionStorage.setItem('userId', user.id);
-    sessionStorage.setItem('userType', user.user_type);
-}
-
 function adjustUIBasedOnRole(userType) {
+    const addProjectButton = document.getElementById('project-modal-btn');
+    const addIssueButton = document.getElementById('issue-modal-btn');
     if (userType === 'admin') {
-        const addProjectButton = document.getElementById('project-modal');
         if (addProjectButton) {
             addProjectButton.style.display = 'block'; // admin한테만 보여주기
         }
     }
+    else if (userType === 'tester') {
+        if (addIssueButton) {
+            addIssueButton.style.display = 'block'; // tester한테만 보여주기
+        }
+    }
+}
+
+function showUserInfo(user) {
+    document.getElementById('userIdDisplay').innerText = user.id + ' ' + user.user_type;
+}
+
+function adjustUser() {
+    let storedUser = localStorage.getItem('user');  // 로컬 스토리지에서 사용자 정보 불러오기
+    if (storedUser) {
+        user = JSON.parse(storedUser);
+        // 사용자 정보 상단 바에 띄우기
+        showUserInfo(user);
+        // 사용자에 맞게 UI 수정하기
+        adjustUIBasedOnRole(user.user_type);
+    }
+}
+
+function getUserId() {
+    const userId = JSON.parse(localStorage.getItem('user')).id;
+    return userId;
+}
+
+function getSelectedProject() {
+    const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
+    return selectedProject;
+}
+
+function logout() {
+    fetch('/api/auth/logout', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
+            } else {
+                response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력
+            }
+        })
+        .catch(error => {
+            console.error('Logout failed', error);
+            alert('Logout error: ' + error.message);
+        });
+}
+
+function commonLoad() {
+    adjustUser();
+    fetchProjectList();
+    showLeftNavbar();
 }

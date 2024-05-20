@@ -6,6 +6,7 @@
     <title>Project Management</title>
     <link rel="stylesheet" href="homeStyle.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="commonFunctions.js"></script>
     <style>
 
     </style>
@@ -29,7 +30,7 @@
         <!-- 동적으로 아이디 표시 -->
         <span id="userIdDisplay"></span>
         <!-- 로그아웃 버튼 -->
-        <button id="logoutButton" class="logoutButton">Logout</button>
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
     </div>
 </div>
 
@@ -42,7 +43,7 @@
 <div class="content" id="contentArea">
     <div class="header project-header">
         <h2>All Projects</h2>
-        <button class="open-modal-btn"  id="project-modal" onclick="openModal('project')">Add Project</button>
+        <button class="open-modal-btn"  id="project-modal-btn" onclick="openModal('project')">Add Project</button>
     </div>
     <table class="table project-table">
         <thead>
@@ -73,23 +74,28 @@
         </div>
     </div>
 </div>
-<script src="commonFunctions.js"></script>
+
 <script>
 
     // Update the main content area to show all projects in a table
-    function updateProjectTable(projects) {
-        let tableContent = '';
+    function updateProjectTable() {
+        fetch('/api/projects')
+            .then(response => response.json())
+            .then(projects => {
+                let tableContent = '';
 
-        projects.forEach(project => {
-            tableContent += `<tr>
-            <td>${project.id}</td>
-            <td><a href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
-            <td>${project.description}</td>
-            <td>${formatDate(project.creation_time)}</td>
-            <td>${formatDate(project.last_modified_time)}</td>
-        </tr>`;
-        });
-        document.getElementById('projectTableBody').innerHTML = tableContent;
+                projects.forEach(project => {
+                    tableContent += `<tr>
+                    <td>${project.id}</td>
+                    <td><a href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
+                    <td>${project.description}</td>
+                    <td>${formatDate(project.creation_time)}</td>
+                    <td>${formatDate(project.last_modified_time)}</td>
+                    </tr>`;
+                });
+                document.getElementById('projectTableBody').innerHTML = tableContent;
+            })
+            .catch(error => console.error('Error loading the projects:', error));
     }
 
     // Add a new project using form data
@@ -113,12 +119,11 @@
         })
             .then(response => response.json())
             .then(newProject => {
-                alert('Project added successfully');
+                alert('프로젝트가 성공적으로 추가되었습니다.');
                 closeModal('project');
-                fetchProjects(); // Re-fetch projects to update the list
             })
             .catch(error => {
-                alert('Error adding project');
+                alert('프로젝트 추가 실패!');
                 console.error('Error:', error);
             });
 
@@ -129,26 +134,9 @@
     // Load projects when the page loads
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        fetchProjects();
-        showLeftNavbar();
-        fetchUserProfile();
+        commonLoad();
+        updateProjectTable();
     };
-
-    // Logout function
-    document.getElementById('logoutButton').addEventListener('click', function() {
-        fetch('/api/auth/logout', { method: 'POST' })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
-                } else {
-                    response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed', error);
-                alert('Logout error: ' + error.message);
-            });
-    });
 
 </script>
 

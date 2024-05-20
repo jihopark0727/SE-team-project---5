@@ -37,27 +37,25 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody, HttpSession session) {
-        System.out.println("Logging in with ID: " + requestBody.getId());  // 로그 추가
         ResponseDto<?> result = authService.login(requestBody);
+        HttpHeaders headers = new HttpHeaders();
         if (result.isResult()) {
             UserEntity user = userService.findById(requestBody.getId());
             if (user != null) {
                 System.out.println("User found: " + user.getId());  // 로그 추가
                 session.setAttribute("userId", user.getId());
                 session.setAttribute("userType", user.getUser_type());
-                HttpHeaders headers = new HttpHeaders();
                 headers.setLocation(URI.create("/home.html?login=success"));
                 return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
             } else {
-                System.out.println("User not found");  // 로그 추가
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
+                return new ResponseEntity<>(headers, HttpStatus.FOUND);
             }
         } else {
-            System.out.println("Invalid credentials");  // 로그 추가
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
+            headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
     }
 

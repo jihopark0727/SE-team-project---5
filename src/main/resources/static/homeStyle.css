@@ -78,6 +78,10 @@ body {
     background-color: #f1f1f1;
 }
 
+#userIdDisplay {
+    margin-right: 10px;
+}
+
 .left-navbar {
     width: 200px;
     background-color: #f4f4f4;
@@ -131,7 +135,7 @@ body {
     background-color: #45a049;
 }
 
-#project-modal {
+.open-modal-btn {
     display: none;
 }
 .table {

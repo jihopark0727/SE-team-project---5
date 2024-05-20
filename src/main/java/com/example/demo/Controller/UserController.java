@@ -23,7 +23,7 @@ public class UserController {
             return ResponseEntity.status(401).body("No active session found");
         }
         // JSON 형태로 응답
-        return ResponseEntity.ok().body(Map.of("user_id", userId, "user_type", userType));
+        return ResponseEntity.ok().body(Map.of("id", userId, "user_type", userType));
     }
 
 }

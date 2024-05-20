@@ -6,6 +6,7 @@
     <title>Project Issues</title>
     <link rel="stylesheet" href="homeStyle.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="commonFunctions.js"></script>
     <style>
     </style>
 </head>
@@ -29,7 +30,7 @@
         <!-- 동적으로 아이디 표시 -->
         <span id="userIdDisplay"></span>
         <!-- 로그아웃 버튼 -->
-        <button id="logoutButton" class="logoutButton">Logout</button>
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
     </div>
 </div>
 
@@ -42,16 +43,20 @@
 <div class="content" id="contentArea">
     <div class="header issue-header" id="issueHeader">
         <h2>All Issues</h2>
-        <button class="open-modal-btn" onclick="openModal('issue')">Add Issue</button>
+        <button class="open-modal-btn" id = "issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
     <table class="table issue-table">
         <thead>
         <tr>
             <th>Issue ID</th>
-            <th>Issue Name</th>
+            <th>Issue Title</th>
             <th>Description</th>
-            <th>Creation Time</th>
+            <th>Reported Time</th>
             <th>Last Modified Time</th>
+            <th>Status</th>
+            <th>Reporter ID</th>
+            <th>Assignee ID</th>
+            <th>Fixer ID</th>
         </tr>
         </thead>
         <tbody id="issueTableBody">
@@ -74,61 +79,84 @@
     </div>
 </div>
 
-<script src="commonFunctions.js"></script>
 <script>
-    function loadIssues() {
-        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
+    let projectName = '';
+    let projectId = '';
+
+    function setSelectedProject() {
+        selectedProject = getSelectedProject();
         if (!selectedProject) {
             document.getElementById('issueHeader').textContent = 'No project selected';
             return;
         }
-
-        const projectName = selectedProject.name;
-        const projectId = selectedProject.id;
+        projectName = selectedProject.name;
+        projectId = selectedProject.id;
         document.getElementById('project-btn').innerText='Project: ' + projectName;
-        fetchIssues(projectId);
     }
 
-    function fetchIssues(projectId) {
+    function updateIssueTable() {
         fetch(`/api/projects/${projectId}/issues`)
-            .then(response => response.json())
-            .then(issues => {
-                updateIssueTable(issues);
+            .then(response => {
+                if (response.status === 204) {
+                    return [];  // No Content인 경우, 빈 배열 반환
+                }
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
             })
-            .catch(error => console.error('Error loading the issues:', error));
+            .then(issues => {
+                let tableContent = '';
+
+                if (issues.length > 0) {
+                    issues.forEach(issue => {
+                        tableContent += `<tr>
+                        <td>${issue.id}</td>
+                        <td>${issue.title}</td>
+                        <td>${issue.description}</td>
+                        <td>${formatDate(issue.reported_time)}</td>
+                        <td>${formatDate(issue.last_modified_time)}</td>
+                        <td>${issue.status}</td>
+                        <td>${issue.reporter_id}</td>
+                        <td>${issue.assignee_id}</td>
+                        <td>${issue.fixer_id}</td>
+                    </tr>`;
+                    });
+                } else {
+                    // 데이터가 없는 경우의 처리
+                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
+                }
+
+                document.getElementById('issueTableBody').innerHTML = tableContent;
+            })
+            .catch(error => {
+                console.error('Error loading the issues:', error);
+                alert('Error loading issues: ' + error.message);
+            });
     }
 
-    function updateIssueTable(issues) {
-        let tableContent = '';
 
-        issues.forEach(issue => {
-            tableContent += `<tr>
-                <td>${issue.id}</td>
-                <td>${issue.title}</td>
-                <td>${issue.description}</td>
-                <td>${formatDate(issue.creation_time)}</td>
-                <td>${formatDate(issue.last_modified_time)}</td>
-            </tr>`;
-        });
-        document.getElementById('issueTableBody').innerHTML = tableContent;
-    }
 
     function addNewIssue() {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
         const issueTitle = document.getElementById('newIssueTitle').value;
         const issueDescription = document.getElementById('newIssueDesc').value;
+        const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
 
         const issue = {
             title: issueTitle,
             description: issueDescription,
             reported_time: new Date().toISOString(),
             last_modified_time: new Date().toISOString(),
-            reporter_id: currentUser.id,  // 현재 로그인한 사용자의 ID를 리포터로 설정
+            reporter_id: getUserId(),  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
-            project_id: JSON.parse(localStorage.getItem('selectedProject')).id  // 선택된 프로젝트 ID
+            assignee_id: 'None',
+            fixer_id: 'None',
+            project_id: projectId // 선택된 프로젝트 ID
         };
 
-        fetch('/api/issues', {
+        console.log(issue);
+        fetch(`/api/projects/${projectId}/issues`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -137,37 +165,24 @@
         })
             .then(response => response.json())
             .then(newIssue => {
-                alert('Issue added successfully');
+                alert('이슈가 성공적으로 추가되었습니다.');
                 closeModal('issue');
-                loadIssues();  // 이슈 목록을 다시 로드
+                updateIssueTable();
             })
             .catch(error => {
-                alert('Error adding issue');
+                alert('이슈 추가 실패!');
                 console.error('Error:', error);
             });
+
+        document.getElementById('newIssueTitle').value = '';
+        document.getElementById('newIssueDesc').value = '';
     }
 
     window.onload = function() {
-        fetchProjects();
-        showLeftNavbar();
-        loadIssues();
+        commonLoad();
+        setSelectedProject();
+        updateIssueTable();
     };
-
-    // Logout function
-    document.getElementById('logoutButton').addEventListener('click', function() {
-        fetch('/api/auth/logout', { method: 'POST' })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
-                } else {
-                    response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed', error);
-                alert('Logout error: ' + error.message);
-            });
-    });
 
 </script>
 

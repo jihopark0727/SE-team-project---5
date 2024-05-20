@@ -22,20 +22,20 @@ public class Issue {
 
     @Column(name = "reported_time")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date reportedTime;
+    private Date reported_time;
 
     @Column(name = "last_modified_time")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastModifiedTime;
+    private Date last_modified_time;
 
     @Column(name = "reporter_id")
-    private String reporterId;
+    private String reporter_id;
 
     @Column(name = "assignee_id")
-    private String assigneeId;
+    private String assignee_id;
 
     @Column(name = "fixer_id")
-    private String fixerId;
+    private String fixer_id;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -66,28 +66,28 @@ public class Issue {
         this.description = description;
     }
 
-    public String getReporterId() {
-        return reporterId;
+    public String getReporter_id() {
+        return reporter_id;
     }
 
-    public void setReporterId(String reporterId) {
-        this.reporterId = reporterId;
+    public void setReporter_id(String reporter_id) {
+        this.reporter_id = reporter_id;
     }
 
-    public String getAssigneeId() {
-        return assigneeId;
+    public String getAssignee_id() {
+        return assignee_id;
     }
 
-    public void setAssigneeId(String assigneeId) {
-        this.assigneeId = assigneeId;
+    public void setAssignee_id(String assignee_id) {
+        this.assignee_id = assignee_id;
     }
 
-    public String getFixerId() {
-        return fixerId;
+    public String getFixer_id() {
+        return fixer_id;
     }
 
-    public void setFixerId(String fixerId) {
-        this.fixerId = fixerId;
+    public void setFixer_id(String fixer_id) {
+        this.fixer_id = fixer_id;
     }
 
     public String getStatus() {
@@ -106,19 +106,19 @@ public class Issue {
         this.project = project;
     }
 
-    public Date getReportedTime() {
-        return reportedTime;
+    public Date getReported_time() {
+        return reported_time;
     }
 
-    public void setReportedTime(Date reportedTime) {
-        this.reportedTime = reportedTime;
+    public void setReported_time(Date reported_time) {
+        this.reported_time = reported_time;
     }
 
-    public Date getLastModifiedTime() {
-        return lastModifiedTime;
+    public Date getLast_modified_time() {
+        return last_modified_time;
     }
 
-    public void setLastModifiedTime(Date lastModifiedTime) {
-        this.lastModifiedTime = lastModifiedTime;
+    public void setLast_modified_time(Date last_modified_time) {
+        this.last_modified_time = last_modified_time;
     }
 }

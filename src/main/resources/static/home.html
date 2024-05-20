@@ -7,6 +7,7 @@
     <title>Project Management</title>
     <link rel="stylesheet" href="homeStyle.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="commonFunctions.js"></script>
     <style>
 
     </style>
@@ -30,7 +31,7 @@
         <!-- 동적으로 아이디 표시 -->
         <span id="userIdDisplay"></span>
         <!-- 로그아웃 버튼 -->
-        <button id="logoutButton" class="logoutButton">Logout</button>
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
     </div>
 </div>
 
@@ -44,7 +45,6 @@
     <h2>Welcome!</h2>
 </div>
 
-<script src="commonFunctions.js"></script>
 <script>
 
     // Load projects when the page loads
@@ -55,27 +55,11 @@
             alert('로그인 성공!');
             // 쿼리 파라미터 제거
             urlParams.delete('login'); // 'login' 파라미터 제거
+            fetchUserProfile(); // user 정보 가져오기
             window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
         }
-        fetchProjects();
-        showLeftNavbar();
+        commonLoad();
     };
-
-    // Logout function
-    document.getElementById('logoutButton').addEventListener('click', function() {
-        fetch('/api/auth/logout', { method: 'POST' })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
-                } else {
-                    response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed', error);
-                alert('Logout error: ' + error.message);
-            });
-    });
 
 
 </script>
