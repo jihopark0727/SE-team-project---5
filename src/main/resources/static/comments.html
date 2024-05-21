@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Comments</title>
+    <link rel="stylesheet" href="homeStyle.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="commonFunctions.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="top-navbar">
+    <div class="home-icon">
+        <a href="home.html">IMS</a>
+    </div>
+    <div class="nav-items">
+        <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
+            <div id="project-btn">Projects</div>
+            <div class="dropdown-content" id="projectDropdown">
+                <!-- Project links will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+    <div class="nav-item account" id="userAccount">
+        <span id="projectIssueDisplay"></span> <!-- Project and Issue titles will be dynamically populated -->
+        <span id="userIdDisplay"></span>
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="content" id="contentArea">
+    <div class="header issue-header" id="commentHeader">
+        <h2>Issue Comments</h2>
+        <button class="open-modal-btn" id="comment-modal-btn" onclick="openModal('comment')">Add Comment</button>
+    </div>
+    <div id="commentSection">
+        <!-- 댓글 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+    </div>
+</div>
+
+<!-- The Modal -->
+<div id="addCommentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('comment')">&times;</span>
+        <h2>Add New Comment</h2>
+        <div class="modal-input-wrap">
+            <textarea class="modal-input" id="newCommentText" placeholder="Enter your comment here"></textarea>
+            <button class="add-btn" onclick="addNewComment()">Add Comment</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadComments() {
+        const issueId = getSelectedIssue();
+        const projectId = getSelectedProject().id;
+
+        fetch(`/api/projects/${projectId}/issues/${issueId}/comments`)
+            .then(response => response.json())
+            .then(comments => {
+                const commentSection = document.getElementById('commentSection');
+                commentSection.innerHTML = '';
+
+                if (comments.length > 0) {
+                    comments.forEach(comment => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.innerHTML = `
+                            <p><strong>Comment ID:</strong> ${comment.comment_id}</p>
+                            <p><strong>User:</strong> ${comment.submit.name}</p>
+                            <p><strong>Comment:</strong> ${comment.comment}</p>
+                            <p><strong>Created at:</strong> ${formatDate(comment.creation_time)}</p>
+                            <hr>
+                        `;
+                        commentSection.appendChild(commentDiv);
+                    });
+                } else {
+                    commentSection.innerHTML = '<p>No comments found.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading comments:', error);
+                alert('Error loading comments: ' + error.message);
+            });
+    }
+
+    function addNewComment() {
+        const commentText = document.getElementById('newCommentText').value;
+        const issueId = getSelectedIssue();
+        const projectId = getSelectedProject().id;
+
+        const comment = {
+            comment: commentText,
+            creation_time: new Date().toISOString(),
+            issue_id: issueId,
+            submit: getUserId()
+        };
+
+        fetch(`/api/projects/${projectId}/issues/${issueId}/comments/add_comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(comment)
+        })
+            .then(response => response.json())
+            .then(newComment => {
+                alert('Comment added successfully');
+                closeModal('comment');
+                loadComments();
+            })
+            .catch(error => {
+                alert('Failed to add comment');
+                console.error('Error:', error);
+            });
+
+        document.getElementById('newCommentText').value = '';
+    }
+
+    function setProjectAndIssueTitles() {
+        const selectedProject = getSelectedProject();
+        const selectedIssueId = getSelectedIssue();
+
+        fetch(`/api/projects/${selectedProject.id}/issues/${selectedIssueId}`)
+            .then(response => response.json())
+            .then(issue => {
+                const projectIssueDisplay = document.getElementById('projectIssueDisplay');
+                projectIssueDisplay.innerText = `Projects : ${selectedProject.name} : Issue : ${issue.title}`;
+            })
+            .catch(error => {
+                console.error('Error loading the issue:', error);
+                alert('Error loading issue: ' + error.message);
+            });
+    }
+
+    window.onload = function() {
+        commonLoad();
+        setProjectAndIssueTitles();
+        loadComments();
+    };
+</script>
+
+</body>
+</html>

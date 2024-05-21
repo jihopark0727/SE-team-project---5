@@ -2,10 +2,11 @@
 function openModal(content) {
     let modal = '';
     if (content === 'project') {
-        modal = 'addProjectModal'
-    }
-    else if (content === 'issue') {
+        modal = 'addProjectModal';
+    } else if (content === 'issue') {
         modal = 'addIssueModal';
+    } else if (content === 'comment') {
+        modal = 'addCommentModal';
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -14,10 +15,11 @@ function openModal(content) {
 function closeModal(content) {
     let modal = '';
     if (content === 'project') {
-        modal = 'addProjectModal'
-    }
-    else if (content === 'issue') {
+        modal = 'addProjectModal';
+    } else if (content === 'issue') {
         modal = 'addIssueModal';
+    } else if (content === 'comment') {
+        modal = 'addCommentModal';
     }
     document.getElementById(modal).style.display = 'none';
 }
@@ -72,7 +74,6 @@ function updateProjectDropdown(projects) {
     dropdown.appendChild(allProjectsLink);
 }
 
-
 // 모든 프로젝트를 보는 페이지로 이동하는 함수
 function goAllProjects() {
     window.location.href = 'all-projects.html'; // 'all-projects.html' 페이지로 이동
@@ -120,19 +121,22 @@ function fetchUserProfile() {
         .catch(error => console.error('Error fetching user data:', error));
 }
 
-
 function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
+    const addCommentButton = document.getElementById('comment-modal-btn');
     if (userType === 'admin') {
         if (addProjectButton) {
             addProjectButton.style.display = 'block'; // admin한테만 보여주기
         }
     }
-    else if (userType === 'tester') {
+    if (userType === 'tester') {
         if (addIssueButton) {
             addIssueButton.style.display = 'block'; // tester한테만 보여주기
         }
+    }
+    if (addCommentButton) {
+        addCommentButton.style.display = 'block'; // 모든 사용자에게 보여주기
     }
 }
 
@@ -159,6 +163,12 @@ function getUserId() {
 function getSelectedProject() {
     const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
     return selectedProject;
+}
+
+function getSelectedIssue() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const issueId = urlParams.get('issueId');
+    return issueId;
 }
 
 function logout() {

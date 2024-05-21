@@ -14,23 +14,27 @@ public class Comment {
     @Column(name="comment_id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long comment_id;
+
     @ManyToOne
     @JoinColumn(name = "issue_id")
     private Issue issue;
+
     private String comment;
+
     @ManyToOne
     @JoinColumn(name = "submit")
     private UserEntity submit;
-    private Date creation_time;
 
+    private Date creation_time;
 
     public Comment(CommentDto dto){
         this.comment = dto.getComment();
-        this.issue = dto.getIssue();
+        this.issue = new Issue(dto.getIssue_id()); // Issue ID를 기반으로 Issue 객체 생성
         this.submit = dto.getSubmit();
         this.creation_time = dto.getCreation_time();
         this.comment_id = dto.getComment_id();
     }
+
     public Long getComment_id() { return comment_id; }
     public void setComment_id(Long comment_id) { this.comment_id = comment_id; }
     public Issue getIssue(){ return issue; }

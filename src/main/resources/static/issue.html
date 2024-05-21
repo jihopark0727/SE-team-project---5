@@ -43,7 +43,7 @@
 <div class="content" id="contentArea">
     <div class="header issue-header" id="issueHeader">
         <h2>All Issues</h2>
-        <button class="open-modal-btn" id = "issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
+        <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
     <table class="table issue-table">
         <thead>
@@ -62,7 +62,6 @@
         <tbody id="issueTableBody">
         <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
         </tbody>
-
     </table>
 </div>
 
@@ -112,7 +111,7 @@
                     issues.forEach(issue => {
                         tableContent += `<tr>
                         <td>${issue.id}</td>
-                        <td>${issue.title}</td>
+                        <td><a href="#" onclick="redirectToComments(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
@@ -135,7 +134,9 @@
             });
     }
 
-
+    function redirectToComments(issueId) {
+        window.location.href = `comments.html?issueId=${issueId}`;
+    }
 
     function addNewIssue() {
 
