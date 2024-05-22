@@ -6,6 +6,7 @@ import com.example.demo.Service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo.DTO.ResponseDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,10 @@ public class IssueController {
         } else {
             return ResponseEntity.badRequest().build();
         }
+    }
+    @PostMapping("/{issueId}/updateIssueState")
+    public ResponseDto<?> updateIssueState(@PathVariable Long issueId, @RequestBody String state){
+        return issueService.updateIssueState(issueId, state);
     }
 
 }

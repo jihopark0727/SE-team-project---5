@@ -3,12 +3,13 @@ package com.example.demo.Service;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
 import com.example.demo.Entity.UserEntity;
+import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Repository.IssueRepository;
 import com.example.demo.Repository.ProjectRepository;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import jakarta.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -49,5 +50,17 @@ public class IssueService {
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         return issueRepository.save(issue);
+    }
+    @Transactional
+    public ResponseDto<?> updateIssueState(Long issueId, String state) {
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+
+        if(issue == null) {
+            return ResponseDto.setFailed("Cannot find issue with id " + issueId);
+        }
+        else{
+            issue.setStatus(state);
+            return ResponseDto.setSuccess("success");
+        }
     }
 }
