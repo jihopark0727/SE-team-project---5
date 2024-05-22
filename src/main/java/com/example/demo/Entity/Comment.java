@@ -36,8 +36,7 @@ public class Comment {
         this.id = dto.getId();
         this.content = dto.getContent();
         // 이 부분은 실제 구현에서는 레포지토리를 통해 엔티티를 로드해야 합니다.
-        this.issue = new Issue();  // 임시 처리
-        this.issue.setId(dto.getIssue_id());
+        this.issue = dto.getIssue();
         this.user = new User();  // 임시 처리
         this.user.setId(dto.getUser_id());
         this.creation_time = dto.getCreation_time();

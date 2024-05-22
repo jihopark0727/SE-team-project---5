@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.IssueDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
 import com.example.demo.Service.IssueService;
@@ -35,9 +36,9 @@ public class IssueController {
     }
 
     @PostMapping
-    public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody Issue issue) {
-        System.out.println("Received reporter ID: " + issue.getReporter_id());  // 로거나 콘솔을 통해 리포터 ID 확인
-        Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporter_id());
+    public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issueDto) {
+        System.out.println("Received reporter ID: " + issueDto.getReporter().getId());  // 로거나 콘솔을 통해 리포터 ID 확인
+        Issue newIssue = issueService.addIssue(issueDto, projectId, issueDto.getReporter().getId());
         if (newIssue != null) {
             return ResponseEntity.ok(newIssue);
         } else {
@@ -48,5 +49,12 @@ public class IssueController {
     public ResponseDto<?> updateIssueState(@PathVariable Long issueId, @RequestBody String state){
         return issueService.updateIssueState(issueId, state);
     }
-
+    @GetMapping("/assignee/{assigneeId}")
+    public ResponseEntity<List<Issue>> searchByAssinee(@PathVariable String assigneeId) {
+        return issueService.searchByAssignee(assigneeId);
+    }
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<Issue>> searchByStatus(@PathVariable String status){
+        return issueService.searchByStatus(status);
+    }
 }
