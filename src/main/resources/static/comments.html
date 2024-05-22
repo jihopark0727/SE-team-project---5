@@ -60,7 +60,9 @@
         const issueId = getSelectedIssue();
         const projectId = getSelectedProject().id;
 
-        fetch(`/api/projects/${projectId}/issues/${issueId}/comments`)
+        fetch(`/api/projects/${projectId}/issues/${issueId}/comments`,{
+            method : 'GET'
+        })
             .then(response => response.json())
             .then(comments => {
                 const commentSection = document.getElementById('commentSection');
@@ -95,7 +97,6 @@
 
         const comment = {
             comment: commentText,
-            creation_time: new Date().toISOString(),
             issue_id: issueId,
             submit: getUserId()
         };
@@ -107,11 +108,14 @@
             },
             body: JSON.stringify(comment)
         })
-            .then(response => response.json())
-            .then(newComment => {
-                alert('Comment added successfully');
-                closeModal('comment');
-                loadComments();
+            .then(response => {
+                if (response.ok) {
+                    alert('Comment added successfully');
+                    closeModal('comment');
+                    loadComments();
+                } else {
+                    response.text().then(text => alert('Failed to add comment: ' + text)); // 서버로부터의 실패 응답을 출력
+                }
             })
             .catch(error => {
                 alert('Failed to add comment');
@@ -138,9 +142,9 @@
     }
 
     window.onload = function() {
-        commonLoad();
         setProjectAndIssueTitles();
         loadComments();
+        commonLoad();
     };
 </script>
 

@@ -16,7 +16,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @PostMapping
+    @PostMapping("/add_comment")
     public ResponseDto<?> addComment(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody CommentDto requestBody) {
         // 추가: Issue ID를 CommentDto에 설정
         requestBody.setIssue_id(issueId);

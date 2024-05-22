@@ -17,6 +17,12 @@ public class Project {
     private Date creation_time;
     private Date last_modified_time;
 
+    public Project(Long id){
+        this.id = id;
+    }
+
+    public Project(){}
+
     // Getters and Setters
     public Long getId() {
         return id;

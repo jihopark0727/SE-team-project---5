@@ -24,10 +24,6 @@ public class Issue {
     private String reporter_id;
     private String assignee_id;
     private String fixer_id;
-
-    @OneToMany(mappedBy = "issue")
-    private List<Comment> comments;
-
     public Issue() {
     }
 
@@ -118,11 +114,4 @@ public class Issue {
         this.fixer_id = fixer_id;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
 }

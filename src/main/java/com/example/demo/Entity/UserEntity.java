@@ -30,6 +30,10 @@ public class UserEntity {
     private LocalDateTime edited_at;
     private LocalDateTime last_login_at;
 
+    public UserEntity(String id){
+        this.id = id;
+    }
+
     public UserEntity(SignUpDto dto) {
         this.id = dto.getId();
         this.password = dto.getPassword();
