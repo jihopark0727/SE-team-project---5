@@ -146,7 +146,7 @@
                     tableContent += `<tr>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
-                <td>${user.user_type}</td>
+                <td>${user.userType}</td>
                 <td>${user.tel}</td>
                 <td>${user.career}</td>
             </tr>`;
@@ -180,7 +180,7 @@
                 <td class="select-cell"><input type="checkbox" value="${user.id}" ${isChecked} ${isDisabled} onchange="toggleUserSelection('${user.id}', this.checked)"></td>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
-                <td>${user.user_type}</td>
+                <td>${user.userType}</td>
                 <td>${user.tel}</td>
                 <td>${user.career}</td>
             </tr>`;
@@ -233,7 +233,6 @@
             })
             .catch(error => console.error('Error adding users:', error));
     }
-
 
     window.onload = function() {
         commonLoad();

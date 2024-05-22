@@ -71,7 +71,6 @@
 </div>
 
 <script>
-
     let issueTitle = '';
     let issueId = '';
 
@@ -96,7 +95,7 @@
                     </tr>`;
                     });
                 } else {
-                    tableContent = `<tr><td colspan="9">No comments found</td></tr>`;
+                    tableContent = `<tr><td colspan="4">No comments found</td></tr>`;
                 }
                 document.getElementById('commentTableBody').innerHTML = tableContent;
             })
@@ -106,13 +105,11 @@
             });
     }
 
-
     function addNewComment() {
         const commentText = document.getElementById('newCommentText').value;
         const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
         const userId = getUserId();
-
 
         const comment = {
             content: commentText,
@@ -144,6 +141,27 @@
         document.getElementById('newCommentText').value = '';
     }
 
+    function setSelectedProject() {
+        const selectedProject = JSON.parse(localStorage.getItem('selectedProject'));
+        if (!selectedProject) {
+            document.getElementById('projectIssueDisplay').textContent = 'No project selected';
+            return;
+        }
+        projectName = selectedProject.name;
+        projectId = selectedProject.id;
+        document.getElementById('project-btn').innerText = 'Project: ' + projectName;
+    }
+
+    function setSelectedIssue() {
+        const selectedIssue = JSON.parse(localStorage.getItem('selectedIssue'));
+        if (!selectedIssue) {
+            document.getElementById('commentHeader').textContent = 'No issue selected';
+            return;
+        }
+        issueTitle = selectedIssue.title;
+        issueId = selectedIssue.id;
+        document.getElementById('commentHeader').innerText = 'Issue: ' + issueTitle;
+    }
 
     window.onload = function() {
         setSelectedProject();

@@ -1,8 +1,8 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Entity.Project;
+import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.User;
-import com.example.demo.Service.ProjectService;
+import com.example.demo.Service.IssueService; // 추가
 import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private IssueService issueService; // 추가
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -35,4 +38,20 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("id", userId, "user_type", userType));
     }
 
+    @GetMapping("/devs")
+    public ResponseEntity<List<User>> getAllDevs() {
+        List<User> devs = userService.getAllDevs();
+        return ResponseEntity.ok(devs);
+    }
+
+    @PostMapping("/assign/{issueId}")
+    public ResponseEntity<?> assignDevToIssue(@PathVariable Long issueId, @RequestBody Map<String, String> request) {
+        String assigneeId = request.get("assigneeId");
+        ResponseDto<?> result = issueService.assignDevToIssue(issueId, assigneeId);
+        if (result.isResult()) {
+            return ResponseEntity.ok().body("Dev assigned successfully");
+        } else {
+            return ResponseEntity.status(400).body(result.getMessage());
+        }
+    }
 }

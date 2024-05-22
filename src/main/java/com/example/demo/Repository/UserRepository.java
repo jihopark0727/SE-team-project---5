@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByIdAndPassword(String id, String password);
+    List<User> findByUserTypeOrderByCareerDesc(String userType);
 
     @Query("SELECT u FROM User u JOIN u.projects p WHERE p.id = :projectId")
     List<User> findUsersByProjectId(Long projectId);

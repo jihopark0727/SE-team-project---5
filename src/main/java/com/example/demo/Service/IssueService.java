@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
 import com.example.demo.Entity.User;
@@ -21,6 +22,7 @@ public class IssueService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -49,5 +51,26 @@ public class IssueService {
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         return issueRepository.save(issue);
+    }
+
+    public ResponseDto<?> assignDevToIssue(Long issueId, String assigneeId) {
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+        if (issue == null) {
+            return ResponseDto.setFailed("Issue not found");
+        }
+
+        User assignee = userRepository.findById(assigneeId).orElse(null);
+        if (assignee == null || !"dev".equals(assignee.getUserType())) {
+            return ResponseDto.setFailed("Invalid assignee");
+        }
+
+        issue.setAssignee_id(assigneeId);
+        issue.setLast_modified_time(new Date());
+        issueRepository.save(issue);
+        return ResponseDto.setSuccess("Assignee updated successfully");
+    }
+
+    public List<User> getAllDevs() {
+        return userRepository.findByUserTypeOrderByCareerDesc("dev");
     }
 }

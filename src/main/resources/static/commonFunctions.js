@@ -7,6 +7,8 @@ function openModal(content) {
         modal = 'addIssueModal';
     } else if (content === 'comment') {
         modal = 'addCommentModal';
+    } else if (content === 'assignDev') {
+        modal = 'assignDevModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
     }
@@ -22,6 +24,8 @@ function closeModal(content) {
         modal = 'addIssueModal';
     } else if (content === 'comment') {
         modal = 'addCommentModal';
+    } else if (content === 'assignDev') {
+            modal = 'assignDevModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
     }
@@ -94,8 +98,8 @@ function selectProject(projectId) {
         .catch(error => console.error('Error selecting the project:', error));
 }
 
-function selectIssue(projectId, issueId) {
-    fetch(`/api/projects/${projectId}/issues/${issueId}`)
+function selectIssue(issueId) {
+    fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}`)
         .then(response => response.json())
         .then(issue => {
             localStorage.setItem('selectedIssue', JSON.stringify(issue));
@@ -103,6 +107,7 @@ function selectIssue(projectId, issueId) {
         })
         .catch(error => console.error('Error selecting the issue:', error));
 }
+
 
 function showLeftNavbar() {
     const projectData = localStorage.getItem('selectedProject');

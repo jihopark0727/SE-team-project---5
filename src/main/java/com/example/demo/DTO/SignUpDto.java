@@ -15,7 +15,7 @@ public class SignUpDto {
     private String confirm_password;
     private String tel;
     private String user_type;
-    private String career;
+    private int career;
     private LocalDateTime created_at;
     private LocalDateTime edited_at;
     private LocalDateTime last_login_at;

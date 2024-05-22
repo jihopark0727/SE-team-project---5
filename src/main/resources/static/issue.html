@@ -8,6 +8,29 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <script src="commonFunctions.js"></script>
     <style>
+        .pl-assignee {
+            color: red; /* PL 사용자를 위한 색상 */
+            font-weight: bold;
+        }
+        .clickable {
+            cursor: pointer;
+        }
+        .dev-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dev-table th, .dev-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .dev-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .dev-table tr:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +89,7 @@
     </table>
 </div>
 
-<!-- The Modal -->
+<!-- The Modal for Adding Issues -->
 <div id="addIssueModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('issue')">&times;</span>
@@ -79,10 +102,31 @@
     </div>
 </div>
 
+<!-- The Modal for Assigning Dev -->
+<div id="assignDevModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('assignDev')">&times;</span>
+        <h2>Select Assignee</h2>
+        <div id="devList">
+            <!-- Dev 리스트가 여기 동적으로 생성됨 -->
+        </div>
+    </div>
+</div>
+
 <script>
     let projectName = '';
     let projectId = '';
 
+    function setSelectedProject() {
+        selectedProject = getSelectedProject();
+        if (!selectedProject) {
+            document.getElementById('issueHeader').textContent = 'No project selected';
+            return;
+        }
+        projectName = selectedProject.name;
+        projectId = selectedProject.id;
+        document.getElementById('project-btn').innerText = 'Project: ' + projectName;
+    }
 
     function updateIssueTable() {
         fetch(`/api/projects/${projectId}/issues`)
@@ -100,15 +144,16 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
+                        const assigneeClass = getUserType() === 'pl' ? 'clickable pl-assignee' : 'clickable';
                         tableContent += `<tr>
                         <td>${issue.id}</td>
-                        <td><a href="#" onclick="selectIssue(projectId, ${issue.id})">${issue.title}</a></td>
+                        <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
                         <td>${issue.status}</td>
                         <td>${issue.reporter_id}</td>
-                        <td>${issue.assignee_id}</td>
+                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
                         <td>${issue.fixer_id}</td>
                     </tr>`;
                     });
@@ -118,6 +163,13 @@
                 }
 
                 document.getElementById('issueTableBody').innerHTML = tableContent;
+
+                // Assignee ID 클릭 이벤트 추가
+                document.querySelectorAll('.assignee.clickable').forEach(td => {
+                    if (getUserType() === 'pl' || td.textContent === 'not assigned yet') {
+                        td.onclick = () => openAssignModal(td.dataset.issueId);
+                    }
+                });
             })
             .catch(error => {
                 console.error('Error loading the issues:', error);
@@ -126,7 +178,6 @@
     }
 
     function addNewIssue() {
-
         const issueTitle = document.getElementById('newIssueTitle').value;
         const issueDescription = document.getElementById('newIssueDesc').value;
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
@@ -138,12 +189,11 @@
             last_modified_time: new Date().toISOString(),
             reporter_id: getUserId(),  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
-            assignee_id: 'None',
-            fixer_id: 'None',
+            assignee_id: null,
+            fixer_id: null,
             project_id: projectId // 선택된 프로젝트 ID
         };
 
-        console.log(issue);
         fetch(`/api/projects/${projectId}/issues`, {
             method: 'POST',
             headers: {
@@ -151,7 +201,12 @@
             },
             body: JSON.stringify(issue)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add issue');
+                }
+                return response.json();
+            })
             .then(newIssue => {
                 alert('이슈가 성공적으로 추가되었습니다.');
                 closeModal('issue');
@@ -166,12 +221,76 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
+    function openAssignModal(issueId) {
+        fetch(`/api/users/devs`)
+            .then(response => response.json())
+            .then(devs => {
+                const devListDiv = document.getElementById('devList');
+                devListDiv.innerHTML = `
+                    <table class="dev-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Career</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                `;
+
+                const tbody = devListDiv.querySelector('tbody');
+
+                devs.forEach(dev => {
+                    const devRow = document.createElement('tr');
+                    devRow.style.cursor = 'pointer';
+                    devRow.onclick = () => assignDevToIssue(issueId, dev.id);
+                    devRow.innerHTML = `
+                        <td>${dev.id}</td>
+                        <td>${dev.career}</td>
+                    `;
+                    tbody.appendChild(devRow);
+                });
+
+                openModal('assignDev');
+            })
+            .catch(error => {
+                console.error('Error loading devs:', error);
+                alert('Error loading devs: ' + error.message);
+            });
+    }
+
+    function assignDevToIssue(issueId, devId) {
+        fetch(`/api/projects/${projectId}/issues/${issueId}/assign`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ assigneeId: devId })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to assign dev');
+                }
+                closeModal('assignDev');
+                updateIssueTable();
+            })
+            .catch(error => {
+                console.error('Error assigning dev:', error);
+                alert('Error assigning dev: ' + error.message);
+            });
+    }
+
     window.onload = function() {
         commonLoad();
         setSelectedProject();
         updateIssueTable();
     };
 
+    function getUserType() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        return user ? user.userType : null;
+    }
 </script>
 
 </body>

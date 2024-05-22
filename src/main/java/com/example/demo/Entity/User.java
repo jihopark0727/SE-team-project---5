@@ -26,8 +26,8 @@ public class User {
     private String password;
     private String name;
     private String tel;
-    private String user_type;
-    private String career;
+    private String userType;
+    private int career;
     private String token;
     private LocalDateTime created_at;
     private LocalDateTime edited_at;
@@ -42,7 +42,7 @@ public class User {
         this.password = dto.getPassword();
         this.name = dto.getName();
         this.tel = dto.getTel();
-        this.user_type = dto.getUser_type();
+        this.userType = dto.getUser_type();
         this.career = dto.getCareer();
         this.token = "";
         this.created_at = LocalDateTime.now();

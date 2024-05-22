@@ -1,13 +1,14 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
-import com.example.demo.Entity.Project;
 import com.example.demo.Service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -28,9 +29,14 @@ public class IssueController {
         }
     }
 
-    @GetMapping("/{issue_id}")
-    public Optional<Issue> getIssueById(@PathVariable Long issue_id) {
-        return issueService.getIssueById(issue_id);
+    @GetMapping("/{issueId}")
+    public ResponseEntity<Issue> getIssueById(@PathVariable Long projectId, @PathVariable Long issueId) {
+        Optional<Issue> issue = issueService.getIssueById(issueId);
+        if (issue.isPresent()) {
+            return ResponseEntity.ok(issue.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -44,4 +50,14 @@ public class IssueController {
         }
     }
 
+    @PostMapping("/{issueId}/assign")
+    public ResponseEntity<ResponseDto<?>> assignDevToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
+        String assigneeId = request.get("assigneeId");
+        ResponseDto<?> response = issueService.assignDevToIssue(issueId, assigneeId);
+        if (response.isResult()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(400).body(response);
+        }
+    }
 }
