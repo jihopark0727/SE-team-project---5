@@ -2,7 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.Entity.User;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Repository.IssueRepository;
 import com.example.demo.Repository.ProjectRepository;
@@ -35,7 +35,7 @@ public class IssueService {
 
     public Issue addIssue(Issue issue, Long projectId, String reporterId) {
         Project project = projectRepository.findById(projectId).orElse(null);
-        UserEntity reporter = userRepository.findById(reporterId).orElse(null);
+        User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
             throw new IllegalArgumentException("Invalid project ID: " + projectId);
         }

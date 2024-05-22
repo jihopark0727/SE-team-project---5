@@ -26,7 +26,7 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
     @Column(name = "creation_time")
     private Date creation_time;
@@ -38,7 +38,7 @@ public class Comment {
         // 이 부분은 실제 구현에서는 레포지토리를 통해 엔티티를 로드해야 합니다.
         this.issue = new Issue();  // 임시 처리
         this.issue.setId(dto.getIssue_id());
-        this.user = new UserEntity();  // 임시 처리
+        this.user = new User();  // 임시 처리
         this.user.setId(dto.getUser_id());
         this.creation_time = dto.getCreation_time();
     }

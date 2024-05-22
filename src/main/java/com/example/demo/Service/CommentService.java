@@ -4,7 +4,7 @@ import com.example.demo.DTO.CommentDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Comment;
 import com.example.demo.Entity.Issue;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.Entity.User;
 import com.example.demo.Repository.CommentRepository;
 import com.example.demo.Repository.IssueRepository;
 import com.example.demo.Repository.UserRepository;
@@ -34,7 +34,7 @@ public class CommentService {
         }
 
         // User ID를 기반으로 UserEntity를 가져옴
-        UserEntity user = userRepository.findById(commentDto.getUser_id()).orElse(null); // User 처리 추가
+        User user = userRepository.findById(commentDto.getUser_id()).orElse(null); // User 처리 추가
         if (user == null) {
             return ResponseDto.setFailed("Invalid user ID");
         }
