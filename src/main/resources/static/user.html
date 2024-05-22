@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="homeStyle.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="commonFunctions.js"></script>
+    <style>
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px); /* To ensure it doesn't overflow the modal content */
+            padding: 10px 20px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .table .select-cell {
+            width: 50px; /* Reduce width of the select column */
+            text-align: center; /* Center align the checkbox */
+        }
+
+        .table .select-cell input[type="checkbox"] {
+            display: block;
+            margin: 0 auto; /* Center the checkbox */
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="top-navbar">
+    <div class="home-icon">
+        <a href="home.html">IMS</a>
+    </div>
+
+    <div class="nav-items">
+        <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
+            <div id="project-btn">Projects</div>
+            <div class="dropdown-content" id="projectDropdown">
+                <!-- Project links will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+    <div class="nav-item account" id="userAccount">
+        <!-- 동적으로 아이디 표시 -->
+        <span id="userIdDisplay"></span>
+        <!-- 로그아웃 버튼 -->
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- Left Navigation Bar -->
+<div class="left-navbar" id="leftNavBar">
+    <a href="issue.html">Issues</a>
+    <a href="user.html">Users</a>
+</div>
+
+<!-- Main Content Area -->
+<div class="content" id="contentArea">
+    <div class="header issue-header" id="issueHeader">
+        <h2>Assigned Users</h2>
+        <button class="open-modal-btn" id="user-modal-btn" onclick="openModal('user'); fetchAllUsers();">Manage Users</button>
+    </div>
+    <table class="table assigned-user-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>User Type</th>
+            <th>Tel</th>
+            <th>Career</th>
+        </tr>
+        </thead>
+        <tbody id="assignedUserTableBody">
+        <!-- Assigned user data will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- The Modal for User Management -->
+<div id="addUserModal" class="modal">
+    <div id="user-modal-content" class="modal-content">
+        <span class="close" onclick="closeModal('user')">&times;</span>
+        <h2>User List</h2>
+        <div class="modal-table-container">
+            <table class="table all-user-table">
+                <thead>
+                <tr>
+                    <th class="select-cell"></th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>User Type</th>
+                    <th>Tel</th>
+                    <th>Career</th>
+                </tr>
+                </thead>
+                <tbody id="allUserTableBody">
+                <!-- All user data will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <div class="pagination">
+                <button onclick="previousPage()">Previous</button>
+                <span id="pageNumber"></span>
+                <button onclick="nextPage()">Next</button>
+            </div>
+            <button class="add-btn" onclick="addUsersToProject()">Add Selected Users</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let projectName = '';
+    let projectId = '';
+    let currentPage = 1;
+    const rowsPerPage = 5;
+    let users = [];
+    let selectedUsers = new Set();
+    let assignedUsers = new Set();
+
+    function fetchAssignedUsers() {
+        // API call to get users assigned to the project
+        fetch(`/api/projects/${projectId}/users`)
+            .then(response => response.json())
+            .then(users => {
+                assignedUsers = new Set(users.map(user => user.id));
+                console.log(assignedUsers);
+                let tableContent = '';
+                users.forEach(user => {
+                    tableContent += `<tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.user_type}</td>
+                <td>${user.tel}</td>
+                <td>${user.career}</td>
+            </tr>`;
+                });
+                document.getElementById('assignedUserTableBody').innerHTML = tableContent;
+            })
+            .catch(error => console.error('Error loading assigned users:', error));
+    }
+
+    function fetchAllUsers() {
+        // API call to get all users
+        fetch('/api/users')
+            .then(response => response.json())
+            .then(data => {
+                users = data; // Save all users
+                renderTable();
+            })
+            .catch(error => console.error('Error loading all users:', error));
+    }
+
+    function renderTable() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedUsers = users.slice(start, end);
+
+        let tableContent = '';
+        paginatedUsers.forEach(user => {
+            const isChecked = selectedUsers.has(user.id) || assignedUsers.has(user.id) ? 'checked' : '';
+            const isDisabled = assignedUsers.has(user.id) ? 'disabled' : '';
+            tableContent += `<tr>
+                <td class="select-cell"><input type="checkbox" value="${user.id}" ${isChecked} ${isDisabled} onchange="toggleUserSelection('${user.id}', this.checked)"></td>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.user_type}</td>
+                <td>${user.tel}</td>
+                <td>${user.career}</td>
+            </tr>`;
+        });
+        document.getElementById('allUserTableBody').innerHTML = tableContent;
+        document.getElementById('pageNumber').innerText = `Page ${currentPage}`;
+    }
+
+    function toggleUserSelection(userId, isChecked) {
+        if (isChecked) {
+            selectedUsers.add(userId);
+        } else {
+            selectedUsers.delete(userId);
+        }
+    }
+
+    function nextPage() {
+        if (currentPage * rowsPerPage < users.length) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function addUsersToProject() {
+        const selectedUserIds = Array.from(selectedUsers);
+        console.log(selectedUsers);
+        // API call to add selected users to the project
+        fetch(`/api/projects/${projectId}/addUsers`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userIds: selectedUserIds })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('유저가 프로젝트에 성공적으로 추가되었습니다.');
+                    fetchAssignedUsers(); // Reload the assigned user list
+                    closeModal('user'); // Close the modal
+                } else {
+                    response.text().then(text => alert('Failed to add users: ' + text));
+                }
+            })
+            .catch(error => console.error('Error adding users:', error));
+    }
+
+
+    window.onload = function() {
+        commonLoad();
+        setSelectedProject();
+        fetchAssignedUsers();
+    };
+
+    document.getElementById('user-modal-btn').addEventListener('click', fetchAllUsers);
+</script>
+
+</body>
+</html>
