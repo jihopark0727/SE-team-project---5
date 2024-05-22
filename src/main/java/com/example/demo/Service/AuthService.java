@@ -5,7 +5,7 @@ import com.example.demo.DTO.LoginResponseDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class AuthService {
         }
 
         // UserEntity 생성
-        UserEntity userEntity = new UserEntity(dto);
+        User userEntity = new User(dto);
 
         // UserRepository를 이용하여 DB에 Entity 저장 (데이터 적재)
         try {
@@ -63,7 +63,7 @@ public class AuthService {
             return ResponseDto.setFailed("데이터베이스 연결에 실패하였습니다.");
         }
 
-        UserEntity userEntity = null;
+        User userEntity = null;
 
         try {
             // 값이 존재하는 경우 사용자 정보 불러옴 (기준 email)

@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,10 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name="user")				// 본인 테이블명과 맞춰주어야 함
-public class UserEntity {
+@Table(name = "user")				// 본인 테이블명과 맞춰주어야 함
+public class User {
     @Id
+    @Column(name = "id")
     private String id;
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Project> projects;
+
     private String password;
     private String name;
     private String tel;
@@ -30,11 +33,11 @@ public class UserEntity {
     private LocalDateTime edited_at;
     private LocalDateTime last_login_at;
 
-    public UserEntity(String id){
+    public User(String id){
         this.id = id;
     }
 
-    public UserEntity(SignUpDto dto) {
+    public User(SignUpDto dto) {
         this.id = dto.getId();
         this.password = dto.getPassword();
         this.name = dto.getName();

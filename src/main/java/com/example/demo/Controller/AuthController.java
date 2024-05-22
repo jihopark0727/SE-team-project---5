@@ -3,7 +3,7 @@ package com.example.demo.Controller;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.Entity.User;
 import com.example.demo.Service.AuthService;
 import com.example.demo.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,7 @@ public class AuthController {
         ResponseDto<?> result = authService.login(requestBody);
         HttpHeaders headers = new HttpHeaders();
         if (result.isResult()) {
-            UserEntity user = userService.findById(requestBody.getId());
+            User user = userService.findById(requestBody.getId());
             if (user != null) {
                 System.out.println("User found: " + user.getId());  // 로그 추가
                 session.setAttribute("userId", user.getId());

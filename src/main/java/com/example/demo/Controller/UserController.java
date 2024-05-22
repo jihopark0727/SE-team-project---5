@@ -1,19 +1,28 @@
 package com.example.demo.Controller;
 
-import com.example.demo.DTO.LoginDto;
-import com.example.demo.Entity.UserEntity;
+import com.example.demo.Entity.Project;
+import com.example.demo.Entity.User;
+import com.example.demo.Service.ProjectService;
 import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(HttpSession session) {

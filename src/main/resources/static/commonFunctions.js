@@ -7,6 +7,8 @@ function openModal(content) {
         modal = 'addIssueModal';
     } else if (content === 'comment') {
         modal = 'addCommentModal';
+    } else if (content === 'user') {
+        modal = 'addUserModal';
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -20,6 +22,8 @@ function closeModal(content) {
         modal = 'addIssueModal';
     } else if (content === 'comment') {
         modal = 'addCommentModal';
+    } else if (content === 'user') {
+        modal = 'addUserModal';
     }
     document.getElementById(modal).style.display = 'none';
 }
@@ -107,7 +111,7 @@ function showLeftNavbar() {
         try {
             const project = JSON.parse(projectData);
             if (project && project.id) {
-                document.getElementById('leftNavBar').style.display = 'block';
+                document.getElementById('leftNavBar').style.display = 'flex';
             } else {
                 document.getElementById('leftNavBar').style.display = 'none';
             }
@@ -122,7 +126,7 @@ function showLeftNavbar() {
 }
 
 function fetchUserProfile() {
-    fetch('/api/user/profile', { method: 'GET' })
+    fetch('/api/users/profile', { method: 'GET' })
         .then(response => response.json())
         .then(user => {
             console.log(user);
@@ -135,10 +139,14 @@ function fetchUserProfile() {
 function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
+    const addUserButton = document.getElementById('user-modal-btn');
 
     if (userType === 'admin') {
         if (addProjectButton) {
             addProjectButton.style.display = 'block'; // admin한테만 보여주기
+        }
+        if (addUserButton) {
+            addUserButton.style.display = 'block';
         }
     }
     if (userType === 'tester') {

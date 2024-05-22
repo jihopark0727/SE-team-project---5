@@ -121,6 +121,7 @@
             .then(newProject => {
                 alert('프로젝트가 성공적으로 추가되었습니다.');
                 closeModal('project');
+                updateProjectTable();
             })
             .catch(error => {
                 alert('프로젝트 추가 실패!');
