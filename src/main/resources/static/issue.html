@@ -82,16 +82,6 @@
     let projectName = '';
     let projectId = '';
 
-    function setSelectedProject() {
-        selectedProject = getSelectedProject();
-        if (!selectedProject) {
-            document.getElementById('issueHeader').textContent = 'No project selected';
-            return;
-        }
-        projectName = selectedProject.name;
-        projectId = selectedProject.id;
-        document.getElementById('project-btn').innerText='Project: ' + projectName;
-    }
 
     function updateIssueTable() {
         fetch(`/api/projects/${projectId}/issues`)
@@ -111,7 +101,7 @@
                     issues.forEach(issue => {
                         tableContent += `<tr>
                         <td>${issue.id}</td>
-                        <td><a href="#" onclick="redirectToComments(${issue.id})">${issue.title}</a></td>
+                        <td><a href="#" onclick="selectIssue(projectId, ${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
@@ -132,10 +122,6 @@
                 console.error('Error loading the issues:', error);
                 alert('Error loading issues: ' + error.message);
             });
-    }
-
-    function redirectToComments(issueId) {
-        window.location.href = `comments.html?issueId=${issueId}`;
     }
 
     function addNewIssue() {

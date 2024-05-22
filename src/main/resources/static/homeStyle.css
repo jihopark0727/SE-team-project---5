@@ -138,6 +138,11 @@ body {
 .open-modal-btn {
     display: none;
 }
+
+#comment-modal-btn {
+    display: block;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;

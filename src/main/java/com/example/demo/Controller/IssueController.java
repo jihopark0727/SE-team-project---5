@@ -1,12 +1,14 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Entity.Issue;
+import com.example.demo.Entity.Project;
 import com.example.demo.Service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
@@ -24,6 +26,11 @@ public class IssueController {
         } else {
             return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
         }
+    }
+
+    @GetMapping("/{issue_id}")
+    public Optional<Issue> getIssueById(@PathVariable Long issue_id) {
+        return issueService.getIssueById(issue_id);
     }
 
     @PostMapping

@@ -32,15 +32,30 @@
     </div>
 </div>
 
+<!-- Left Navigation Bar -->
+<div class="left-navbar" id="leftNavBar">
+    <a href="issue.html" id="issue-btn">Issues</a>
+</div>
+
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
     <div class="header issue-header" id="commentHeader">
         <h2>Issue Comments</h2>
         <button class="open-modal-btn" id="comment-modal-btn" onclick="openModal('comment')">Add Comment</button>
     </div>
-    <div id="commentSection">
-        <!-- 댓글 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
-    </div>
+    <table class="table comment-table">
+        <thead>
+        <tr>
+            <th>Comment ID</th>
+            <th>Content</th>
+            <th>Creation Time</th>
+            <th>User ID</th>
+        </tr>
+        </thead>
+        <tbody id="commentTableBody">
+        <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+        </tbody>
+    </table>
 </div>
 
 <!-- The Modal -->
@@ -56,33 +71,34 @@
 </div>
 
 <script>
-    function loadComments() {
-        const issueId = getSelectedIssue();
+
+    let issueTitle = '';
+    let issueId = '';
+
+    function updateCommentTable() {
+        const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
 
-        fetch(`/api/projects/${projectId}/issues/${issueId}/comments`,{
+        fetch(`/api/projects/${projectId}/issues/${issueId}/comments`, {
             method : 'GET'
         })
             .then(response => response.json())
             .then(comments => {
-                const commentSection = document.getElementById('commentSection');
-                commentSection.innerHTML = '';
+                let tableContent = '';
 
                 if (comments.length > 0) {
                     comments.forEach(comment => {
-                        const commentDiv = document.createElement('div');
-                        commentDiv.innerHTML = `
-                            <p><strong>Comment ID:</strong> ${comment.comment_id}</p>
-                            <p><strong>User:</strong> ${comment.submit.name}</p>
-                            <p><strong>Comment:</strong> ${comment.comment}</p>
-                            <p><strong>Created at:</strong> ${formatDate(comment.creation_time)}</p>
-                            <hr>
-                        `;
-                        commentSection.appendChild(commentDiv);
+                        tableContent += `<tr>
+                        <td>${comment.id}</td>
+                        <td>${comment.content}</td>
+                        <td>${formatDate(comment.creation_time)}</td>
+                        <td>${comment.user}</td>
+                    </tr>`;
                     });
                 } else {
-                    commentSection.innerHTML = '<p>No comments found.</p>';
+                    tableContent = `<tr><td colspan="9">No comments found</td></tr>`;
                 }
+                document.getElementById('commentTableBody').innerHTML = tableContent;
             })
             .catch(error => {
                 console.error('Error loading comments:', error);
@@ -90,15 +106,18 @@
             });
     }
 
+
     function addNewComment() {
         const commentText = document.getElementById('newCommentText').value;
-        const issueId = getSelectedIssue();
+        const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
+        const userId = getUserId();
+
 
         const comment = {
-            comment: commentText,
+            content: commentText,
             issue_id: issueId,
-            submit: getUserId()
+            user_id: userId
         };
 
         fetch(`/api/projects/${projectId}/issues/${issueId}/comments/add_comment`, {
@@ -110,40 +129,27 @@
         })
             .then(response => {
                 if (response.ok) {
-                    alert('Comment added successfully');
+                    alert('코멘트가 성공적으로 추가되었습니다.');
                     closeModal('comment');
-                    loadComments();
+                    updateCommentTable();
                 } else {
                     response.text().then(text => alert('Failed to add comment: ' + text)); // 서버로부터의 실패 응답을 출력
                 }
             })
             .catch(error => {
-                alert('Failed to add comment');
+                alert('코멘트 추가 실패!');
                 console.error('Error:', error);
             });
 
         document.getElementById('newCommentText').value = '';
     }
 
-    function setProjectAndIssueTitles() {
-        const selectedProject = getSelectedProject();
-        const selectedIssueId = getSelectedIssue();
-
-        fetch(`/api/projects/${selectedProject.id}/issues/${selectedIssueId}`)
-            .then(response => response.json())
-            .then(issue => {
-                const projectIssueDisplay = document.getElementById('projectIssueDisplay');
-                projectIssueDisplay.innerText = `Projects : ${selectedProject.name} : Issue : ${issue.title}`;
-            })
-            .catch(error => {
-                console.error('Error loading the issue:', error);
-                alert('Error loading issue: ' + error.message);
-            });
-    }
 
     window.onload = function() {
-        setProjectAndIssueTitles();
-        loadComments();
+        setSelectedProject();
+        setSelectedIssue();
+        console.log(localStorage);
+        updateCommentTable();
         commonLoad();
     };
 </script>

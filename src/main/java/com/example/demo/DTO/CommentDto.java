@@ -9,9 +9,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDto {
-    private Long comment_id;
+    private Long id;
     private Long issue_id;  // Issue 대신 issue_id로 수정
-    private String comment;
-    private UserEntity submit;
+    private String content;
+    private String user_id;
     private Date creation_time;
+
+    public Long getIssueId() {
+        return issue_id;
+    }
 }

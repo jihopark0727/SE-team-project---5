@@ -90,8 +90,19 @@ function selectProject(projectId) {
         .catch(error => console.error('Error selecting the project:', error));
 }
 
+function selectIssue(projectId, issueId) {
+    fetch(`/api/projects/${projectId}/issues/${issueId}`)
+        .then(response => response.json())
+        .then(issue => {
+            localStorage.setItem('selectedIssue', JSON.stringify(issue));
+            window.location.href = 'comments.html';
+        })
+        .catch(error => console.error('Error selecting the issue:', error));
+}
+
 function showLeftNavbar() {
     const projectData = localStorage.getItem('selectedProject');
+    console.log(localStorage);
     if (projectData) {
         try {
             const project = JSON.parse(projectData);
@@ -124,7 +135,7 @@ function fetchUserProfile() {
 function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
-    const addCommentButton = document.getElementById('comment-modal-btn');
+
     if (userType === 'admin') {
         if (addProjectButton) {
             addProjectButton.style.display = 'block'; // admin한테만 보여주기
@@ -134,9 +145,6 @@ function adjustUIBasedOnRole(userType) {
         if (addIssueButton) {
             addIssueButton.style.display = 'block'; // tester한테만 보여주기
         }
-    }
-    if (addCommentButton) {
-        addCommentButton.style.display = 'block'; // 모든 사용자에게 보여주기
     }
 }
 
@@ -166,9 +174,8 @@ function getSelectedProject() {
 }
 
 function getSelectedIssue() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const issueId = urlParams.get('issueId');
-    return issueId;
+    const selectedIssue = JSON.parse(localStorage.getItem('selectedIssue'));
+    return selectedIssue;
 }
 
 function logout() {
@@ -184,6 +191,28 @@ function logout() {
             console.error('Logout failed', error);
             alert('Logout error: ' + error.message);
         });
+}
+
+function setSelectedProject() {
+    selectedProject = getSelectedProject();
+    if (!selectedProject) {
+        document.getElementById('issueHeader').textContent = 'No project selected';
+        return;
+    }
+    projectName = selectedProject.name;
+    projectId = selectedProject.id;
+    document.getElementById('project-btn').innerText='Project: ' + projectName;
+}
+
+function setSelectedIssue() {
+    selectedIssue = getSelectedIssue();
+    if (!selectedIssue) {
+        document.getElementById('commentHeader').textContent = 'No Issue selected';
+        return;
+    }
+    issueTitle = selectedIssue.title;
+    issueId = selectedIssue.id;
+    document.getElementById('issue-btn').innerText='Issue: ' + issueTitle;
 }
 
 function commonLoad() {

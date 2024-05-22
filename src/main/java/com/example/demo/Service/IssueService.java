@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class IssueService {
@@ -25,6 +26,10 @@ public class IssueService {
 
     public List<Issue> getIssuesByProjectId(Long projectId) {
         return issueRepository.findByProjectId(projectId);
+    }
+
+    public Optional<Issue> getIssueById(Long issueId) {
+        return issueRepository.findById(issueId);
     }
 
     public Issue addIssue(Issue issue, Long projectId, String reporterId) {
