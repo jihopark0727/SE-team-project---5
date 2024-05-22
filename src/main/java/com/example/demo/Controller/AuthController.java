@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import java.net.URI;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.stream.Collectors;
 
@@ -48,6 +50,13 @@ public class AuthController {
         } else {
             headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 에러 메시지와 함께 로그인 화면으로 리다이렉트
         }
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        ResponseDto<?> result = authService.logout(request, response);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("/index.html?logout=success")); // 로그아웃 후 로그인 화면으로 리다이렉트
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
