@@ -99,17 +99,18 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
+                        console.log(issue); // 디버깅을 위해 각 이슈 객체 로그 출력
                         tableContent += `<tr>
-                        <td>${issue.id}</td>
-                        <td><a href="#" onclick="selectIssue(projectId, ${issue.id})">${issue.title}</a></td>
-                        <td>${issue.description}</td>
-                        <td>${formatDate(issue.reported_time)}</td>
-                        <td>${formatDate(issue.last_modified_time)}</td>
-                        <td>${issue.status}</td>
-                        <td>${issue.reporter_id}</td>
-                        <td>${issue.assignee_id}</td>
-                        <td>${issue.fixer_id}</td>
-                    </tr>`;
+                    <td>${issue.id}</td>
+                    <td><a href="#" onclick="selectIssue(${projectId}, ${issue.id})">${issue.title}</a></td>
+                    <td>${issue.description}</td>
+                    <td>${formatDate(issue.reported_time)}</td>
+                    <td>${formatDate(issue.last_modified_time)}</td>
+                    <td>${issue.status}</td>
+                    <td>${issue.reporter ? issue.reporter.id : 'N/A'}</td> <!-- 여기에 변경 -->
+                    <td>${issue.assignee ? issue.assignee.id : 'None'}</td>
+                    <td>${issue.fixer ? issue.fixer.id : 'None'}</td>
+                </tr>`;
                     });
                 } else {
                     // 데이터가 없는 경우의 처리
@@ -123,6 +124,7 @@
                 alert('Error loading issues: ' + error.message);
             });
     }
+
 
     function addNewIssue() {
         const issueTitle = document.getElementById('newIssueTitle').value;
