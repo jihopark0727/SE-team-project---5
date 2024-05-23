@@ -35,25 +35,30 @@ public class IssueService {
         return issueRepository.findById(issueId);
     }
 
+    @Transactional
     public Issue addIssue(IssueDto issueDto, Long projectId, String reporterId) {
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
             throw new IllegalArgumentException("Invalid project ID: " + projectId);
         }
-        else if (reporter == null) {
+        if (reporter == null) {
             throw new IllegalArgumentException("Invalid reporter ID: " + reporterId);
         }
         Issue issue = new Issue(issueDto);
         issue.setProject(project);
-        issue.setReporter(new User(reporterId));
+        issue.setReporter(reporter);
         issue.setAssignee(null);
         issue.setFixer(null);
         issue.setStatus("new");
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
+
+        System.out.println("Saving Issue: " + issue); // 디버깅 로그 추가
+
         return issueRepository.save(issue);
     }
+
     @Transactional
     public ResponseDto<?> updateIssueState(Long issueId, String state) {
         Issue issue = issueRepository.findById(issueId).orElse(null);

@@ -37,7 +37,10 @@ public class IssueController {
 
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issueDto) {
-        System.out.println("Received reporter ID: " + issueDto.getReporter().getId());  // 로거나 콘솔을 통해 리포터 ID 확인
+        System.out.println("Received reporter: " + issueDto.getReporter());  // 로거나 콘솔을 통해 리포터 객체 확인
+        if (issueDto.getReporter() == null || issueDto.getReporter().getId() == null) {
+            throw new IllegalArgumentException("Reporter ID is missing");
+        }
         Issue newIssue = issueService.addIssue(issueDto, projectId, issueDto.getReporter().getId());
         if (newIssue != null) {
             return ResponseEntity.ok(newIssue);
@@ -45,6 +48,7 @@ public class IssueController {
             return ResponseEntity.badRequest().build();
         }
     }
+
     @PostMapping("/{issueId}/updateIssueState")
     public ResponseDto<?> updateIssueState(@PathVariable Long issueId, @RequestBody String state){
         return issueService.updateIssueState(issueId, state);

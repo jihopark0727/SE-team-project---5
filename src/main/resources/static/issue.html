@@ -125,20 +125,20 @@
     }
 
     function addNewIssue() {
-
         const issueTitle = document.getElementById('newIssueTitle').value;
         const issueDescription = document.getElementById('newIssueDesc').value;
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
+        const reporterId = getUserId();  // 현재 로그인한 사용자의 ID를 리포터로 설정
 
         const issue = {
             title: issueTitle,
             description: issueDescription,
             reported_time: new Date().toISOString(),
             last_modified_time: new Date().toISOString(),
-            reporter_id: getUserId(),  // 현재 로그인한 사용자의 ID를 리포터로 설정
+            reporter: { id: reporterId },  // reporter 객체로 전송
             status: 'new',  // 초기 상태는 'new'
-            assignee_id: 'None',
-            fixer_id: 'None',
+            assignee_id: null,
+            fixer_id: null,
             project_id: projectId // 선택된 프로젝트 ID
         };
 
@@ -150,20 +150,26 @@
             },
             body: JSON.stringify(issue)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
             .then(newIssue => {
                 alert('이슈가 성공적으로 추가되었습니다.');
                 closeModal('issue');
                 updateIssueTable();
             })
             .catch(error => {
-                alert('이슈 추가 실패!');
+                alert('이슈 추가 실패! 에러 메시지: ' + error.message);
                 console.error('Error:', error);
             });
 
         document.getElementById('newIssueTitle').value = '';
         document.getElementById('newIssueDesc').value = '';
     }
+
 
     window.onload = function() {
         commonLoad();
