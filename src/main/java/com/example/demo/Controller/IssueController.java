@@ -1,9 +1,12 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.AssignIssueDto;
 import com.example.demo.DTO.IssueDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
+import com.example.demo.Entity.User;
 import com.example.demo.Service.IssueService;
+import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,31 @@ public class IssueController {
 
     @Autowired
     private IssueService issueService;
+    @Autowired
+    private UserService userService;
+
+    // dev 타입의 계정 조회
+    @GetMapping("/dev-users")
+    public ResponseEntity<List<User>> getDevUsers() {
+        List<User> devUsers = userService.getUsersByType("dev");
+        return ResponseEntity.ok(devUsers);
+    }
+
+    // 이슈의 assignee 지정 및 상태 변경
+    @PostMapping("/{issueId}/assign")
+    public ResponseEntity<?> assignIssue(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @RequestBody AssignIssueDto assignIssueDto) {
+
+        boolean result = issueService.assignIssue(issueId, assignIssueDto.getAssigneeId(), assignIssueDto.getPlId(), assignIssueDto.getComment());
+        if (result) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().body("Issue assignment failed");
+        }
+    }
+
 
     // 프로젝트 ID에 따른 이슈 목록 가져오기
     @GetMapping

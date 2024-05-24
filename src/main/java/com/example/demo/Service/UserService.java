@@ -5,6 +5,8 @@ import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -15,4 +17,7 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public List<User> getUsersByType(String userType) {
+        return userRepository.findByUserType(userType);
+    }
 }

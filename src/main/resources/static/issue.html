@@ -155,9 +155,22 @@
     </div>
 </div>
 
+<!-- Assign Dev Modal -->
+<div id="assignDevModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('assignDev')">&times;</span>
+        <h2>Assign Developer</h2>
+        <div id="devListContainer">
+            <!-- Developer list will be dynamically populated here -->
+        </div>
+        <button class="assign-btn" onclick="assignSelectedDev()">Assign</button>
+    </div>
+</div>
+
 <script>
     let projectName = '';
     let projectId = '';
+    let currentIssueId = '';
 
     function updateIssueTable() {
         fetch(`/api/projects/${projectId}/issues`)
@@ -210,13 +223,7 @@
         const issue = {
             title: issueTitle,
             description: issueDescription,
-            reported_time: new Date().toISOString(),
-            last_modified_time: new Date().toISOString(),
-            reporter: { id: reporterId },  // reporter 객체로 전송
-            status: 'new',  // 초기 상태는 'new'
-            assignee_id: null,
-            fixer_id: null,
-            project_id: projectId // 선택된 프로젝트 ID
+            reporter: { id: reporterId }
         };
 
         console.log(issue);
@@ -247,6 +254,7 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
+
     function fetchNewIssues() {
         fetch(`/api/projects/${projectId}/issues/status/new`)
             .then(response => response.json())
@@ -260,7 +268,7 @@
                     <td>${issue.title}</td>
                     <td>${issue.description}</td>
                     <td>${formatDate(issue.reported_time)}</td>
-                    <td><button onclick="assignIssue(${issue.id})">Assign</button></td>
+                    <td><button onclick="openAssignDevModal(${issue.id})">Assign</button></td>
                 </tr>`;
                     });
                 } else {
@@ -275,9 +283,65 @@
             });
     }
 
-    function assignIssue(issueId) {
-        // Implementation for assigning the issue
+    function openAssignDevModal(issueId) {
+        currentIssueId = issueId;
+        fetch(`/api/projects/${projectId}/issues/dev-users`)
+            .then(response => response.json())
+            .then(users => {
+                let devListContent = '<ul>';
+                users.forEach(user => {
+                    devListContent += `<li>
+                        <input type="radio" name="devUser" value="${user.id}">
+                        ${user.id} (${user.name})
+                    </li>`;
+                });
+                devListContent += '</ul>';
+                document.getElementById('devListContainer').innerHTML = devListContent;
+                document.getElementById('assignDevModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading developers:', error);
+                alert('Error loading developers: ' + error.message);
+            });
     }
+
+    function assignSelectedDev() {
+        const selectedDev = document.querySelector('input[name="devUser"]:checked');
+        if (selectedDev) {
+            const assigneeId = selectedDev.value;
+            const comment = prompt('Enter a comment:');
+            const plId = getUserId();  // 현재 로그인한 PL의 ID를 가져옵니다.
+            const assignData = {
+                assigneeId: assigneeId,
+                plId: plId,  // PL의 ID를 추가합니다.
+                comment: comment
+            };
+
+            fetch(`/api/projects/${projectId}/issues/${currentIssueId}/assign`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(assignData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.statusText}`);
+                    }
+                    alert('Issue successfully assigned.');
+                    closeModal('assignDev');
+                    fetchNewIssues();
+                    updateIssueTable();
+                })
+                .catch(error => {
+                    console.error('Error assigning issue:', error);
+                    alert('Error assigning issue: ' + error.message);
+                });
+        } else {
+            alert('Please select a developer to assign.');
+        }
+    }
+
 
     function openModal(content) {
         if (content === 'issue') {
@@ -293,6 +357,8 @@
             document.getElementById('addIssueModal').style.display = 'none';
         } else if (content === 'findNewIssues') {
             document.getElementById('findNewIssuesModal').style.display = 'none';
+        } else if (content === 'assignDev') {
+            document.getElementById('assignDevModal').style.display = 'none';
         }
     }
 

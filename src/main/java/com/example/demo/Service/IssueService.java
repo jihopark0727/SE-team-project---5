@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 
 import com.example.demo.DTO.IssueDto;
+import com.example.demo.Entity.Comment;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
 import com.example.demo.Entity.User;
@@ -24,6 +25,7 @@ public class IssueService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -60,6 +62,10 @@ public class IssueService {
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
 
+        // 이슈 생성 시 description에 reporter의 아이디와 코멘트를 추가
+        String reporterComment = reporter.getId() + ": " + issueDto.getDescription();
+        issue.setDescription(reporterComment);
+
         System.out.println("Saving Issue: " + issue); // 디버깅 로그 추가
 
         return issueRepository.save(issue);
@@ -71,10 +77,39 @@ public class IssueService {
 
         if(issue == null) {
             return ResponseDto.setFailed("Cannot find issue with id " + issueId);
-        }
-        else{
+        } else {
             issue.setStatus(state);
+            issue.setLast_modified_time(new Date());
+            issueRepository.save(issue);
             return ResponseDto.setSuccess("success");
+        }
+    }
+    @Transactional
+    public boolean assignIssue(Long issueId, String assigneeId, String plId, String commentText) {
+        Optional<Issue> issueOpt = issueRepository.findById(issueId);
+        Optional<User> assigneeOpt = userRepository.findById(assigneeId);
+        Optional<User> plOpt = userRepository.findById(plId);
+
+        if (issueOpt.isPresent() && assigneeOpt.isPresent() && plOpt.isPresent()) {
+            Issue issue = issueOpt.get();
+            User assignee = assigneeOpt.get();
+            User pl = plOpt.get();
+
+            issue.setAssignee(assignee);
+            issue.setStatus("assigned");
+
+            if (commentText != null && !commentText.isEmpty()) {
+                String currentDescription = issue.getDescription();
+                String updatedDescription = currentDescription == null
+                        ? pl.getId() + ": " + commentText
+                        : currentDescription + "\n" + pl.getId() + ": " + commentText;
+                issue.setDescription(updatedDescription);
+            }
+
+            issueRepository.save(issue);
+            return true;
+        } else {
+            return false;
         }
     }
     public ResponseEntity<List<Issue>> searchByAssignee(String assigneeId) {
