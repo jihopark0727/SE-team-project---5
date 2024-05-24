@@ -60,4 +60,15 @@ public class IssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
+
+    @PostMapping("/{issueId}/fix")
+    public ResponseEntity<ResponseDto<?>> assignFixerToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
+        String fixerId = request.get("fixerId");
+        ResponseDto<?> response = issueService.assignFixerToIssue(issueId, fixerId);
+        if (response.isResult()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(400).body(response);
+        }
+    }
 }

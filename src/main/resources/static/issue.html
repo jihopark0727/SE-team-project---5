@@ -113,9 +113,19 @@
     </div>
 </div>
 
+<!-- The Modal for Assigning Fixer -->
+<div id="assignFixerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('assignFixer')">&times;</span>
+        <h2>Assign Fixer</h2>
+        <button class="add-btn" onclick="assignFixerToIssue()">Assign as Fixer</button>
+    </div>
+</div>
+
 <script>
     let projectName = '';
     let projectId = '';
+    let currentIssueId = null;
 
     function setSelectedProject() {
         selectedProject = getSelectedProject();
@@ -145,6 +155,7 @@
                 if (issues.length > 0) {
                     issues.forEach(issue => {
                         const assigneeClass = getUserType() === 'pl' ? 'clickable pl-assignee' : 'clickable';
+                        const fixerClass = (getUserType() === 'dev' && issue.assignee_id === getUserId()) ? 'clickable' : '';
                         tableContent += `<tr>
                         <td>${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
@@ -154,7 +165,7 @@
                         <td>${issue.status}</td>
                         <td>${issue.reporter_id}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
-                        <td>${issue.fixer_id}</td>
+                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixer_id === null ? 'not assigned yet' : issue.fixer_id}</td>
                     </tr>`;
                     });
                 } else {
@@ -166,11 +177,14 @@
 
                 // Assignee ID 클릭 이벤트 추가
                 document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    td.onclick = () => {
-                        if (getUserType() === 'pl') {
-                            openAssignModal(td.dataset.issueId);
-                        }
-                    };
+                    if (getUserType() === 'pl' || td.textContent === 'not assigned yet') {
+                        td.onclick = () => openAssignModal(td.dataset.issueId);
+                    }
+                });
+
+                // Fixer ID 클릭 이벤트 추가
+                document.querySelectorAll('.fixer.clickable').forEach(td => {
+                    td.onclick = () => openFixerModal(td.dataset.issueId);
                 });
             })
             .catch(error => {
@@ -262,6 +276,11 @@
             });
     }
 
+    function openFixerModal(issueId) {
+        currentIssueId = issueId;
+        openModal('assignFixer');
+    }
+
     function assignDevToIssue(issueId, devId) {
         fetch(`/api/projects/${projectId}/issues/${issueId}/assign`, {
             method: 'POST',
@@ -283,6 +302,28 @@
             });
     }
 
+    function assignFixerToIssue() {
+        const userId = getUserId();
+        fetch(`/api/projects/${projectId}/issues/${currentIssueId}/fix`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fixerId: userId })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to assign fixer');
+                }
+                closeModal('assignFixer');
+                updateIssueTable();
+            })
+            .catch(error => {
+                console.error('Error assigning fixer:', error);
+                alert('Error assigning fixer: ' + error.message);
+            });
+    }
+
     window.onload = function() {
         commonLoad();
         setSelectedProject();
@@ -291,7 +332,12 @@
 
     function getUserType() {
         const user = JSON.parse(localStorage.getItem('user'));
-        return user ? user.user_type : null;  // 여기서 user_type으로 수정
+        return user ? user.user_type : null;
+    }
+
+    function getUserId() {
+        const userId = JSON.parse(localStorage.getItem('user')).id;
+        return userId;
     }
 </script>
 

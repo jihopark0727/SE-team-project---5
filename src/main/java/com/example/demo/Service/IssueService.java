@@ -71,6 +71,23 @@ public class IssueService {
         return ResponseDto.setSuccess("Assignee updated successfully");
     }
 
+    public ResponseDto<?> assignFixerToIssue(Long issueId, String fixerId) {
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+        if (issue == null) {
+            return ResponseDto.setFailed("Issue not found");
+        }
+
+        if (!fixerId.equals(issue.getAssignee_id())) {
+            return ResponseDto.setFailed("Only the assigned dev can be the fixer");
+        }
+
+        issue.setFixer_id(fixerId);
+        issue.setStatus("fixed");
+        issue.setLast_modified_time(new Date());
+        issueRepository.save(issue);
+        return ResponseDto.setSuccess("Fixer assigned and issue fixed");
+    }
+
 
     public List<User> getAllDevs() {
         return userRepository.findByUserTypeOrderByCareerDesc("dev");

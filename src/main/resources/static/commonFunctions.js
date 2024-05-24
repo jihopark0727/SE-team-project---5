@@ -9,6 +9,8 @@ function openModal(content) {
         modal = 'addCommentModal';
     } else if (content === 'assignDev') {
         modal = 'assignDevModal';
+    } else if (content === 'assignFixer') {  // 추가된 부분
+        modal = 'assignFixerModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
     }
@@ -26,6 +28,8 @@ function closeModal(content) {
         modal = 'addCommentModal';
     } else if (content === 'assignDev') {
         modal = 'assignDevModal';
+    } else if (content === 'assignFixer') {  // 추가된 부분
+        modal = 'assignFixerModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
     }
@@ -228,7 +232,7 @@ function setSelectedIssue() {
     }
     issueTitle = selectedIssue.title;
     issueId = selectedIssue.id;
-    document.getElementById('issue-btn').innerText='Issue: ' + issueTitle;
+    document.getElementById('commentHeader').innerText='Issue: ' + issueTitle;
 }
 
 function commonLoad() {
