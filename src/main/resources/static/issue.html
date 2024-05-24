@@ -44,6 +44,7 @@
     <div class="header issue-header" id="issueHeader">
         <h2>All Issues</h2>
         <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
+        <button class="open-modal-btn" id="find-new-issues-btn" onclick="openModal('findNewIssues')">Find New Issues</button>
     </div>
     <table class="table issue-table">
         <thead>
@@ -78,10 +79,31 @@
     </div>
 </div>
 
+<!-- Find New Issues Modal -->
+<div id="findNewIssuesModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('findNewIssues')">&times;</span>
+        <h2>New Issues</h2>
+        <table class="table issue-table">
+            <thead>
+            <tr>
+                <th>Issue ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Reported Time</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="newIssuesTableBody">
+            <!-- New issues will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script>
     let projectName = '';
     let projectId = '';
-
 
     function updateIssueTable() {
         fetch(`/api/projects/${projectId}/issues`)
@@ -107,7 +129,7 @@
                     <td>${formatDate(issue.reported_time)}</td>
                     <td>${formatDate(issue.last_modified_time)}</td>
                     <td>${issue.status}</td>
-                    <td>${issue.reporter ? issue.reporter.id : 'N/A'}</td> <!-- 여기에 변경 -->
+                    <td>${issue.reporter ? issue.reporter.id : 'N/A'}</td>
                     <td>${issue.assignee ? issue.assignee.id : 'None'}</td>
                     <td>${issue.fixer ? issue.fixer.id : 'None'}</td>
                 </tr>`;
@@ -124,7 +146,6 @@
                 alert('Error loading issues: ' + error.message);
             });
     }
-
 
     function addNewIssue() {
         const issueTitle = document.getElementById('newIssueTitle').value;
@@ -172,6 +193,54 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
+    function fetchNewIssues() {
+        fetch(`/api/projects/${projectId}/issues/status/new`)
+            .then(response => response.json())
+            .then(issues => {
+                let tableContent = '';
+
+                if (issues.length > 0) {
+                    issues.forEach(issue => {
+                        tableContent += `<tr>
+                    <td>${issue.id}</td>
+                    <td>${issue.title}</td>
+                    <td>${issue.description}</td>
+                    <td>${formatDate(issue.reported_time)}</td>
+                    <td><button onclick="assignIssue(${issue.id})">Assign</button></td>
+                </tr>`;
+                    });
+                } else {
+                    tableContent = `<tr><td colspan="5">No new issues found</td></tr>`;
+                }
+
+                document.getElementById('newIssuesTableBody').innerHTML = tableContent;
+            })
+            .catch(error => {
+                console.error('Error loading new issues:', error);
+                alert('Error loading new issues: ' + error.message);
+            });
+    }
+
+    function assignIssue(issueId) {
+        // Implementation for assigning the issue
+    }
+
+    function openModal(content) {
+        if (content === 'issue') {
+            document.getElementById('addIssueModal').style.display = 'block';
+        } else if (content === 'findNewIssues') {
+            fetchNewIssues(); // Load new issues when the modal is opened
+            document.getElementById('findNewIssuesModal').style.display = 'block';
+        }
+    }
+
+    function closeModal(content) {
+        if (content === 'issue') {
+            document.getElementById('addIssueModal').style.display = 'none';
+        } else if (content === 'findNewIssues') {
+            document.getElementById('findNewIssuesModal').style.display = 'none';
+        }
+    }
 
     window.onload = function() {
         commonLoad();

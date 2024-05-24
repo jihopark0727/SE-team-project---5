@@ -30,6 +30,18 @@ public class IssueController {
         }
     }
 
+    // 프로젝트 ID에 따른 NEW 상태의 이슈 목록 가져오기
+    @GetMapping("/status/new")
+    public ResponseEntity<List<Issue>> getNewIssues(@PathVariable Long projectId) {
+        List<Issue> newIssues = issueService.getIssuesByStatus(projectId, "new");
+        if (newIssues != null && !newIssues.isEmpty()) {
+            return ResponseEntity.ok(newIssues);  // 새로운 상태의 이슈 목록 반환
+        } else {
+            return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
+        }
+    }
+
+
     @GetMapping("/{issue_id}")
     public Optional<Issue> getIssueById(@PathVariable Long issue_id) {
         return issueService.getIssueById(issue_id);

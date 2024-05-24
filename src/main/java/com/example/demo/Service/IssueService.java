@@ -35,6 +35,12 @@ public class IssueService {
         return issueRepository.findById(issueId);
     }
 
+    // 프로젝트 ID와 상태에 따른 이슈 목록 가져오기
+    public List<Issue> getIssuesByStatus(Long projectId, String status) {
+        return issueRepository.findByProjectIdAndStatus(projectId, status);
+    }
+
+
     @Transactional
     public Issue addIssue(IssueDto issueDto, Long projectId, String reporterId) {
         Project project = projectRepository.findById(projectId).orElse(null);

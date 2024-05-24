@@ -5,8 +5,9 @@ function openModal(content) {
         modal = 'addProjectModal';
     } else if (content === 'issue') {
         modal = 'addIssueModal';
-    } else if (content === 'comment') {
-        modal = 'addCommentModal';
+    } else if (content === 'findNewIssues') {
+        modal = 'findNewIssuesModal';
+        fetchNewIssues(); // Add this line to fetch new issues when the modal is opened
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -18,8 +19,8 @@ function closeModal(content) {
         modal = 'addProjectModal';
     } else if (content === 'issue') {
         modal = 'addIssueModal';
-    } else if (content === 'comment') {
-        modal = 'addCommentModal';
+    } else if (content === 'findNewIssues') {
+        modal = 'findNewIssuesModal';
     }
     document.getElementById(modal).style.display = 'none';
 }
@@ -135,6 +136,7 @@ function fetchUserProfile() {
 function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
+    const findNewIssuesButton = document.getElementById('find-new-issues-btn');
 
     if (userType === 'admin') {
         if (addProjectButton) {
@@ -144,6 +146,11 @@ function adjustUIBasedOnRole(userType) {
     if (userType === 'tester') {
         if (addIssueButton) {
             addIssueButton.style.display = 'block'; // tester한테만 보여주기
+        }
+    }
+    if (userType === 'pl') {
+        if (findNewIssuesButton) {
+            findNewIssuesButton.style.display = 'block'; // pl한테만 보여주기
         }
     }
 }
@@ -219,4 +226,32 @@ function commonLoad() {
     adjustUser();
     fetchProjectList();
     showLeftNavbar();
+}
+
+function fetchNewIssues() {
+    fetch(`/api/projects/${projectId}/issues/status/new`)
+        .then(response => response.json())
+        .then(issues => {
+            let tableContent = '';
+
+            if (issues.length > 0) {
+                issues.forEach(issue => {
+                    tableContent += `<tr>
+                <td>${issue.id}</td>
+                <td>${issue.title}</td>
+                <td>${issue.description}</td>
+                <td>${formatDate(issue.reported_time)}</td>
+                <td><button onclick="assignIssue(${issue.id})">Assign</button></td>
+            </tr>`;
+                });
+            } else {
+                tableContent = `<tr><td colspan="5">No new issues found</td></tr>`;
+            }
+
+            document.getElementById('newIssuesTableBody').innerHTML = tableContent;
+        })
+        .catch(error => {
+            console.error('Error loading new issues:', error);
+            alert('Error loading new issues: ' + error.message);
+        });
 }
