@@ -25,7 +25,7 @@ function closeModal(content) {
     } else if (content === 'comment') {
         modal = 'addCommentModal';
     } else if (content === 'assignDev') {
-            modal = 'assignDevModal';
+        modal = 'assignDevModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
     }
@@ -108,7 +108,6 @@ function selectIssue(issueId) {
         .catch(error => console.error('Error selecting the issue:', error));
 }
 
-
 function showLeftNavbar() {
     const projectData = localStorage.getItem('selectedProject');
     console.log(localStorage);
@@ -145,6 +144,7 @@ function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
     const addUserButton = document.getElementById('user-modal-btn');
+    const addCommentButton = document.getElementById('comment-modal-btn');
 
     if (userType === 'admin') {
         if (addProjectButton) {
@@ -158,6 +158,9 @@ function adjustUIBasedOnRole(userType) {
         if (addIssueButton) {
             addIssueButton.style.display = 'block'; // tester한테만 보여주기
         }
+    }
+    if (addCommentButton) {
+        addCommentButton.style.display = 'block'; // 모든 유저에게 보여주기
     }
 }
 

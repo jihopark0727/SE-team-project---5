@@ -65,10 +65,12 @@ public class IssueService {
         }
 
         issue.setAssignee_id(assigneeId);
+        issue.setStatus("assigned"); // 상태를 'assigned'로 변경
         issue.setLast_modified_time(new Date());
         issueRepository.save(issue);
         return ResponseDto.setSuccess("Assignee updated successfully");
     }
+
 
     public List<User> getAllDevs() {
         return userRepository.findByUserTypeOrderByCareerDesc("dev");

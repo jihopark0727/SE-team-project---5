@@ -166,9 +166,11 @@
 
                 // Assignee ID 클릭 이벤트 추가
                 document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (getUserType() === 'pl' || td.textContent === 'not assigned yet') {
-                        td.onclick = () => openAssignModal(td.dataset.issueId);
-                    }
+                    td.onclick = () => {
+                        if (getUserType() === 'pl') {
+                            openAssignModal(td.dataset.issueId);
+                        }
+                    };
                 });
             })
             .catch(error => {
@@ -289,7 +291,7 @@
 
     function getUserType() {
         const user = JSON.parse(localStorage.getItem('user'));
-        return user ? user.userType : null;
+        return user ? user.user_type : null;  // 여기서 user_type으로 수정
     }
 </script>
 
