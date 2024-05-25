@@ -142,6 +142,16 @@
     </div>
 </div>
 
+<!-- Modal for Changing Issue Status -->
+<div id="changeStatusModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('changeStatus')">&times;</span>
+        <h2>Change Issue Status</h2>
+        <p id="statusMessage"></p>
+        <button class="add-btn" id="confirmStatusChange">Yes</button>
+    </div>
+</div>
+
 <script>
     let projectName = '';
     let projectId = '';
@@ -182,13 +192,15 @@
                     issues.forEach(issue => {
                         const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
                         const fixerClass = (currentUserType) === 'dev' && issue.assignee_id === currentUserId ? 'clickable' : '';
+                        const statusClass = (currentUserType === 'tester' && issue.reporter_id === currentUserId && issue.status === 'fixed') ||
+                        (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
                         tableContent += `<tr>
                         <td>${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
-                        <td>${issue.status}</td>
+                        <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
                         <td>${issue.reporter_id}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
                         <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixer_id === null ? 'not assigned yet' : issue.fixer_id}</td>
@@ -211,6 +223,11 @@
                 // Fixer ID 클릭 이벤트 추가
                 document.querySelectorAll('.fixer.clickable').forEach(td => {
                     td.onclick = () => openFixerModal(td.dataset.issueId);
+                });
+
+                // Status ID 클릭 이벤트 추가
+                document.querySelectorAll('.status.clickable').forEach(td => {
+                    td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
                 });
             })
             .catch(error => {

@@ -71,4 +71,16 @@ public class IssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
+
+    @PutMapping("/{issueId}/status")
+    public ResponseEntity<ResponseDto<?>> updateIssueStatus(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
+        String newStatus = request.get("status");
+        String userId = request.get("userId");
+        ResponseDto<?> response = issueService.updateIssueStatus(issueId, newStatus, userId);
+        if (response.isResult()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(400).body(response);
+        }
+    }
 }

@@ -13,6 +13,8 @@ function openModal(content) {
         modal = 'assignFixerModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
+    } else if (content === 'changeStatus') { // 추가된 부분
+        modal = 'changeStatusModal';
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -28,10 +30,12 @@ function closeModal(content) {
         modal = 'addCommentModal';
     } else if (content === 'assignDev') {
         modal = 'assignDevModal';
-    } else if (content === 'assignFixer') {  // 추가된 부분
+    } else if (content === 'assignFixer') {
         modal = 'assignFixerModal';
     } else if (content === 'user') {
         modal = 'addUserModal';
+    } else if (content === 'changeStatus') {
+        modal = 'changeStatusModal';
     }
     document.getElementById(modal).style.display = 'none';
 }
@@ -114,7 +118,6 @@ function selectIssue(issueId) {
 
 function showLeftNavbar() {
     const projectData = localStorage.getItem('selectedProject');
-    console.log(localStorage);
     if (projectData) {
         try {
             const project = JSON.parse(projectData);
@@ -137,7 +140,6 @@ function fetchUserProfile() {
     fetch('/api/users/profile', { method: 'GET' })
         .then(response => response.json())
         .then(user => {
-            console.log(user);
             localStorage.setItem('user', JSON.stringify(user));
             adjustUser();
         })
@@ -242,3 +244,55 @@ function commonLoad() {
     fetchProjectList();
     showLeftNavbar();
 }
+
+function openStatusChangeModal(issueId, currentStatus) {
+    currentIssueId = issueId;
+    const userId = getUserId();
+    const userType = getUserType();
+    let newStatus = '';
+
+    if (currentStatus === 'fixed' && userType === 'tester') {
+        newStatus = 'resolved';
+        document.getElementById('statusMessage').textContent = 'Do you want to change the status to resolved?';
+    } else if (currentStatus === 'resolved' && userType === 'pl') {
+        newStatus = 'closed';
+        document.getElementById('statusMessage').textContent = 'Do you want to change the status to closed?';
+    } else {
+        return;  // 상태 변경 조건에 맞지 않는 경우, 함수 종료
+    }
+
+    document.getElementById('confirmStatusChange').onclick = function() {
+        changeIssueStatus(issueId, newStatus);
+        closeModal('changeStatus');
+    };
+
+    openModal('changeStatus');
+}
+
+function changeIssueStatus(issueId, newStatus) {
+    const userId = getUserId();
+
+    fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}/status`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus, userId: userId })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to change issue status');
+            }
+            updateIssueTable();
+        })
+        .catch(error => {
+            console.error('Error changing issue status:', error);
+            alert('Error changing issue status: ' + error.message);
+        });
+}
+
+window.onload = function() {
+    commonLoad();
+    setSelectedProject();
+    updateIssueTable();
+};
