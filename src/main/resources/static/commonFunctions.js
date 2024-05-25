@@ -148,7 +148,6 @@ function adjustUIBasedOnRole(userType) {
     const addProjectButton = document.getElementById('project-modal-btn');
     const addIssueButton = document.getElementById('issue-modal-btn');
     const addUserButton = document.getElementById('user-modal-btn');
-    const addCommentButton = document.getElementById('comment-modal-btn');
 
     if (userType === 'admin') {
         if (addProjectButton) {
@@ -162,9 +161,6 @@ function adjustUIBasedOnRole(userType) {
         if (addIssueButton) {
             addIssueButton.style.display = 'block'; // tester한테만 보여주기
         }
-    }
-    if (addCommentButton) {
-        addCommentButton.style.display = 'block'; // 모든 유저에게 보여주기
     }
 }
 
@@ -186,6 +182,11 @@ function adjustUser() {
 function getUserId() {
     const userId = JSON.parse(localStorage.getItem('user')).id;
     return userId;
+}
+
+function getUserType() {
+    const userType = JSON.parse(localStorage.getItem('user')).user_type;
+    return userType;
 }
 
 function getSelectedProject() {
@@ -232,7 +233,8 @@ function setSelectedIssue() {
     }
     issueTitle = selectedIssue.title;
     issueId = selectedIssue.id;
-    document.getElementById('commentHeader').innerText='Issue: ' + issueTitle;
+    const issueHeaderH2 = document.querySelector("#commentHeader h2");
+    issueHeaderH2.textContent = 'Issue: ' + issueTitle;
 }
 
 function commonLoad() {

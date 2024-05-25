@@ -38,10 +38,9 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("id", userId, "user_type", userType));
     }
 
-    @GetMapping("/devs")
-    public ResponseEntity<List<User>> getAllDevs() {
-        List<User> devs = userService.getAllDevs();
-        return ResponseEntity.ok(devs);
+    @GetMapping("/{projectId}/devs")
+    public List<User> getDevsByProjectId(@PathVariable Long projectId) {
+        return userService.getDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
     @PostMapping("/assign/{issueId}")

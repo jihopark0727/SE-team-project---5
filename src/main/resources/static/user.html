@@ -8,36 +8,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <script src="commonFunctions.js"></script>
     <style>
-        .pagination-container {
-            display: flex;
-            justify-content: center;
-            position: absolute;
-            bottom: 10px;
-            width: calc(100% - 20px); /* To ensure it doesn't overflow the modal content */
-            padding: 10px 20px;
-        }
 
-        .pagination {
-            display: flex;
-            justify-content: center;
-            flex-grow: 1;
-        }
-
-        .pagination button {
-            margin: 0 5px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .table .select-cell {
-            width: 50px; /* Reduce width of the select column */
-            text-align: center; /* Center align the checkbox */
-        }
-
-        .table .select-cell input[type="checkbox"] {
-            display: block;
-            margin: 0 auto; /* Center the checkbox */
-        }
     </style>
 </head>
 <body>
@@ -146,7 +117,7 @@
                     tableContent += `<tr>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
-                <td>${user.userType}</td>
+                <td>${user.user_type}</td>
                 <td>${user.tel}</td>
                 <td>${user.career}</td>
             </tr>`;
@@ -180,7 +151,7 @@
                 <td class="select-cell"><input type="checkbox" value="${user.id}" ${isChecked} ${isDisabled} onchange="toggleUserSelection('${user.id}', this.checked)"></td>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
-                <td>${user.userType}</td>
+                <td>${user.user_type}</td>
                 <td>${user.tel}</td>
                 <td>${user.career}</td>
             </tr>`;

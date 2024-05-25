@@ -26,6 +26,9 @@ public class IssueService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService; // UserService 주입
+
     public List<Issue> getIssuesByProjectId(Long projectId) {
         return issueRepository.findByProjectId(projectId);
     }
@@ -58,14 +61,9 @@ public class IssueService {
         if (issue == null) {
             return ResponseDto.setFailed("Issue not found");
         }
-
-        User assignee = userRepository.findById(assigneeId).orElse(null);
-        if (assignee == null || !"dev".equals(assignee.getUserType())) {
-            return ResponseDto.setFailed("Invalid assignee");
-        }
-
+        
         issue.setAssignee_id(assigneeId);
-        issue.setStatus("assigned"); // 상태를 'assigned'로 변경
+        issue.setStatus("assigned");
         issue.setLast_modified_time(new Date());
         issueRepository.save(issue);
         return ResponseDto.setSuccess("Assignee updated successfully");
@@ -88,8 +86,4 @@ public class IssueService {
         return ResponseDto.setSuccess("Fixer assigned and issue fixed");
     }
 
-
-    public List<User> getAllDevs() {
-        return userRepository.findByUserTypeOrderByCareerDesc("dev");
-    }
 }

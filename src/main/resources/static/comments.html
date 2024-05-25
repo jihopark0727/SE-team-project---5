@@ -39,7 +39,7 @@
 
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
-    <div class="header issue-header" id="commentHeader">
+    <div class="header comment-header" id="commentHeader">
         <h2>Issue Comments</h2>
         <button class="open-modal-btn" id="comment-modal-btn" onclick="openModal('comment')">Add Comment</button>
     </div>
@@ -92,7 +92,7 @@
                         <td>${comment.id}</td>
                         <td>${comment.content}</td>
                         <td>${formatDate(comment.creation_time)}</td>
-                        <td>${comment.user}</td>
+                        <td>${comment.user.id}</td>
                     </tr>`;
                     });
                 } else {
@@ -146,11 +146,10 @@
 
 
     window.onload = function() {
+        commonLoad();
         setSelectedProject();
         setSelectedIssue();
-        console.log(localStorage);
         updateCommentTable();
-        commonLoad();
     };
 </script>
 

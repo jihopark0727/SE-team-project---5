@@ -102,13 +102,33 @@
     </div>
 </div>
 
-<!-- The Modal for Assigning Dev -->
+<!-- Modal for assigning devs to issue -->
 <div id="assignDevModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('assignDev')">&times;</span>
-        <h2>Select Assignee</h2>
-        <div id="devList">
-            <!-- Dev 리스트가 여기 동적으로 생성됨 -->
+        <h2>Assign Developer</h2>
+        <div class="modal-table-container">
+            <table class="table dev-table">
+                <thead>
+                <tr>
+                    <th class="select-cell"></th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Career</th>
+                </tr>
+                </thead>
+                <tbody id="devTableBody">
+                <!-- 내용은 JavaScript에서 동적으로 생성되어 삽입됩니다. -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <div class="pagination">
+                <button onclick="previousPage()">Previous</button>
+                <span id="pageNumber"></span>
+                <button onclick="nextPage()">Next</button>
+            </div>
+            <button class="add-btn" onclick="assignDevToIssue()">Assign selected dev</button>
         </div>
     </div>
 </div>
@@ -125,7 +145,13 @@
 <script>
     let projectName = '';
     let projectId = '';
-    let currentIssueId = null;
+    let currentPage = 1;
+    const rowsPerPage = 5;
+    let devs = [];
+    let currentIssueId = '';
+    let currentIssueTitle = '';
+    const currentUserId = getUserId();
+    const currentUserType = getUserType();
 
     function setSelectedProject() {
         selectedProject = getSelectedProject();
@@ -154,8 +180,8 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
-                        const assigneeClass = getUserType() === 'pl' ? 'clickable pl-assignee' : 'clickable';
-                        const fixerClass = (getUserType() === 'dev' && issue.assignee_id === getUserId()) ? 'clickable' : '';
+                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
+                        const fixerClass = (currentUserType) === 'dev' && issue.assignee_id === currentUserId ? 'clickable' : '';
                         tableContent += `<tr>
                         <td>${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
@@ -164,7 +190,7 @@
                         <td>${formatDate(issue.last_modified_time)}</td>
                         <td>${issue.status}</td>
                         <td>${issue.reporter_id}</td>
-                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
+                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
                         <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixer_id === null ? 'not assigned yet' : issue.fixer_id}</td>
                     </tr>`;
                     });
@@ -177,8 +203,8 @@
 
                 // Assignee ID 클릭 이벤트 추가
                 document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (getUserType() === 'pl' || td.textContent === 'not assigned yet') {
-                        td.onclick = () => openAssignModal(td.dataset.issueId);
+                    if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
+                        td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
                     }
                 });
 
@@ -203,7 +229,7 @@
             description: issueDescription,
             reported_time: new Date().toISOString(),
             last_modified_time: new Date().toISOString(),
-            reporter_id: getUserId(),  // 현재 로그인한 사용자의 ID를 리포터로 설정
+            reporter_id: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
             assignee_id: null,
             fixer_id: null,
@@ -237,43 +263,17 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
-    function openAssignModal(issueId) {
-        fetch(`/api/users/devs`)
+    function openAssignModal(issueId, issueTitle, projectId) {
+        currentIssueId = issueId; // Set the current issue ID
+        currentIssueTitle = issueTitle; // Set the current issue title
+        openModal('assignDev');
+        fetch(`/api/users/${projectId}/devs`)
             .then(response => response.json())
-            .then(devs => {
-                const devListDiv = document.getElementById('devList');
-                devListDiv.innerHTML = `
-                    <table class="dev-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Career</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                `;
-
-                const tbody = devListDiv.querySelector('tbody');
-
-                devs.forEach(dev => {
-                    const devRow = document.createElement('tr');
-                    devRow.style.cursor = 'pointer';
-                    devRow.onclick = () => assignDevToIssue(issueId, dev.id);
-                    devRow.innerHTML = `
-                        <td>${dev.id}</td>
-                        <td>${dev.career}</td>
-                    `;
-                    tbody.appendChild(devRow);
-                });
-
-                openModal('assignDev');
+            .then(data => {
+                devs = data; // Save devs data
+                renderTable();
             })
-            .catch(error => {
-                console.error('Error loading devs:', error);
-                alert('Error loading devs: ' + error.message);
-            });
+            .catch(error => console.error('Error loading devs:', error));
     }
 
     function openFixerModal(issueId) {
@@ -281,18 +281,20 @@
         openModal('assignFixer');
     }
 
-    function assignDevToIssue(issueId, devId) {
-        fetch(`/api/projects/${projectId}/issues/${issueId}/assign`, {
+    function assignDevToIssue() {
+        const selectedDevId = document.querySelector('#devTableBody input[type="radio"]:checked').value;
+        fetch(`/api/projects/${projectId}/issues/${currentIssueId}/assign`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ assigneeId: devId })
+            body: JSON.stringify({ assigneeId: selectedDevId })
         })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to assign dev');
                 }
+                alert(`${currentIssueTitle}에 ${selectedDevId}가 성공적으로 할당되었습니다!`)
                 closeModal('assignDev');
                 updateIssueTable();
             })
@@ -303,13 +305,12 @@
     }
 
     function assignFixerToIssue() {
-        const userId = getUserId();
         fetch(`/api/projects/${projectId}/issues/${currentIssueId}/fix`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ fixerId: userId })
+            body: JSON.stringify({ fixerId: currentUserId })
         })
             .then(response => {
                 if (!response.ok) {
@@ -330,15 +331,38 @@
         updateIssueTable();
     };
 
-    function getUserType() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        return user ? user.user_type : null;
+    function renderTable() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedDevs = devs.slice(start, end);
+
+        let tableContent = '';
+        paginatedDevs.forEach(dev => {
+            tableContent += `<tr>
+                <td class="select-cell"><input type="radio" name="selectedDev" value="${dev.id}"></td>
+                <td>${dev.id}</td>
+                <td>${dev.name}</td>
+                <td>${dev.career}</td>
+            </tr>`;
+        });
+        document.getElementById('devTableBody').innerHTML = tableContent;
+        document.getElementById('pageNumber').innerText = `Page ${currentPage}`;
     }
 
-    function getUserId() {
-        const userId = JSON.parse(localStorage.getItem('user')).id;
-        return userId;
+    function nextPage() {
+        if (currentPage * rowsPerPage < devs.length) {
+            currentPage++;
+            renderTable();
+        }
     }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
 </script>
 
 </body>

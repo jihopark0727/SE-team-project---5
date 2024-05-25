@@ -46,7 +46,7 @@ public class AuthController {
             if (user != null) {
                 System.out.println("User found: " + user.getId());  // 로그 추가
                 session.setAttribute("userId", user.getId());
-                session.setAttribute("userType", user.getUserType());
+                session.setAttribute("userType", user.getUser_type());
                 headers.setLocation(URI.create("/home.html?login=success"));
                 return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
             } else {

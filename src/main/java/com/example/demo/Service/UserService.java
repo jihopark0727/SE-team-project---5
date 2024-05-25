@@ -17,11 +17,12 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public List<User> getAllDevs() {
-        return userRepository.findByUserTypeOrderByCareerDesc("dev");
-    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> getDevsByProjectIdOrderByCareerDesc(Long projectId) {
+        return userRepository.findDevsByProjectIdOrderByCareerDesc(projectId);
     }
 }
