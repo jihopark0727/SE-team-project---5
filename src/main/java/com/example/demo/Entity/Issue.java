@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Entity
@@ -26,9 +25,9 @@ public class Issue {
 
     private Date reported_time;
     private Date last_modified_time;
-    private String reporter_id;
-    private String assignee_id;
-    private String fixer_id;
+    private String reporterId;
+    private String assigneeId;
+    private String fixerId;
     public Issue() {
     }
     public Issue(IssueDto dto){
@@ -38,9 +37,9 @@ public class Issue {
         this.priority = dto.getPriority();
         this.reported_time = dto.getReported_time();
         this.last_modified_time = dto.getLast_modified_time();
-        this.reporter_id = dto.getReporter_id();
-        this.assignee_id = dto.getAssignee_id();
-        this.fixer_id = dto.getFixer_id();
+        this.reporterId = dto.getReporterId();
+        this.assigneeId = dto.getAssigneeId();
+        this.fixerId = dto.getFixerId();
         this.project = dto.getProject();
         this.id = dto.getId();
     }

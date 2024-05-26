@@ -22,7 +22,7 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
     }
 
     @Override
-    public ResponseDto<List<Issue>> browseIssue(SearchCondition condition) {
+    public ResponseDto<List<Issue>> browseIssue(String userType, SearchCondition condition) {
         return null;
     }
 

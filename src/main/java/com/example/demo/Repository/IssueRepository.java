@@ -7,6 +7,14 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectId(Long projectId);
-    //List<Issue> findByAssigneeIdAndPriorityAndStatus(String assigneeId, String priority, String status);
+    List<Issue> findByPriorityAndStatus(String priority, String status);
+    List<Issue> findByPriority(String priority);
+    List<Issue> findByStatus(String status);
+    List<Issue> findByAssigneeIdAndPriorityAndStatus(String assigneeId, String priority, String status);
+    List<Issue> findByAssigneeIdAndPriority(String assigneeId, String priority);
+    List<Issue> findByAssigneeIdAndStatus(String assigneeId, String status);
+    List<Issue> findByReporterIdAndPriorityAndStatus(String reporterId, String priority, String status);
+    List<Issue> findByReporterIdAndPriority(String reporterId, String priority);
+    List<Issue> findByReporterIdAndStatus(String reporterId, String status);
 
 }

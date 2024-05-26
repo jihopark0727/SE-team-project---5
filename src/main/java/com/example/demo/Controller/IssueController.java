@@ -43,8 +43,8 @@ public class IssueController implements IIssueController {
     @Override
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody Issue issue) {
-        System.out.println("Received reporter ID: " + issue.getReporter_id());  // 로거나 콘솔을 통해 리포터 ID 확인
-        Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporter_id());
+        System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
+        Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporterId());
         if (newIssue != null) {
             return ResponseEntity.ok(newIssue);
         } else {

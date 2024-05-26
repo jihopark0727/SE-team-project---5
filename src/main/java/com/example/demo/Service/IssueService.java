@@ -47,9 +47,9 @@ public class IssueService {
             throw new IllegalArgumentException("Invalid reporter ID: " + reporterId);
         }
         issue.setProject(project);
-        issue.setReporter_id(reporterId);
-        issue.setAssignee_id(null);
-        issue.setFixer_id(null);
+        issue.setReporterId(reporterId);
+        issue.setAssigneeId(null);
+        issue.setFixerId(null);
         issue.setStatus("new");
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
@@ -62,7 +62,7 @@ public class IssueService {
             return ResponseDto.setFailed("Issue not found");
         }
 
-        issue.setAssignee_id(assigneeId);
+        issue.setAssigneeId(assigneeId);
         issue.setStatus("assigned");
         issue.setLast_modified_time(new Date());
         issueRepository.save(issue);
@@ -75,11 +75,11 @@ public class IssueService {
             return ResponseDto.setFailed("Issue not found");
         }
 
-        if (!fixerId.equals(issue.getAssignee_id())) {
+        if (!fixerId.equals(issue.getAssigneeId())) {
             return ResponseDto.setFailed("Only the assigned dev can be the fixer");
         }
 
-        issue.setFixer_id(fixerId);
+        issue.setFixerId(fixerId);
         issue.setStatus("fixed");
         issue.setLast_modified_time(new Date());
         issueRepository.save(issue);
@@ -92,7 +92,7 @@ public class IssueService {
             Issue issue = optionalIssue.get();
 
             // 추가된 로직: 상태 변경 가능 여부 검증
-            if (newStatus.equals("resolved") && !userId.equals(issue.getReporter_id())) {
+            if (newStatus.equals("resolved") && !userId.equals(issue.getReporterId())) {
                 return ResponseDto.setFailed("Only the reporter can change the status to resolved");
             }
             if (newStatus.equals("closed") && !userService.isUserPL(userId)) {

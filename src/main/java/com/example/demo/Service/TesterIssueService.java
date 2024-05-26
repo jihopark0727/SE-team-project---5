@@ -43,9 +43,9 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
             throw new IllegalArgumentException("Invalid reporter ID: " + reporterId);
         }
         issue.setProject(project);
-        issue.setReporter_id(reporterId);
-        issue.setAssignee_id(null);
-        issue.setFixer_id(null);
+        issue.setReporterId(reporterId);
+        issue.setAssigneeId(null);
+        issue.setFixerId(null);
         issue.setStatus("new");
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
@@ -62,7 +62,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
             Issue issue = optionalIssue.get();
 
             // 추가된 로직: 상태 변경 가능 여부 검증
-            if (newStatus.equals("resolved") && !userId.equals(issue.getReporter_id())) {
+            if (newStatus.equals("resolved") && !userId.equals(issue.getReporterId())) {
                 return ResponseDto.setFailed("Only the reporter can change the status to resolved");
             }
             if (newStatus.equals("closed") && !userService.isUserPL(userId)) {
@@ -79,11 +79,15 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     }
 
     @Override
-    public ResponseDto<List<Issue>> browseIssue(SearchCondition condition) {
+    public ResponseDto<List<Issue>> browseIssue(String userType, SearchCondition condition) {
         String userId = condition.getSubmit();
         String priority = condition.getPriority();
         String status = condition.getStatus();
-
+        int select = 0;
+        if(userId != null) select += 1;
+        if(priority != null) select += 2;
+        if(priority != null) select += 4;
+        //switch()
         return null;
     }
 

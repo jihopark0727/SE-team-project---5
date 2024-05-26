@@ -1,12 +1,11 @@
 
 package com.example.demo.DTO;
 
-import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.demo.Entity.User;
+
 import java.util.Date;
 
 @Data@AllArgsConstructor
@@ -20,7 +19,7 @@ public class IssueDto {
     private Project project;
     private Date reported_time;
     private Date last_modified_time;
-    private String reporter_id;
-    private String assignee_id;
-    private String fixer_id;
+    private String reporterId;
+    private String assigneeId;
+    private String fixerId;
 }
