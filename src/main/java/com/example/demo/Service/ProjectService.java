@@ -4,6 +4,7 @@ import com.example.demo.Entity.Project;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.ProjectRepository;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.Service.Interface.IProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ProjectService {
+public class ProjectService implements IProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -22,20 +23,23 @@ public class ProjectService {
     @Autowired
     private UserRepository userRepository; // UserRepository 주입
 
+    @Override
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
+    @Override
     public Project getProjectById(Long projectId) {
         return projectRepository.findById(projectId).orElse(null);
     }
 
+    @Override
     public Project addProject(Project project) {
         project.setCreation_time(new Date());
         project.setLast_modified_time(new Date());
         return projectRepository.save(project);
     }
-
+    @Override
     @Transactional
     public void addUsersToProject(Long projectId, Set<String> userIds) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));

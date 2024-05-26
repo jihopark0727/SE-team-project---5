@@ -7,6 +7,7 @@ import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.Service.Interface.IAuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class AuthService implements IAuthService {
     @Autowired UserRepository userRepository;
+
+    @Override
     public ResponseDto<?> signUp(SignUpDto dto) {
         String id = dto.getId();
         String password = dto.getPassword();
@@ -49,6 +52,7 @@ public class AuthService {
 
         return ResponseDto.setSuccess("회원 생성에 성공했습니다.");
     }
+    @Override
     public ResponseDto<LoginResponseDto> login(LoginDto dto) {
         String id = dto.getId();
         String password = dto.getPassword();
@@ -81,7 +85,7 @@ public class AuthService {
 
         return ResponseDto.setSuccessData("로그인에 성공하였습니다.", loginResponseDto);
     }
-
+    @Override
     public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {

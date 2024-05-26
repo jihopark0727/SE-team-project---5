@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Controller.Interface.IAuthController;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.DTO.SignUpDto;
 import com.example.demo.DTO.LoginDto;
@@ -18,11 +19,12 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController implements IAuthController {
 
     @Autowired
     AuthService authService;
 
+    @Override
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@ModelAttribute SignUpDto requestBody) {
         ResponseDto<?> result = authService.signUp(requestBody);
@@ -37,6 +39,7 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+    @Override
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody, HttpSession session) {
         ResponseDto<?> result = authService.login(requestBody);
@@ -60,7 +63,7 @@ public class AuthController {
     }
 
 
-
+    @Override
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         ResponseDto<?> result = authService.logout(request, response);

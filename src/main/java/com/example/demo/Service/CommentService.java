@@ -8,6 +8,7 @@ import com.example.demo.Entity.User;
 import com.example.demo.Repository.CommentRepository;
 import com.example.demo.Repository.IssueRepository;
 import com.example.demo.Repository.UserRepository;
+import com.example.demo.Service.Interface.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class CommentService {
+public class CommentService implements ICommentService {
 
     @Autowired
     private CommentRepository commentRepository;
@@ -26,6 +27,7 @@ public class CommentService {
     @Autowired
     private UserRepository userRepository;  // 추가: UserRepository 주입
 
+    @Override
     public ResponseDto<?> addComment(CommentDto commentDto) {
         // Issue ID를 기반으로 Issue 엔티티를 가져옴
         Issue issue = issueRepository.findById(commentDto.getIssueId()).orElse(null); // 메서드 이름 오타 수정
@@ -51,7 +53,7 @@ public class CommentService {
 
         return ResponseDto.setSuccess("코멘트 생성에 성공했습니다.");
     }
-
+    @Override
     public List<Comment> getCommentsByIssueId(Long issueId) { // 파라미터 이름 변경
         return commentRepository.findByIssueId(issueId);
     }

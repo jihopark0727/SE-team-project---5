@@ -194,6 +194,7 @@
                         const fixerClass = (currentUserType) === 'dev' && issue.assignee_id === currentUserId ? 'clickable' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporter_id === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
+                        localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
                         <td>${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>

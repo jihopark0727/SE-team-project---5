@@ -107,13 +107,16 @@ function selectProject(projectId) {
 }
 
 function selectIssue(issueId) {
-    fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}`)
-        .then(response => response.json())
-        .then(issue => {
-            localStorage.setItem('selectedIssue', JSON.stringify(issue));
-            window.location.href = 'comments.html';
-        })
-        .catch(error => console.error('Error selecting the issue:', error));
+    const issue = localStorage.getItem(issueId);
+    localStorage.setItem('selectedIssue', issue);
+    window.location.href = 'comments.html';
+    // fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}`)
+    //     .then(response => response.json())
+    //     .then(issue => {
+    //         localStorage.setItem('selectedIssue', JSON.stringify(issue));
+    //         window.location.href = 'comments.html';
+    //     })
+    //     .catch(error => console.error('Error selecting the issue:', error));
 }
 
 function showLeftNavbar() {

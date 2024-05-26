@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Controller.Interface.IIssueController;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Service.IssueService;
@@ -13,12 +14,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
-public class IssueController {
+public class IssueController implements IIssueController {
 
     @Autowired
     private IssueService issueService;
 
     // 프로젝트 ID에 따른 이슈 목록 가져오기
+    @Override
     @GetMapping
     public ResponseEntity<List<Issue>> getIssuesByProjectId(@PathVariable Long projectId) {
         List<Issue> issues = issueService.getIssuesByProjectId(projectId);
@@ -28,7 +30,7 @@ public class IssueController {
             return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
         }
     }
-
+    @Override
     @GetMapping("/{issueId}")
     public ResponseEntity<Issue> getIssueById(@PathVariable Long projectId, @PathVariable Long issueId) {
         Optional<Issue> issue = issueService.getIssueById(issueId);
@@ -38,7 +40,7 @@ public class IssueController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @Override
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody Issue issue) {
         System.out.println("Received reporter ID: " + issue.getReporter_id());  // 로거나 콘솔을 통해 리포터 ID 확인
@@ -49,7 +51,7 @@ public class IssueController {
             return ResponseEntity.badRequest().build();
         }
     }
-
+    @Override
     @PostMapping("/{issueId}/assign")
     public ResponseEntity<ResponseDto<?>> assignDevToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String assigneeId = request.get("assigneeId");
@@ -60,7 +62,7 @@ public class IssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
-
+    @Override
     @PostMapping("/{issueId}/fix")
     public ResponseEntity<ResponseDto<?>> assignFixerToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String fixerId = request.get("fixerId");
@@ -71,7 +73,7 @@ public class IssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
-
+    @Override
     @PutMapping("/{issueId}/status")
     public ResponseEntity<ResponseDto<?>> updateIssueStatus(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String newStatus = request.get("status");

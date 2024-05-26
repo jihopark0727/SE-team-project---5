@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Controller.Interface.IUserController;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.User;
 import com.example.demo.Service.IssueService; // 추가
@@ -14,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements IUserController {
 
     @Autowired
     private UserService userService;
@@ -27,6 +28,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @Override
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
@@ -38,11 +40,13 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("id", userId, "user_type", userType));
     }
 
+    @Override
     @GetMapping("/{projectId}/devs")
     public List<User> getDevsByProjectId(@PathVariable Long projectId) {
         return userService.getDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
+    @Override
     @PostMapping("/assign/{issueId}")
     public ResponseEntity<?> assignDevToIssue(@PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String assigneeId = request.get("assigneeId");

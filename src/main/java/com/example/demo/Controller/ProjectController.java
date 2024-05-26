@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Controller.Interface.IProjectController;
 import com.example.demo.DTO.AddUsersDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Project;
@@ -13,31 +14,36 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/projects")
-public class ProjectController {
+public class ProjectController implements IProjectController {
 
     @Autowired
     private ProjectService projectService;
 
+    @Override
     @GetMapping
     public List<Project> getAllProjects() {
         return projectService.getAllProjects();
     }
 
+    @Override
     @GetMapping("/{project_id}")
     public Project getProjectById(@PathVariable Long project_id) {
         return projectService.getProjectById(project_id);
     }
 
+    @Override
     @GetMapping("/{projectId}/users")
     public List<User> getUsersByProjectId(@PathVariable Long projectId) {
         return projectService.getUsersByProjectId(projectId);
     }
 
+    @Override
     @PostMapping
     public Project addProject(@RequestBody Project project) {
         return projectService.addProject(project);
     }
 
+    @Override
     @PostMapping("/{projectId}/addUsers")
     public ResponseDto<?> addUsersToProject(@PathVariable Long projectId, @RequestBody AddUsersDto requestBody) {
         projectService.addUsersToProject(projectId, requestBody.getUserIds());
