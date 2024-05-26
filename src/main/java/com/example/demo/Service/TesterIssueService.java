@@ -33,7 +33,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     private UserService userService;
 
     @Override
-    public ResponseDto<IssueDto> addIssue(IssueDto issue, Long projectId, String reporterId) {
+    public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId) {
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
@@ -52,7 +52,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
         Issue i = new Issue(issue);
 
         issueRepository.save(i);
-        return ResponseDto.setSuccessData("Add issue success", issue);
+        return ResponseDto.setSuccessData("Add issue success", i);
     }
 
     @Override
@@ -79,20 +79,36 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     }
 
     @Override
-    public ResponseDto<List<Issue>> browseIssue(String userType, SearchCondition condition) {
-        String userId = condition.getSubmit();
+    public ResponseDto<List<Issue>> browseIssue(String userId, SearchCondition condition) {
         String priority = condition.getPriority();
         String status = condition.getStatus();
         int select = 0;
-        if(userId != null) select += 1;
-        if(priority != null) select += 2;
-        if(priority != null) select += 4;
-        //switch()
-        return null;
+        if(priority != null) select += 1;
+        if(status != null) select += 2;
+        switch(select){
+            case 0:
+                return ResponseDto.setSuccessData("list", issueRepository.findByReporterId(userId));
+            case 1:
+                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndPriority(userId, priority));
+            case 2:
+                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndStatus(userId, status));
+            case 3:
+                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndPriorityAndStatus(userId, priority, status));
+        }
+        return ResponseDto.setFailed("aa");
     }
 
     @Override
     public ResponseDto<?> updatePriority(Long issueId, String priority) {
-        return null;
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+
+        if(issue == null) {
+            return ResponseDto.setFailed("Cannot find issue with id " + issueId);
+        } else {
+            issue.setPriority(priority);
+            issue.setLast_modified_time(new Date());
+            issueRepository.save(issue);
+            return ResponseDto.setSuccess("success");
+        }
     }
 }

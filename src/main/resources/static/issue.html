@@ -247,10 +247,10 @@
             description: issueDescription,
             reported_time: new Date().toISOString(),
             last_modified_time: new Date().toISOString(),
-            reporter_id: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
+            reporterId: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
-            assignee_id: null,
-            fixer_id: null,
+            assigneeId: null,
+            fixerId: null,
             project_id: projectId // 선택된 프로젝트 ID
         };
 

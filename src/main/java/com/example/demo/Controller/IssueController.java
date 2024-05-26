@@ -1,8 +1,10 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Controller.Interface.IIssueController;
+import com.example.demo.DTO.IssueDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
+import com.example.demo.Service.Interface.ITesterIssueService;
 import com.example.demo.Service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
 public class IssueController implements IIssueController {
-
+    @Autowired
+    private ITesterIssueService testerService;
     @Autowired
     private IssueService issueService;
 
@@ -42,11 +45,13 @@ public class IssueController implements IIssueController {
     }
     @Override
     @PostMapping
-    public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody Issue issue) {
+    public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issue) {
         System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
-        Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporterId());
-        if (newIssue != null) {
-            return ResponseEntity.ok(newIssue);
+        //Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporterId());
+        if(testerService == null) System.out.println("shit");
+        ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId());
+        if (response.isResult()) {
+            return ResponseEntity.ok(response.getData());
         } else {
             return ResponseEntity.badRequest().build();
         }
