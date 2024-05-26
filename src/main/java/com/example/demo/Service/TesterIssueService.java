@@ -79,7 +79,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     }
 
     @Override
-    public ResponseDto<List<Issue>> browseIssue(String userId, SearchCondition condition) {
+    public ResponseDto<List<Issue>> browseIssue(Long projectId, String userId, SearchCondition condition) {
         String priority = condition.getPriority();
         String status = condition.getStatus();
         int select = 0;

@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface IUserIssueService {
     ResponseDto<?> updateStatus(Long issueId, String newStatus, String userID);
-    ResponseDto<List<Issue>> browseIssue(String userId, SearchCondition condition);
+    ResponseDto<List<Issue>> browseIssue(Long projectId, String userId, SearchCondition condition);
     ResponseDto<?> updatePriority(Long issueId, String priority);
 }
