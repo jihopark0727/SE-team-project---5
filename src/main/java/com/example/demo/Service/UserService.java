@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTO.ForgotPasswordResponseDto;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.Interface.IUserIssueService;
@@ -38,5 +39,14 @@ public class UserService implements IUserService {
     @Override
     public List<User> getDevsByProjectIdOrderByCareerDesc(Long projectId) {
         return userRepository.findDevsByProjectIdOrderByCareerDesc(projectId);
+    }
+
+    public ForgotPasswordResponseDto findPassword(String id, String name, String tel) {
+        User user = userRepository.findByIdAndNameAndTel(id, name, tel);
+        if (user != null) {
+            return new ForgotPasswordResponseDto(user.getPassword());
+        } else {
+            return null;
+        }
     }
 }

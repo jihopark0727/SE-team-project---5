@@ -1,9 +1,7 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Controller.Interface.IAuthController;
-import com.example.demo.DTO.ResponseDto;
-import com.example.demo.DTO.SignUpDto;
-import com.example.demo.DTO.LoginDto;
+import com.example.demo.DTO.*;
 import com.example.demo.Entity.User;
 import com.example.demo.Service.AuthService;
 import com.example.demo.Service.UserService;
@@ -70,5 +68,15 @@ public class AuthController implements IAuthController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/index.html?logout=success")); // 로그아웃 후 로그인 화면으로 리다이렉트
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+    }
+
+    @PostMapping("/goresetpassword")
+    public ResponseEntity<?> goResetPassword(@RequestBody ForgotPasswordRequestDto request) {
+        ForgotPasswordResponseDto response = userService.findPassword(request.getEmail(), request.getName(), request.getTel());
+        if (response != null) {
+            return ResponseEntity.ok(ResponseDto.setSuccessData("Password found", response));
+        } else {
+            return ResponseEntity.badRequest().body(ResponseDto.setFailed("No matching user found"));
+        }
     }
 }

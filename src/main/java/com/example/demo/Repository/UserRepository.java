@@ -18,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT u FROM User u JOIN u.projects p WHERE p.id = :projectId AND u.user_type = 'dev' ORDER BY u.career DESC")
     List<User> findDevsByProjectIdOrderByCareerDesc(Long projectId);
+
+    User findByIdAndNameAndTel(String id, String name, String tel);
+
 }
