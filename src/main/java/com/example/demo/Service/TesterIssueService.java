@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import com.example.demo.DTO.IssueDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.SearchCondition;
@@ -11,7 +12,8 @@ import java.util.List;
 public class TesterIssueService implements IUserIssueService, ITesterIssueService {
 
     @Override
-    public ResponseDto<Issue> addIssue(Issue issue, Long projectId, String reporterId) {
+    public ResponseDto<IssueDto> addIssue(IssueDto issue, Long projectId, String reporterId) {
+
         return null;
     }
 
