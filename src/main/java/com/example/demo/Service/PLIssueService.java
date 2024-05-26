@@ -74,11 +74,11 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
             case 0:
                 return ResponseDto.setSuccessData("list", issueRepository.findByProjectId(projectId));
             case 1:
-                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriority(projectId, userId, priority));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndPriority(projectId, priority));
             case 2:
-                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndStatus(projectId, userId, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndStatus(projectId, status));
             case 3:
-                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriorityAndStatus(projectId, userId, priority, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndPriorityAndStatus(projectId, priority, status));
             case 4:
                 return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterId(projectId, reporterId));
             case 5:
