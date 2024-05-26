@@ -11,5 +11,4 @@ public interface IUserController {
     List<User> getAllUsers();
     ResponseEntity<?> getUserProfile(HttpSession session);
     List<User> getDevsByProjectId(Long projectId);
-    ResponseEntity<?> assignDevToIssue(Long issueId, Map<String, String> request);
 }

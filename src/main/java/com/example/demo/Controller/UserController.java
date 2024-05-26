@@ -3,6 +3,7 @@ package com.example.demo.Controller;
 import com.example.demo.Controller.Interface.IUserController;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.User;
+import com.example.demo.Service.Interface.IUserService;
 import com.example.demo.Service.IssueService; // 추가
 import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,8 @@ import java.util.Map;
 public class UserController implements IUserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
-    @Autowired
-    private IssueService issueService; // 추가
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -46,15 +45,4 @@ public class UserController implements IUserController {
         return userService.getDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
-    @Override
-    @PostMapping("/assign/{issueId}")
-    public ResponseEntity<?> assignDevToIssue(@PathVariable Long issueId, @RequestBody Map<String, String> request) {
-        String assigneeId = request.get("assigneeId");
-        ResponseDto<?> result = issueService.assignDevToIssue(issueId, assigneeId);
-        if (result.isResult()) {
-            return ResponseEntity.ok().body("Dev assigned successfully");
-        } else {
-            return ResponseEntity.status(400).body(result.getMessage());
-        }
-    }
 }

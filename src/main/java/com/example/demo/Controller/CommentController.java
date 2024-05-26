@@ -5,6 +5,7 @@ import com.example.demo.Entity.Comment;
 import com.example.demo.DTO.CommentDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Service.CommentService;
+import com.example.demo.Service.Interface.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class CommentController implements ICommentController {
 
     @Autowired
-    private CommentService commentService;
+    private ICommentService commentService;
 
     @Override
     @PostMapping("/add_comment")

@@ -41,12 +41,4 @@ public class UserService implements IUserService {
         return userRepository.findDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
-    public ForgotPasswordResponseDto findPassword(String id, String name, String tel) {
-        User user = userRepository.findByIdAndNameAndTel(id, name, tel);
-        if (user != null) {
-            return new ForgotPasswordResponseDto(user.getPassword());
-        } else {
-            return null;
-        }
-    }
 }

@@ -19,7 +19,7 @@ public class IssueServiceFactory {
         if(userType.equals("tester")){
             return tester;
         }
-        else if(userType.equals("pl")){
+        else if(userType.equals("pl") || userType.equals("admin")){
             return pl;
         }
         else if(userType.equals("dev")){

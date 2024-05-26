@@ -1,10 +1,7 @@
 package com.example.demo.Service;
 
 
-import com.example.demo.DTO.LoginResponseDto;
-import com.example.demo.DTO.ResponseDto;
-import com.example.demo.DTO.SignUpDto;
-import com.example.demo.DTO.LoginDto;
+import com.example.demo.DTO.*;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.Interface.IAuthService;
@@ -53,7 +50,7 @@ public class AuthService implements IAuthService {
         return ResponseDto.setSuccess("회원 생성에 성공했습니다.");
     }
     @Override
-    public ResponseDto<LoginResponseDto> login(LoginDto dto) {
+    public ResponseDto<User> login(LoginDto dto) {
         String id = dto.getId();
         String password = dto.getPassword();
 
@@ -81,9 +78,9 @@ public class AuthService implements IAuthService {
         String token = "";
         int exprTime = 3600000;     // 1h
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(token, exprTime, userEntity);
+        //LoginResponseDto loginResponseDto = new LoginResponseDto(token, exprTime, userEntity);
 
-        return ResponseDto.setSuccessData("로그인에 성공하였습니다.", loginResponseDto);
+        return ResponseDto.setSuccessData("로그인에 성공하였습니다.", userEntity);
     }
     @Override
     public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -98,5 +95,14 @@ public class AuthService implements IAuthService {
         cookie.setMaxAge(0); // 쿠키 삭제
         response.addCookie(cookie);
         return ResponseDto.setSuccess("로그아웃에 성공하였습니다.");
+    }
+
+    public ForgotPasswordResponseDto findPassword(String id, String name, String tel) {
+        User user = userRepository.findByIdAndNameAndTel(id, name, tel);
+        if (user != null) {
+            return new ForgotPasswordResponseDto(user.getPassword());
+        } else {
+            return null;
+        }
     }
 }

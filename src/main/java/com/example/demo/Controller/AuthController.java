@@ -35,25 +35,18 @@ public class AuthController implements IAuthController {
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
-    @Autowired
-    private UserService userService;
     @Override
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody, HttpSession session) {
-        ResponseDto<?> result = authService.login(requestBody);
+        ResponseDto<User> result = authService.login(requestBody);
         HttpHeaders headers = new HttpHeaders();
         if (result.isResult()) {
-            User user = userService.findById(requestBody.getId());
-            if (user != null) {
-                System.out.println("User found: " + user.getId());  // 로그 추가
-                session.setAttribute("userId", user.getId());
-                session.setAttribute("userType", user.getUser_type());
-                headers.setLocation(URI.create("/home.html?login=success"));
-                return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
-            } else {
-                headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
-                return new ResponseEntity<>(headers, HttpStatus.FOUND);
-            }
+            User user = result.getData();
+            System.out.println("User found: " + user.getId());  // 로그 추가
+            session.setAttribute("userId", user.getId());
+            session.setAttribute("userType", user.getUser_type());
+            headers.setLocation(URI.create("/home.html?login=success"));
+            return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
         } else {
             headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -72,7 +65,7 @@ public class AuthController implements IAuthController {
 
     @PostMapping("/goresetpassword")
     public ResponseEntity<?> goResetPassword(@RequestBody ForgotPasswordRequestDto request) {
-        ForgotPasswordResponseDto response = userService.findPassword(request.getEmail(), request.getName(), request.getTel());
+        ForgotPasswordResponseDto response = authService.findPassword(request.getEmail(), request.getName(), request.getTel());
         if (response != null) {
             return ResponseEntity.ok(ResponseDto.setSuccessData("Password found", response));
         } else {

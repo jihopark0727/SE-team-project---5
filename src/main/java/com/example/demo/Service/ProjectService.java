@@ -57,7 +57,7 @@ public class ProjectService implements IProjectService {
         project.setUsers(existingUsers); // 프로젝트에 업데이트된 사용자 세트 설정
         projectRepository.save(project); // 변경 사항을 저장
     }
-
+    @Override
     public List<User> getUsersByProjectId(Long projectId) {
         return userRepository.findUsersByProjectId(projectId);
     }

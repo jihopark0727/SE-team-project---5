@@ -181,7 +181,7 @@
             priority : null,
             status : null
         }
-        fetch(`/api/projects/${projectId}/issues/${getUserId()}`, {
+        fetch(`/api/projects/${projectId}/issues/${getUserType()}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

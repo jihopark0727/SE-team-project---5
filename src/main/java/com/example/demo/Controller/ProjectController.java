@@ -5,6 +5,7 @@ import com.example.demo.DTO.AddUsersDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Project;
 import com.example.demo.Entity.User;
+import com.example.demo.Service.Interface.IProjectService;
 import com.example.demo.Service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class ProjectController implements IProjectController {
 
     @Autowired
-    private ProjectService projectService;
+    private IProjectService projectService;
 
     @Override
     @GetMapping

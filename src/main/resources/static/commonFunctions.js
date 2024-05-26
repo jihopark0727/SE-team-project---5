@@ -280,7 +280,7 @@ function changeIssueStatus(issueId, newStatus) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status: newStatus, userId: userId })
+        body: JSON.stringify({ status: newStatus, userId: userId, userType: getUserType() })
     })
         .then(response => {
             if (!response.ok) {

@@ -168,28 +168,36 @@
     function loadIssueDetails() {
         const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
-
-        fetch(`/api/projects/${projectId}/issues/${issueId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(issue => {
-                document.getElementById('issueDescription').innerText = issue.description || 'N/A';
-                document.getElementById('issueId').innerText = issue.id || 'N/A';
-                document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
-                document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
-                document.getElementById('status').innerText = issue.status || 'N/A';
-                document.getElementById('reporterId').innerText = issue.reporterId || 'N/A';
-                document.getElementById('assigneeId').innerText = issue.assigneeId || 'N/A';
-                document.getElementById('fixerId').innerText = issue.fixerId || 'N/A';
-            })
-            .catch(error => {
-                console.error('Error loading issue details:', error);
-                alert('Error loading issue details: ' + error.message);
-            });
+        const issue = JSON.parse(localStorage.getItem(issueId.toString()));
+        document.getElementById('issueDescription').innerText = issue.description || 'N/A';
+        document.getElementById('issueId').innerText = issue.id || 'N/A';
+        document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
+        document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
+        document.getElementById('status').innerText = issue.status || 'N/A';
+        document.getElementById('reporterId').innerText = issue.reporterId || 'N/A';
+        document.getElementById('assigneeId').innerText = issue.assigneeId || 'N/A';
+        document.getElementById('fixerId').innerText = issue.fixerId || 'N/A';
+        // fetch(`/api/projects/${projectId}/issues/${issueId}`)
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error(`Server responded with status: ${response.status}`);
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(issue => {
+        //         document.getElementById('issueDescription').innerText = issue.description || 'N/A';
+        //         document.getElementById('issueId').innerText = issue.id || 'N/A';
+        //         document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
+        //         document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
+        //         document.getElementById('status').innerText = issue.status || 'N/A';
+        //         document.getElementById('reporterId').innerText = issue.reporterId || 'N/A';
+        //         document.getElementById('assigneeId').innerText = issue.assigneeId || 'N/A';
+        //         document.getElementById('fixerId').innerText = issue.fixerId || 'N/A';
+        //     })
+        //     .catch(error => {
+        //         console.error('Error loading issue details:', error);
+        //         alert('Error loading issue details: ' + error.message);
+        //     });
     }
 
     window.onload = function() {
