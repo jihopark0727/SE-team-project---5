@@ -17,7 +17,7 @@ public class DevIssueService implements IUserIssueService {
     }
 
     @Override
-    public ResponseDto<List<Issue>> browseIssue(String userType, SearchCondition condition) {
+    public ResponseDto<List<Issue>> browseIssue(String userId, SearchCondition condition) {
         return null;
     }
 
