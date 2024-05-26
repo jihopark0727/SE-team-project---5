@@ -175,7 +175,19 @@
     }
 
     function updateIssueTable() {
-        fetch(`/api/projects/${projectId}/issues`)
+        const condition = {
+            assigneeId : null,
+            reporterId : null,
+            priority : null,
+            status : null
+        }
+        fetch(`/api/projects/${projectId}/issues/${getUserId()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(condition)
+        })
             .then(response => {
                 if (response.status === 204) {
                     return [];  // No Content인 경우, 빈 배열 반환
@@ -191,8 +203,8 @@
                 if (issues.length > 0) {
                     issues.forEach(issue => {
                         const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
-                        const fixerClass = (currentUserType) === 'dev' && issue.assignee_id === currentUserId ? 'clickable' : '';
-                        const statusClass = (currentUserType === 'tester' && issue.reporter_id === currentUserId && issue.status === 'fixed') ||
+                        const fixerClass = (currentUserType) === 'dev' && issue.assigneeId === currentUserId ? 'clickable' : '';
+                        const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
@@ -202,9 +214,9 @@
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
                         <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
-                        <td>${issue.reporter_id}</td>
-                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assignee_id === null ? 'not assigned yet' : issue.assignee_id}</td>
-                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixer_id === null ? 'not assigned yet' : issue.fixer_id}</td>
+                        <td>${issue.reporterId}</td>
+                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
+                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
                     </tr>`;
                     });
                 } else {

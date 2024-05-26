@@ -4,17 +4,26 @@ import com.example.demo.Service.DevIssueService;
 import com.example.demo.Service.Interface.IUserIssueService;
 import com.example.demo.Service.PLIssueService;
 import com.example.demo.Service.TesterIssueService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class IssueServiceFactory {
-    public static IUserIssueService getIssueService(String userType){
+    @Autowired
+    private TesterIssueService tester;
+    @Autowired
+    private PLIssueService pl;
+    @Autowired
+    private DevIssueService dev;
+    public IUserIssueService getIssueService(String userType){
         if(userType.equals("tester")){
-            return new TesterIssueService();
+            return tester;
         }
         else if(userType.equals("pl")){
-            return new PLIssueService();
+            return pl;
         }
         else if(userType.equals("dev")){
-            return new DevIssueService();
+            return dev;
         }
         return null;
     }

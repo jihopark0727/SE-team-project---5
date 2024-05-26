@@ -34,6 +34,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
 
     @Override
     public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId) {
+
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
@@ -50,7 +51,6 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         Issue i = new Issue(issue);
-
         issueRepository.save(i);
         return ResponseDto.setSuccessData("Add issue success", i);
     }

@@ -4,8 +4,15 @@ import com.example.demo.Controller.Interface.IIssueController;
 import com.example.demo.DTO.IssueDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
+import com.example.demo.Entity.SearchCondition;
+import com.example.demo.Entity.User;
+import com.example.demo.Repository.UserRepository;
+import com.example.demo.Service.Factory.IssueServiceFactory;
 import com.example.demo.Service.Interface.ITesterIssueService;
+import com.example.demo.Service.Interface.IUserIssueService;
+import com.example.demo.Service.Interface.IUserService;
 import com.example.demo.Service.IssueService;
+import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,16 +28,38 @@ public class IssueController implements IIssueController {
     private ITesterIssueService testerService;
     @Autowired
     private IssueService issueService;
+    @Autowired
+    private IssueServiceFactory factory;
+    @Autowired
+    private IUserService userService;
 
     // 프로젝트 ID에 따른 이슈 목록 가져오기
     @Override
-    @GetMapping
-    public ResponseEntity<List<Issue>> getIssuesByProjectId(@PathVariable Long projectId) {
-        List<Issue> issues = issueService.getIssuesByProjectId(projectId);
-        if (issues != null && !issues.isEmpty()) {
-            return ResponseEntity.ok(issues);  // 이슈 목록 반환
-        } else {
-            return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
+    @PostMapping("/{userId}")
+    public ResponseEntity<List<Issue>> browseIssues(@PathVariable Long projectId, @PathVariable String userId, @RequestBody SearchCondition con) {
+//        List<Issue> issues = issueService.getIssuesByProjectId(projectId);
+//        if (issues != null && !issues.isEmpty()) {
+//            return ResponseEntity.ok(issues);  // 이슈 목록 반환
+//        } else {
+//            return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
+//        }
+        User user = userService.findById(userId);
+        String userType = user.getUser_type();
+        IUserIssueService service = factory.getIssueService(userType);
+        if(service != null){
+            ResponseDto<List<Issue>> issues = service.browseIssue(projectId, userId, con);
+            if(issues.isResult()){
+                if(!issues.getData().isEmpty())
+                    return ResponseEntity.ok(issues.getData());
+                else
+                    return ResponseEntity.noContent().build();
+            }
+            else{
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        else{
+            return ResponseEntity.badRequest().build();
         }
     }
     @Override
