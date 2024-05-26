@@ -16,10 +16,11 @@ public class IssueDto {
     private String title;
     private String description;
     private String status;
+    private String priority;
     private Project project;
     private Date reported_time;
     private Date last_modified_time;
-    private User reporter;
-    private User assignee;
-    private User fixer;
+    private String reporter_id;
+    private String assignee_id;
+    private String fixer_id;
 }

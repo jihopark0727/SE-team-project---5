@@ -4,9 +4,11 @@ import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.SearchCondition;
 import com.example.demo.Service.Interface.IUserIssueService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class DevIssueService implements IUserIssueService {
 
     @Override

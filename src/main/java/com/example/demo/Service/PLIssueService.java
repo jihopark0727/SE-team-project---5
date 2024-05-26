@@ -5,9 +5,11 @@ import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.SearchCondition;
 import com.example.demo.Service.Interface.IPLIssueService;
 import com.example.demo.Service.Interface.IUserIssueService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class PLIssueService implements IUserIssueService, IPLIssueService {
     @Override
     public ResponseDto<?> assignIssue(Long issueId, String assigneeId) {
