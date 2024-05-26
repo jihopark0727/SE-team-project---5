@@ -57,13 +57,13 @@ public class DevIssueService implements IUserIssueService {
         if(status != null) select += 2;
         switch(select){
             case 0:
-                return ResponseDto.setSuccessData("list", issueRepository.findByAssigneeId((userId)));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeId(projectId, userId));
             case 1:
-                return ResponseDto.setSuccessData("list", issueRepository.findByAssigneeIdAndPriority(userId, priority));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndPriority(projectId, userId, priority));
             case 2:
-                return ResponseDto.setSuccessData("list", issueRepository.findByAssigneeIdAndStatus(userId, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndStatus(projectId, userId, status));
             case 3:
-                return ResponseDto.setSuccessData("list", issueRepository.findByAssigneeIdAndReporterIdAndPriorityAndStatus(userId, condition.getSubmit(), priority, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndPriorityAndStatus(projectId, userId, condition.getSubmit(), priority, status));
         }
         return ResponseDto.setFailed("aa");
     }

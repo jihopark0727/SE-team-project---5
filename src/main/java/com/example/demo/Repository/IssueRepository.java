@@ -7,19 +7,20 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectId(Long projectId);
-    List<Issue> findByAssigneeId(String assigneeId);
-    List<Issue> findByReporterId(String reporterId);
-    List<Issue> findByPriorityAndStatus(String priority, String status);
-    List<Issue> findByPriority(String priority);
-    List<Issue> findByStatus(String status);
-    List<Issue> findByAssigneeIdAndPriorityAndStatus(String assigneeId, String priority, String status);
-    List<Issue> findByAssigneeIdAndPriority(String assigneeId, String priority);
-    List<Issue> findByAssigneeIdAndStatus(String assigneeId, String status);
-    List<Issue> findByReporterIdAndPriorityAndStatus(String reporterId, String priority, String status);
-    List<Issue> findByReporterIdAndPriority(String reporterId, String priority);
-    List<Issue> findByReporterIdAndStatus(String reporterId, String status);
-    List<Issue> findByAssigneeIdAndReporterIdAndPriorityAndStatus(String assigneeId, String reporterId, String priority, String status);
-    List<Issue> findByAssigneeIdAndReporterIdAndPriority(String assigneeId, String reporterId, String priority);
-    List<Issue> findByAssigneeIdAndReporterIdAndStatus(String assigneeId, String reporterId, String status);
+    List<Issue> findByProjectIdAndAssigneeId(Long projectId, String assigneeId);
+    List<Issue> findByProjectIdAndReporterId(Long projectId, String reporterId);
+    List<Issue> findByProjectIdAndPriorityAndStatus(Long projectId, String priority, String status);
+    List<Issue> findByProjectIdAndPriority(Long projectId, String priority);
+    List<Issue> findByProjectIdAndStatus(Long projectId, String status);
+    List<Issue> findByProjectIdAndAssigneeIdAndPriorityAndStatus(Long projectId, String assigneeId, String priority, String status);
+    List<Issue> findByProjectIdAndAssigneeIdAndPriority(Long projectId, String assigneeId, String priority);
+    List<Issue> findByProjectIdAndAssigneeIdAndStatus(Long projectId, String assigneeId, String status);
+    List<Issue> findByProjectIdAndReporterIdAndPriorityAndStatus(Long projectId, String reporterId, String priority, String status);
+    List<Issue> findByProjectIdAndReporterIdAndPriority(Long projectId, String reporterId, String priority);
+    List<Issue> findByProjectIdAndReporterIdAndStatus(Long projectId, String reporterId, String status);
+    List<Issue> findByProjectIdAndAssigneeIdAndReporterIdAndPriorityAndStatus(Long projectId, String assigneeId, String reporterId, String priority, String status);
+    List<Issue> findByProjectIdAndAssigneeIdAndReporterIdAndPriority(Long projectId, String assigneeId, String reporterId, String priority);
+    List<Issue> findByProjectIdAndAssigneeIdAndReporterIdAndStatus(Long projectId, String assigneeId, String reporterId, String status);
+    List<Issue> findByProjectIdAndAssigneeIdAndReporterId(Long projectId, String assigneeId, String reporterId);
 
 }

@@ -11,6 +11,7 @@ import com.example.demo.Repository.ProjectRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.Interface.ITesterIssueService;
 import com.example.demo.Service.Interface.IUserIssueService;
+import com.example.demo.Service.Interface.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @Override
     public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId) {
@@ -87,15 +88,15 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
         if(status != null) select += 2;
         switch(select){
             case 0:
-                return ResponseDto.setSuccessData("list", issueRepository.findByReporterId(userId));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterId(projectId, userId));
             case 1:
-                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndPriority(userId, priority));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriority(projectId, userId, priority));
             case 2:
-                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndStatus(userId, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndStatus(projectId, userId, status));
             case 3:
-                return ResponseDto.setSuccessData("list", issueRepository.findByReporterIdAndPriorityAndStatus(userId, priority, status));
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriorityAndStatus(projectId, userId, priority, status));
         }
-        return ResponseDto.setFailed("aa");
+        return ResponseDto.setFailed("failed");
     }
 
     @Override
