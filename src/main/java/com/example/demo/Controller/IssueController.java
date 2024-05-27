@@ -30,8 +30,6 @@ public class IssueController implements IIssueController {
     @Autowired
     private IPLIssueService plService;
     @Autowired
-    private IssueService issueService;
-    @Autowired
     private IssueServiceFactory factory;
 
     // 프로젝트 ID에 따른 이슈 목록 가져오기
@@ -89,17 +87,6 @@ public class IssueController implements IIssueController {
     public ResponseEntity<ResponseDto<?>> assignDevToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String assigneeId = request.get("assigneeId");
         ResponseDto<?> response = plService.assignIssue(issueId, assigneeId);
-        if (response.isResult()) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(400).body(response);
-        }
-    }
-    //@Override
-    @PostMapping("/{issueId}/fix")
-    public ResponseEntity<ResponseDto<?>> assignFixerToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
-        String fixerId = request.get("fixerId");
-        ResponseDto<?> response = issueService.assignFixerToIssue(issueId, fixerId);
         if (response.isResult()) {
             return ResponseEntity.ok(response);
         } else {

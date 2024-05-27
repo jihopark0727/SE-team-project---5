@@ -30,9 +30,6 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private IUserService userService;
-
     @Override
     public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId) {
 
@@ -65,9 +62,6 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
             // 추가된 로직: 상태 변경 가능 여부 검증
             if (newStatus.equals("resolved") && !userId.equals(issue.getReporterId())) {
                 return ResponseDto.setFailed("Only the reporter can change the status to resolved");
-            }
-            if (newStatus.equals("closed") && !userService.isUserPL(userId)) {
-                return ResponseDto.setFailed("Only the project leader can change the status to closed");
             }
 
             issue.setStatus(newStatus);

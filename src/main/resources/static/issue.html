@@ -335,12 +335,12 @@
     }
 
     function assignFixerToIssue() {
-        fetch(`/api/projects/${projectId}/issues/${currentIssueId}/fix`, {
-            method: 'POST',
+        fetch(`/api/projects/${projectId}/issues/${currentIssueId}/status`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ fixerId: currentUserId })
+            body: JSON.stringify({ status : "fixed", userId : currentUserId, userType : currentUserType })
         })
             .then(response => {
                 if (!response.ok) {

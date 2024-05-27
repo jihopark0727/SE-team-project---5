@@ -19,9 +19,6 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
     @Autowired
     private IssueRepository issueRepository;
 
-    @Autowired
-    private IUserService userService;
-
     @Override
     public ResponseDto<?> assignIssue(Long issueId, String assigneeId) {
         Issue issue = issueRepository.findById(issueId).orElse(null);
@@ -45,9 +42,6 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
             // 추가된 로직: 상태 변경 가능 여부 검증
             if (newStatus.equals("resolved") && !userID.equals(issue.getReporterId())) {
                 return ResponseDto.setFailed("Only the reporter can change the status to resolved");
-            }
-            if (newStatus.equals("closed") && !userService.isUserPL(userID)) {
-                return ResponseDto.setFailed("Only the project leader can change the status to closed");
             }
 
             issue.setStatus(newStatus);

@@ -20,14 +20,6 @@ public class DevIssueService implements IUserIssueService {
     @Autowired
     private IssueRepository issueRepository;
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserService userService;
 
     @Override
     public ResponseDto<?> updateStatus(Long issueId, String newStatus, String userId) {
@@ -38,7 +30,11 @@ public class DevIssueService implements IUserIssueService {
             if (!userId.equals(issue.getAssigneeId())) { // 해당 issue의 assignee만 fixed로 고칠 수 있음.
                 return ResponseDto.setFailed("Only the assignee can change the status to fixed");
             }
-
+            else{
+                if(newStatus.equals("fixed")){
+                    issue.setFixerId(userId);
+                }
+            }
             issue.setStatus(newStatus);
             issue.setLast_modified_time(new Date());
             issueRepository.save(issue);
