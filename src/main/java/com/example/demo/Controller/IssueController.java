@@ -36,12 +36,6 @@ public class IssueController implements IIssueController {
     @Override
     @PostMapping("/{userType}")
     public ResponseEntity<List<Issue>> browseIssues(@PathVariable Long projectId, @PathVariable String userType, @RequestBody SearchCondition con) {
-//        List<Issue> issues = issueService.getIssuesByProjectId(projectId);
-//        if (issues != null && !issues.isEmpty()) {
-//            return ResponseEntity.ok(issues);  // 이슈 목록 반환
-//        } else {
-//            return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
-//        }
         IUserIssueService service = factory.getIssueService(userType);
         if(service != null){
             ResponseDto<List<Issue>> issues = service.browseIssue(projectId, con);
@@ -73,8 +67,6 @@ public class IssueController implements IIssueController {
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issue) {
         System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
-        //Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporterId());
-        if(testerService == null) System.out.println("shit");
         ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId());
         if (response.isResult()) {
             return ResponseEntity.ok(response.getData());
