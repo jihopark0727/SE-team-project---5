@@ -8,7 +8,7 @@ import com.example.demo.Entity.User;
 import java.util.List;
 
 public interface IProjectController {
-    List<Project> getAllProjects();
+    List<Project> getAllProjects(String userId);
     Project getProjectById(Long project_id);
     List<User> getUsersByProjectId(Long projectId);
     Project addProject(Project project);

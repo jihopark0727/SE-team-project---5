@@ -21,9 +21,9 @@ public class ProjectController implements IProjectController {
     private IProjectService projectService;
 
     @Override
-    @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.getAllProjects();
+    @GetMapping("{userId}/all")
+    public List<Project> getAllProjects(@PathVariable String userId) {
+        return projectService.getAllProjects(userId);
     }
 
     @Override

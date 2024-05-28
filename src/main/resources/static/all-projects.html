@@ -79,7 +79,7 @@
 
     // Update the main content area to show all projects in a table
     function updateProjectTable() {
-        fetch('/api/projects')
+        fetch(`/api/projects/${getUserId()}/all`)
             .then(response => response.json())
             .then(projects => {
                 let tableContent = '';

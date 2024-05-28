@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface IProjectService {
-    List<Project> getAllProjects();
+    List<Project> getAllProjects(String userId);
     Project getProjectById(Long projectId);
     Project addProject(Project project);
     void addUsersToProject(Long projectId, Set<String> userId);

@@ -60,13 +60,17 @@ function hideDropdown(item) {
 
 // Fetch projects from the server and update UI components
 function fetchProjectList() {
-    fetch('/api/projects')
-        .then(response => response.json())
-        .then(projects => {
-            const topProjects = projects.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
-            updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
-        })
-        .catch(error => console.error('Error loading the projects:', error));
+    const storedUser = localStorage.getItem('user');  // 로컬 스토리지에서 사용자 정보 불러오기
+    if (storedUser) {
+        const userId = JSON.parse(storedUser).id;
+        fetch(`/api/projects/${userId}/all`)
+            .then(response => response.json())
+            .then(projects => {
+                const topProjects = projects.slice(0, 3); // 한 번만 슬라이스하여 변수에 저장
+                updateProjectDropdown(topProjects); // 상위 3개 프로젝트만 드롭다운에 표시
+            })
+            .catch(error => console.error('Error loading the projects:', error));
+    }
 }
 
 // Update the dropdown menu with fetched projects
@@ -145,6 +149,7 @@ function fetchUserProfile() {
         .then(user => {
             localStorage.setItem('user', JSON.stringify(user));
             adjustUser();
+            fetchProjectList();
         })
         .catch(error => console.error('Error fetching user data:', error));
 }

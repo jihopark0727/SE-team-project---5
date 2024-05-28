@@ -24,8 +24,20 @@ public class ProjectService implements IProjectService {
     private UserRepository userRepository; // UserRepository 주입
 
     @Override
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<Project> getAllProjects(String userId) {
+        var u = userRepository.findById(userId);
+        if(u.isPresent()) {
+            String userType = u.get().getUser_type();
+            if(userType.equals("admin")){
+                return projectRepository.findAll();
+            }
+            else{
+                return projectRepository.findProjectsByUserId(userId);
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
