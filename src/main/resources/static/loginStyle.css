@@ -114,3 +114,11 @@
 .submit-btn:hover{
     background : #2178ff;
 }
+
+.warning-message {
+    color: red;
+    text-align: center;
+    padding: 5px;
+    height: 50px;
+    font-size: 15px;
+}

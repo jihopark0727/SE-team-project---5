@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <script src="commonFunctions.js"></script>
     <style>
-        .pl-assignee {
+        .red {
             color: red; /* PL 사용자를 위한 색상 */
             font-weight: bold;
         }
@@ -31,6 +31,16 @@
         .dev-table tr:hover {
             background-color: #f1f1f1;
         }
+
+        #issueBrowseArea {
+            height: 60px;
+            line-height: 60px;
+        }
+
+        .issueBrowseContent {
+            margin-right: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -69,9 +79,9 @@
         <h2>All Issues</h2>
         <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
-    <div>
+    <div id="issueBrowseArea">
         <label for="statusFilter">Status:</label>
-        <select id="statusFilter">
+        <select class="issueBrowseContent" id="statusFilter">
             <option value="">All</option>
             <option value="new">New</option>
             <option value="assigned">Assigned</option>
@@ -81,7 +91,7 @@
             <option value="fixed">Fixed</option>
         </select>
         <label for="priorityFilter">Priority:</label>
-        <select id="priorityFilter">
+        <select class="issueBrowseContent" id="priorityFilter">
             <option value="">All</option>
             <option value="blocker">Blocker</option>
             <option value="critical">Critical</option>
@@ -90,9 +100,9 @@
             <option value="trivial">Trivial</option>
         </select>
         <label for="reporterFilter">Reporter ID:</label>
-        <input type="text" id="reporterFilter">
+        <input class="issueBrowseContent" type="text" id="reporterFilter">
         <label for="assigneeFilter">Assignee ID:</label>
-        <input type="text" id="assigneeFilter">
+        <input class="issueBrowseContent" type="text" id="assigneeFilter">
         <button onclick="updateIssueTable()">Search</button>
     </div>
     <table class="table issue-table">
@@ -104,6 +114,7 @@
             <th>Reported Time</th>
             <th>Last Modified Time</th>
             <th>Status</th>
+            <th>Priority</th>
             <th>Reporter ID</th>
             <th>Assignee ID</th>
             <th>Fixer ID</th>
@@ -123,6 +134,16 @@
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
+            <textarea class="modal-input" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
+            <div class="warning-message" id="issueWarningMessage"></div>
+            <select class="modal-input" id="priority" >
+                Priority
+                <option value="blocker">Blocker</option>
+                <option value="critical">Critical</option>
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+                <option value="trivial">Trivial</option>
+            </select>
             <button class="add-btn" onclick="addNewIssue()">Add Issue</button>
         </div>
     </div>
@@ -148,6 +169,8 @@
                 </tbody>
             </table>
         </div>
+        <textarea class="modal-input" id="newCommentTextForPl" placeholder="Enter your comment here"></textarea>
+        <div class="warning-message" id="assigneeWarningMessage"></div>
         <div class="pagination-container">
             <div class="pagination">
                 <button onclick="previousPage()">Previous</button>
@@ -164,6 +187,8 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('assignFixer')">&times;</span>
         <h2>Assign Fixer</h2>
+        <textarea class="modal-input" id="newCommentTextForDev" placeholder="Enter your comment here"></textarea>
+        <div class="warning-message" id="fixerWarningMessage"></div>
         <button class="add-btn" onclick="assignFixerToIssue()">Assign as Fixer</button>
     </div>
 </div>
@@ -236,10 +261,10 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
-                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : '';
-                        const fixerClass = (currentUserType) === 'dev' && issue.assigneeId === currentUserId ? 'clickable' : '';
+                        const assigneeClass = (currentUserType === 'pl' && issue.status === 'new') ? 'clickable red' : '';
+                        const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId && (issue.status === 'assigned' || issue.status === 'reopened')) ? 'clickable red' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
-                        (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
+                        (currentUserType === 'pl' && issue.status === 'resolved') || (currentUserType === 'pl' && issue.status === 'closed') ? 'clickable red' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
                         <td>${issue.id}</td>
@@ -248,6 +273,7 @@
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
                         <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
+                        <td ${issue.priority}</td>
                         <td>${issue.reporterId}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
                         <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
@@ -262,7 +288,7 @@
 
                 // Assignee ID 클릭 이벤트 추가
                 document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
+                    if (currentUserType === 'pl' && td.textContent === 'not assigned yet') {
                         td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
                     }
                 });
@@ -284,10 +310,23 @@
     }
 
     function addNewIssue() {
-        const issueTitle = document.getElementById('newIssueTitle').value;
-        const issueDescription = document.getElementById('newIssueDesc').value;
-        const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
+        let issueTitle = document.getElementById('newIssueTitle').value;
+        let issueDescription = document.getElementById('newIssueDesc').value;
+        let commentText = document.getElementById('newCommentTextForTester').value;
+        let warningMessage = document.getElementById('issueWarningMessage');
+        if (issueTitle === '' || issueTitle === null) {
+            warningMessage.textContent = '이슈 제목을 입력해주세요.';
+            return false;
+        } else if (issueDescription === '' || issueDescription === null) {
+            warningMessage.textContent = '이슈 설명을 입력해주세요.';
+            return false;
+        } else if (commentText === '' || commentText === null) {
+            warningMessage.textContent = '코멘트를 입력해주세요.';
+            return false;
+        }
 
+        const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
+        const priority = document.getElementById('priority').value;
         const issue = {
             title: issueTitle,
             description: issueDescription,
@@ -295,10 +334,12 @@
             last_modified_time: new Date().toISOString(),
             reporterId: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
+            priority: priority,
             assigneeId: null,
             fixerId: null,
             project_id: projectId // 선택된 프로젝트 ID
         };
+        console.log(issue);
 
         fetch(`/api/projects/${projectId}/issues`, {
             method: 'POST',
@@ -314,8 +355,10 @@
                 return response.json();
             })
             .then(newIssue => {
-                alert('이슈가 성공적으로 추가되었습니다.');
+                addComment(newIssue.id, 'tester');
                 closeModal('issue');
+                alert('이슈가 성공적으로 추가되었습니다.');
+                warningMessage.textContent = '';
                 updateIssueTable();
             })
             .catch(error => {
@@ -325,6 +368,46 @@
 
         document.getElementById('newIssueTitle').value = '';
         document.getElementById('newIssueDesc').value = '';
+    }
+
+    function addComment(issueId, role) {
+        let commentText;
+        if (role === 'tester') {
+            commentText = document.getElementById('newCommentTextForTester').value;
+        } else if (role === 'pl') {
+            commentText = document.getElementById('newCommentTextForPl').value;
+        } else if (role === 'dev') {
+            commentText = document.getElementById('newCommentTextForDev').value;
+        }
+        const projectId = getSelectedProject().id;
+        const userId = getUserId();
+        const comment = {
+            content: commentText,
+            issue_id: issueId,
+            user_id: userId
+        };
+
+        fetch(`/api/projects/${projectId}/issues/${issueId}/comments/add_comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(comment)
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.querySelectorAll('.warning-message').textContent = '';
+                } else {
+                    response.text().then(text => alert('이슈 추가 실패!' + text));
+                }
+            })
+            .catch(error => {
+                alert('이슈 추가 실패!');
+                console.error('Error:', error);
+            });
+
+        document.getElementById('newCommentTextForTester').value = '';
+
     }
 
     function openAssignModal(issueId, issueTitle, projectId) {
@@ -346,7 +429,18 @@
     }
 
     function assignDevToIssue() {
-        const selectedDevId = document.querySelector('#devTableBody input[type="radio"]:checked').value;
+        let selectedDev = document.querySelector('#devTableBody input[type="radio"]:checked');
+        let commentText = document.getElementById('newCommentTextForPl').value;
+        let warningMessage = document.getElementById('assigneeWarningMessage');
+        if (selectedDev === null) {
+            warningMessage.textContent = 'dev를 선택해주세요.';
+            return false;
+        }
+        else if (commentText === '' || commentText === null) {
+            warningMessage.textContent = '코멘트를 입력해주세요.';
+            return false;
+        }
+        selectedDevId = selectedDev.value;
         fetch(`/api/projects/${projectId}/issues/${currentIssueId}/assign`, {
             method: 'POST',
             headers: {
@@ -358,6 +452,7 @@
                 if (!response.ok) {
                     throw new Error('Failed to assign dev');
                 }
+                addComment(currentIssueId, 'pl');
                 alert(`${currentIssueTitle}에 ${selectedDevId}가 성공적으로 할당되었습니다!`)
                 closeModal('assignDev');
                 updateIssueTable();
@@ -369,6 +464,12 @@
     }
 
     function assignFixerToIssue() {
+        let commentText = document.getElementById('newCommentTextForDev').value;
+        let warningMessage = document.getElementById('fixerWarningMessage');
+        if (commentText === '' || commentText === null) {
+            warningMessage.textContent = '코멘트를 입력해주세요.';
+            return false;
+        }
         fetch(`/api/projects/${projectId}/issues/${currentIssueId}/status`, {
             method: 'PUT',
             headers: {
@@ -380,6 +481,7 @@
                 if (!response.ok) {
                     throw new Error('Failed to assign fixer');
                 }
+                addComment(currentIssueId, 'dev');
                 closeModal('assignFixer');
                 updateIssueTable();
             })

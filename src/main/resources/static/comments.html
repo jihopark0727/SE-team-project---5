@@ -84,6 +84,7 @@
         <h2>Add New Comment</h2>
         <div class="modal-input-wrap">
             <textarea class="modal-input" id="newCommentText" placeholder="Enter your comment here"></textarea>
+            <div class="warning-message"></div>
             <button class="add-btn" onclick="addNewComment()">Add Comment</button>
         </div>
     </div>
@@ -130,7 +131,12 @@
     }
 
     function addNewComment() {
-        const commentText = document.getElementById('newCommentText').value;
+        let warningMessage = document.querySelector('.warning-message');
+        let commentText = document.getElementById('newCommentText').value;
+        if (commentText === '' || commentText === null) {
+            warningMessage.textContent = '코멘트를 입력해주세요.';
+            return false;
+        }
         const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
         const userId = getUserId();
@@ -153,9 +159,15 @@
                     alert('코멘트가 성공적으로 추가되었습니다.');
                     closeModal('comment');
                     updateCommentTable();
+                    loadIssueDetails();
+                    return response.json();
                 } else {
                     response.text().then(text => alert('Failed to add comment: ' + text));
                 }
+            })
+            .then(issue => {
+                const data = issue.data;
+                localStorage.setItem(data.id.toString(), JSON.stringify(data));
             })
             .catch(error => {
                 alert('코멘트 추가 실패!');

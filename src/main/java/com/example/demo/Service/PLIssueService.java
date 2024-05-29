@@ -25,7 +25,9 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
         if (issue == null) {
             return ResponseDto.setFailed("Issue not found");
         }
-
+        if (!"new".equals(issue.getStatus())) {
+            return ResponseDto.setFailed("Only issues with status 'new' can be assigned an assignee");
+        }
         issue.setAssigneeId(assigneeId);
         issue.setStatus("assigned");
         issue.setLast_modified_time(new Date());

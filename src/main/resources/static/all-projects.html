@@ -70,6 +70,7 @@
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newProjectName" placeholder="Project Name">
             <input type="text" class="modal-input" id="newProjectDesc" placeholder="Description">
+            <div class="warning-message"></div>
             <button class="add-btn" onclick="addNewProject()">Add Project</button>
         </div>
     </div>
@@ -100,15 +101,16 @@
 
     // Add a new project using form data
     function addNewProject() {
-        const projectName = document.getElementById('newProjectName').value;
-        const projectDescription = document.getElementById('newProjectDesc').value;
-
-        const project = {
-            name: projectName,
-            description: projectDescription,
-            creation_time: new Date().toISOString(),
-            last_modified_time: new Date().toISOString()
-        };
+        let projectName = document.getElementById('newProjectName').value;
+        let projectDescription = document.getElementById('newProjectDesc').value;
+        let warningMessage = document.querySelector('.warning-message');
+        if (projectName === '' || projectName === null) {
+            warningMessage.textContent = '프로젝트 제목을 입력해주세요.';
+            return false;
+        } else if (projectDescription === '' || projectDescription === null) {
+            warningMessage.textContent = '프로젝트 설명을 입력해주세요.';
+            return false;
+        }
 
         fetch('/api/projects', {
             method: 'POST',

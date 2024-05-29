@@ -22,13 +22,6 @@
             color: gray;
         }
 
-        .error-message {
-            color: red;
-            text-align: center;
-            padding: 5px;
-            height: 50px;
-            font-size: 15px;
-        }
     </style>
 </head>
 <body>
@@ -50,7 +43,7 @@
                     <i class="fas fa-key"></i>
                     <input placeholder="Password" type="password" name="password" id="password">
                 </div>
-                <div class="error-message" id="error-message"></div>
+                <div class="warning-message"></div>
                 <button id="login" class="submit-btn" onclick="login()">Log in</button>
             </div>
 <!--            </form>-->
@@ -80,12 +73,12 @@
     function login(){
         let id = document.getElementById('id').value;
         let password = document.getElementById('password').value;
-        let errorMessage = document.getElementById('error-message');
+        let warningMessage = document.querySelector('.warning-message');
         if (id === '' || id === null) {
-            errorMessage.textContent = '아이디를 입력해주세요.';
+            warningMessage.textContent = '아이디를 입력해주세요.';
             return false;
         } else if (password === '' || password === null) {
-            errorMessage.textContent = '비밀번호를 입력해주세요.';
+            warningMessage.textContent = '비밀번호를 입력해주세요.';
             return false;
         }
         else {
@@ -123,13 +116,13 @@
         const params = new URLSearchParams(window.location.search);
         localStorage.clear();
         sessionStorage.clear();
-        let errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = '';
+        let warningMessage = document.querySelector('.warning-message');
+        warningMessage.textContent = '';
         if (params.get('signup') === 'success') {
             alert('회원가입 성공! 로그인 해주세요.')
         }
         else if (params.get('error') === 'true') {
-            errorMessage.textContent = '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.';
+            warningMessage.textContent = '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.';
         }
         else if (params.get('logout') === 'success') {
             alert('로그아웃에 성공하였습니다.');

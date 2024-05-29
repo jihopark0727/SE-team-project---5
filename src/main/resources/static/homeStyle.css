@@ -268,3 +268,11 @@ body {
     display: block;
     margin: 0 auto; /* Center the checkbox */
 }
+
+.warning-message {
+    color: red;
+    text-align: center;
+    padding: 5px;
+    height: 50px;
+    font-size: 15px;
+}

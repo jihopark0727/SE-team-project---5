@@ -85,6 +85,7 @@
                 </tbody>
             </table>
         </div>
+        <div class="warning-message" id="addUserWarningMessage"></div>
         <div class="pagination-container">
             <div class="pagination">
                 <button onclick="previousPage()">Previous</button>
@@ -183,8 +184,12 @@
     }
 
     function addUsersToProject() {
+        let warningMessage = document.getElementById('addUserWarningMessage');
+        if (selectedUsers.size === 0){
+            warningMessage.textContent = "User를 선택해주세요.";
+            return false;
+        }
         const selectedUserIds = Array.from(selectedUsers);
-        console.log(selectedUsers);
         // API call to add selected users to the project
         fetch(`/api/projects/${projectId}/addUsers`, {
             method: 'POST',

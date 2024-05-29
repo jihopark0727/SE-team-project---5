@@ -37,7 +37,34 @@ function closeModal(content) {
     } else if (content === 'changeStatus') {
         modal = 'changeStatusModal';
     }
+    clearModal(content);
     document.getElementById(modal).style.display = 'none';
+    let warningMessages = document.querySelectorAll('.warning-message');
+    warningMessages.forEach(element => {
+        element.textContent = '';
+    });
+
+
+function clearModal(content) {
+    if (content === 'project') {
+        document.getElementById('newProjectName').value = '';
+        document.getElementById('newProjectDesc').value = '';
+    } else if (content === 'issue') {
+        document.getElementById('newIssueTitle').value = '';
+        document.getElementById('newIssueDesc').value = '';
+        document.getElementById('newCommentTextForTester').value = '';
+    } else if (content === 'comment') {
+        document.getElementById('newCommentText').value = '';
+    } else if (content === 'assignDev') {
+        document.getElementById('newCommentTextForPl').value = '';
+    } else if (content === 'assignFixer') {
+        modal = 'assignFixerModal';
+    } else if (content === 'user') {
+        modal = 'addUserModal';
+    } else if (content === 'changeStatus') {
+        modal = 'changeStatusModal';
+    }
+}
 }
 
 function formatDate(dateString) {
@@ -266,7 +293,11 @@ function openStatusChangeModal(issueId, currentStatus) {
     } else if (currentStatus === 'resolved' && userType === 'pl') {
         newStatus = 'closed';
         document.getElementById('statusMessage').textContent = 'Do you want to change the status to closed?';
-    } else {
+    } else if (currentStatus === 'closed' && userType === 'pl') {
+        newStatus = 'reopened';
+        document.getElementById('statusMessage').textContent = 'Do you want to change the status to reopened?';
+    }
+    else {
         return;  // 상태 변경 조건에 맞지 않는 경우, 함수 종료
     }
 
