@@ -1,29 +1,42 @@
 package com.example.demo.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor(staticName = "set")
-public class ResponseDto<D> {
+public class ResponseDto<T> {
     private boolean result;
+    private T data;
     private String message;
-    private D data;
 
-    public  static <D> ResponseDto<D> setSuccess(String message) {
-        return ResponseDto.set(true, message, null);
+    public ResponseDto(boolean result, T data) {
+        this.result = result;
+        this.data = data;
     }
 
-    public static <D> ResponseDto<D> setFailed(String message)
-    {
-        return ResponseDto.set(false, message, null);
+    public ResponseDto(boolean result, T data, String message) {
+        this.result = result;
+        this.data = data;
+        this.message = message;
     }
 
-    public static <D> ResponseDto<D> setSuccessData(String message, D data) {
-        return ResponseDto.set(true, message, data);
+    public static <T> ResponseDto<T> setSuccess(T data) {
+        return new ResponseDto<>(true, data);
     }
 
-    public static <D> ResponseDto<D> setFailedData(String message, D data) {
-        return ResponseDto.set(false, message, data);
+    public static <T> ResponseDto<T> setFailed(String message) {
+        return new ResponseDto<>(false, null, message);
+    }
+
+    public static <T> ResponseDto<T> setSuccessData(String message, T data) {
+        return new ResponseDto<>(true, data, message);
+    }
+
+    public boolean isResult() {
+        return result;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

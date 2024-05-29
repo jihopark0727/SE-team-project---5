@@ -69,6 +69,32 @@
         <h2>All Issues</h2>
         <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
+    <div>
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter">
+            <option value="">All</option>
+            <option value="new">New</option>
+            <option value="assigned">Assigned</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+            <option value="reopened">Reopened</option>
+            <option value="fixed">Fixed</option>
+        </select>
+        <label for="priorityFilter">Priority:</label>
+        <select id="priorityFilter">
+            <option value="">All</option>
+            <option value="blocker">Blocker</option>
+            <option value="critical">Critical</option>
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="trivial">Trivial</option>
+        </select>
+        <label for="reporterFilter">Reporter ID:</label>
+        <input type="text" id="reporterFilter">
+        <label for="assigneeFilter">Assignee ID:</label>
+        <input type="text" id="assigneeFilter">
+        <button onclick="applyFilters()">Search</button>
+    </div>
     <table class="table issue-table">
         <thead>
         <tr>
@@ -174,13 +200,95 @@
         document.getElementById('project-btn').innerText = 'Project: ' + projectName;
     }
 
+    function applyFilters() {
+        const status = document.getElementById('statusFilter').value;
+        const priority = document.getElementById('priorityFilter').value;
+        const reporter = document.getElementById('reporterFilter').value;
+        const assignee = document.getElementById('assigneeFilter').value;
+
+        const condition = {
+            assignee: assignee,
+            reporter: reporter,
+            priority: priority,
+            status: status
+        };
+
+        fetch(`/api/projects/${projectId}/issues/search?userId=${getUserId()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(condition)
+        })
+            .then(response => {
+                if (response.status === 204) {
+                    return [];  // No Content인 경우, 빈 배열 반환
+                }
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
+            })
+            .then(issues => {
+                let tableContent = '';
+
+                if (issues.length > 0) {
+                    issues.forEach(issue => {
+                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
+                        const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId) ? 'clickable' : '';
+                        const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
+                        (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
+                        localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
+                        tableContent += `<tr>
+                    <td>${issue.id}</td>
+                    <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
+                    <td>${issue.description}</td>
+                    <td>${formatDate(issue.reported_time)}</td>
+                    <td>${formatDate(issue.last_modified_time)}</td>
+                    <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
+                    <td>${issue.reporterId}</td>
+                    <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
+                    <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
+                </tr>`;
+                    });
+                } else {
+                    // 데이터가 없는 경우의 처리
+                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
+                }
+
+                document.getElementById('issueTableBody').innerHTML = tableContent;
+
+                // Assignee ID 클릭 이벤트 추가
+                document.querySelectorAll('.assignee.clickable').forEach(td => {
+                    if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
+                        td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
+                    }
+                });
+
+                // Fixer ID 클릭 이벤트 추가
+                document.querySelectorAll('.fixer.clickable').forEach(td => {
+                    td.onclick = () => openFixerModal(td.dataset.issueId);
+                });
+
+                // Status ID 클릭 이벤트 추가
+                document.querySelectorAll('.status.clickable').forEach(td => {
+                    td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading the issues:', error);
+                alert('Error loading issues: ' + error.message);
+            });
+    }
+
     function updateIssueTable() {
         const condition = {
-            assigneeId : null,
-            reporterId : null,
-            priority : null,
-            status : null
-        }
+            assignee: null,
+            reporter: null,
+            priority: null,
+            status: null
+        };
+
         fetch(`/api/projects/${projectId}/issues/${getUserId()}`, {
             method: 'POST',
             headers: {
@@ -203,21 +311,21 @@
                 if (issues.length > 0) {
                     issues.forEach(issue => {
                         const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
-                        const fixerClass = (currentUserType) === 'dev' && issue.assigneeId === currentUserId ? 'clickable' : '';
+                        const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId) ? 'clickable' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
-                        <td>${issue.id}</td>
-                        <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
-                        <td>${issue.description}</td>
-                        <td>${formatDate(issue.reported_time)}</td>
-                        <td>${formatDate(issue.last_modified_time)}</td>
-                        <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
-                        <td>${issue.reporterId}</td>
-                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
-                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
-                    </tr>`;
+                    <td>${issue.id}</td>
+                    <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
+                    <td>${issue.description}</td>
+                    <td>${formatDate(issue.reported_time)}</td>
+                    <td>${formatDate(issue.last_modified_time)}</td>
+                    <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
+                    <td>${issue.reporterId}</td>
+                    <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
+                    <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
+                </tr>`;
                     });
                 } else {
                     // 데이터가 없는 경우의 처리

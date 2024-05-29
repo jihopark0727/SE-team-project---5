@@ -28,9 +28,11 @@ public class Issue {
     private String reporterId;
     private String assigneeId;
     private String fixerId;
+
     public Issue() {
     }
-    public Issue(IssueDto dto){
+
+    public Issue(IssueDto dto) {
         this.title = dto.getTitle();
         this.description = dto.getDescription();
         this.status = dto.getStatus();

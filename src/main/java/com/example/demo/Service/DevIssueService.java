@@ -50,7 +50,7 @@ public class DevIssueService implements IUserIssueService {
 
     @Override
     public ResponseDto<List<Issue>> browseIssue(Long projectId, String userId, SearchCondition condition) {
-        String reporterId = condition.getSubmit();
+        String reporterId = condition.getReporter();
         String assigneeId = condition.getAssignee();
         String priority = condition.getPriority();
         String status = condition.getStatus();

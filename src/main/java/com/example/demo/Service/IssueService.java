@@ -3,10 +3,13 @@ package com.example.demo.Service;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.Project;
+import com.example.demo.Entity.QIssue;
+import com.example.demo.Entity.SearchCondition;
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.IssueRepository;
 import com.example.demo.Repository.ProjectRepository;
 import com.example.demo.Repository.UserRepository;
+import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +30,7 @@ public class IssueService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService; // UserService 주입
+    private UserService userService;
 
     public List<Issue> getIssuesByProjectId(Long projectId) {
         return issueRepository.findByProjectId(projectId);
@@ -38,14 +41,11 @@ public class IssueService {
     }
 
     public Issue addIssue(Issue issue, Long projectId, String reporterId) {
-        Project project = projectRepository.findById(projectId).orElse(null);
-        User reporter = userRepository.findById(reporterId).orElse(null);
-        if (project == null) {
-            throw new IllegalArgumentException("Invalid project ID: " + projectId);
-        }
-        else if (reporter == null) {
-            throw new IllegalArgumentException("Invalid reporter ID: " + reporterId);
-        }
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + projectId));
+        User reporter = userRepository.findById(reporterId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid reporter ID: " + reporterId));
+
         issue.setProject(project);
         issue.setReporterId(reporterId);
         issue.setAssigneeId(null);
@@ -57,7 +57,8 @@ public class IssueService {
     }
 
     public ResponseDto<?> assignDevToIssue(Long issueId, String assigneeId) {
-        Issue issue = issueRepository.findById(issueId).orElse(null);
+        Issue issue = issueRepository.findById(issueId)
+                .orElse(null);
         if (issue == null) {
             return ResponseDto.setFailed("Issue not found");
         }
@@ -70,7 +71,8 @@ public class IssueService {
     }
 
     public ResponseDto<?> assignFixerToIssue(Long issueId, String fixerId) {
-        Issue issue = issueRepository.findById(issueId).orElse(null);
+        Issue issue = issueRepository.findById(issueId)
+                .orElse(null);
         if (issue == null) {
             return ResponseDto.setFailed("Issue not found");
         }
@@ -87,24 +89,47 @@ public class IssueService {
     }
 
     public ResponseDto<?> updateIssueStatus(Long issueId, String newStatus, String userId) {
-        Optional<Issue> optionalIssue = issueRepository.findById(issueId);
-        if (optionalIssue.isPresent()) {
-            Issue issue = optionalIssue.get();
+        return issueRepository.findById(issueId)
+                .map(issue -> {
+                    if (newStatus.equals("resolved") && !userId.equals(issue.getReporterId())) {
+                        return ResponseDto.setFailed("Only the reporter can change the status to resolved");
+                    }
+                    if (newStatus.equals("closed") && !userService.isUserPL(userId)) {
+                        return ResponseDto.setFailed("Only the project leader can change the status to closed");
+                    }
 
-            // 추가된 로직: 상태 변경 가능 여부 검증
-            if (newStatus.equals("resolved") && !userId.equals(issue.getReporterId())) {
-                return ResponseDto.setFailed("Only the reporter can change the status to resolved");
+                    issue.setStatus(newStatus);
+                    issue.setLast_modified_time(new Date());
+                    issueRepository.save(issue);
+                    return ResponseDto.setSuccess("Issue status updated successfully");
+                })
+                .orElse(ResponseDto.setFailed("Issue not found"));
+    }
+
+    public ResponseDto<List<Issue>> browseIssues(Long projectId, SearchCondition condition) {
+        try {
+            QIssue qIssue = QIssue.issue;
+            BooleanBuilder builder = new BooleanBuilder();
+
+            builder.and(qIssue.project.id.eq(projectId));
+
+            if (condition.getAssignee() != null && !condition.getAssignee().isEmpty()) {
+                builder.and(qIssue.assigneeId.eq(condition.getAssignee()));
             }
-            if (newStatus.equals("closed") && !userService.isUserPL(userId)) {
-                return ResponseDto.setFailed("Only the project leader can change the status to closed");
+            if (condition.getReporter() != null && !condition.getReporter().isEmpty()) {
+                builder.and(qIssue.reporterId.eq(condition.getReporter()));
+            }
+            if (condition.getPriority() != null && !condition.getPriority().isEmpty()) {
+                builder.and(qIssue.priority.eq(condition.getPriority()));
+            }
+            if (condition.getStatus() != null && !condition.getStatus().isEmpty()) {
+                builder.and(qIssue.status.eq(condition.getStatus()));
             }
 
-            issue.setStatus(newStatus);
-            issue.setLast_modified_time(new Date());
-            issueRepository.save(issue);
-            return ResponseDto.setSuccess("Issue status updated successfully");
-        } else {
-            return ResponseDto.setFailed("Issue not found");
+            List<Issue> issues = (List<Issue>) issueRepository.findAll(builder);
+            return ResponseDto.setSuccessData("Issue list fetched successfully", issues);
+        } catch (Exception e) {
+            return ResponseDto.setFailed("Failed to fetch issues");
         }
     }
 }

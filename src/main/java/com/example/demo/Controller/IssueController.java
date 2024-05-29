@@ -6,13 +6,11 @@ import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.SearchCondition;
 import com.example.demo.Entity.User;
-import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.Factory.IssueServiceFactory;
 import com.example.demo.Service.Interface.ITesterIssueService;
 import com.example.demo.Service.Interface.IUserIssueService;
 import com.example.demo.Service.Interface.IUserService;
 import com.example.demo.Service.IssueService;
-import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,60 +22,59 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
 public class IssueController implements IIssueController {
+
     @Autowired
     private ITesterIssueService testerService;
+
     @Autowired
     private IssueService issueService;
+
     @Autowired
     private IssueServiceFactory factory;
+
     @Autowired
     private IUserService userService;
 
-    // 프로젝트 ID에 따른 이슈 목록 가져오기
     @Override
-    @PostMapping("/{userId}")
-    public ResponseEntity<List<Issue>> browseIssues(@PathVariable Long projectId, @PathVariable String userId, @RequestBody SearchCondition con) {
-//        List<Issue> issues = issueService.getIssuesByProjectId(projectId);
-//        if (issues != null && !issues.isEmpty()) {
-//            return ResponseEntity.ok(issues);  // 이슈 목록 반환
-//        } else {
-//            return ResponseEntity.noContent().build();  // 이슈가 없으면 204 No Content 반환
-//        }
+    @PostMapping("/search")
+    public ResponseEntity<List<Issue>> browseIssues(@PathVariable Long projectId,
+                                                    @RequestParam String userId,
+                                                    @RequestBody SearchCondition condition) {
         User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         String userType = user.getUser_type();
         IUserIssueService service = factory.getIssueService(userType);
-        if(service != null){
-            ResponseDto<List<Issue>> issues = service.browseIssue(projectId, userId, con);
-            if(issues.isResult()){
-                if(!issues.getData().isEmpty())
-                    return ResponseEntity.ok(issues.getData());
-                else
-                    return ResponseEntity.noContent().build();
-            }
-            else{
-                return ResponseEntity.badRequest().build();
-            }
+
+        if (service == null) {
+            return ResponseEntity.badRequest().build();
         }
-        else{
+
+        ResponseDto<List<Issue>> issues = issueService.browseIssues(projectId, condition);
+        if (issues.isResult()) {
+            List<Issue> issueList = issues.getData();
+            if (issueList.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.ok(issueList);
+            }
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
+
     @Override
     @GetMapping("/{issueId}")
     public ResponseEntity<Issue> getIssueById(@PathVariable Long projectId, @PathVariable Long issueId) {
         Optional<Issue> issue = issueService.getIssueById(issueId);
-        if (issue.isPresent()) {
-            return ResponseEntity.ok(issue.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return issue.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     @Override
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issue) {
-        System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
-        //Issue newIssue = issueService.addIssue(issue, projectId, issue.getReporterId());
-        if(testerService == null) System.out.println("shit");
         ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId());
         if (response.isResult()) {
             return ResponseEntity.ok(response.getData());
@@ -85,6 +82,7 @@ public class IssueController implements IIssueController {
             return ResponseEntity.badRequest().build();
         }
     }
+
     @Override
     @PostMapping("/{issueId}/assign")
     public ResponseEntity<ResponseDto<?>> assignDevToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
@@ -96,6 +94,7 @@ public class IssueController implements IIssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
+
     @Override
     @PostMapping("/{issueId}/fix")
     public ResponseEntity<ResponseDto<?>> assignFixerToIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
@@ -107,8 +106,9 @@ public class IssueController implements IIssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
+
     @Override
-    @PutMapping("/{issueId}/status")
+    @PostMapping("/{issueId}/status")
     public ResponseEntity<ResponseDto<?>> updateIssueStatus(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request) {
         String newStatus = request.get("status");
         String userId = request.get("userId");
