@@ -4,6 +4,7 @@ import com.example.demo.Controller.Interface.ICommentController;
 import com.example.demo.Entity.Comment;
 import com.example.demo.DTO.CommentDto;
 import com.example.demo.DTO.ResponseDto;
+import com.example.demo.Entity.Issue;
 import com.example.demo.Service.CommentService;
 import com.example.demo.Service.Interface.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class CommentController implements ICommentController {
 
     @Override
     @PostMapping("/add_comment")
-    public ResponseDto<?> addComment(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody CommentDto requestBody) {
+    public ResponseDto<Issue> addComment(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody CommentDto requestBody) {
         // 클라이언트로부터 받은 CommentDto에는 이미 userId가 설정되어 있어야 합니다.
 
         // Issue ID를 CommentDto에 설정
