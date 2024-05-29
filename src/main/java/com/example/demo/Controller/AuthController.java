@@ -24,43 +24,43 @@ public class AuthController implements IAuthController {
 
     @Override
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@ModelAttribute SignUpDto requestBody) {
+    public ResponseDto<?> signUp(@RequestBody SignUpDto requestBody) {
+        System.out.println(requestBody.getId());
+        System.out.println(requestBody.getPassword());
         ResponseDto<?> result = authService.signUp(requestBody);
-        HttpHeaders headers = new HttpHeaders();
-        if (result.isResult()) {
-            headers.setLocation(URI.create("/index.html?signup=success")); // 회원가입 후 로그인 화면으로 리다이렉트
-        } else {
-            headers.setLocation(URI.create("/signup.html?error=true")); // 회원가입 실패 시 에러 메시지와 함께 회원가입 화면으로 리다이렉트
-        }
-        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+        System.out.println(result.isResult());
+        return result;
+//        HttpHeaders headers = new HttpHeaders();
+//        if (result.isResult()) {
+//            headers.setLocation(URI.create("/index.html?signup=success")); // 회원가입 후 로그인 화면으로 리다이렉트
+//        } else {
+//            headers.setLocation(URI.create("/signup.html?error=true")); // 회원가입 실패 시 에러 메시지와 함께 회원가입 화면으로 리다이렉트
+//        }
+//        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody, HttpSession session) {
+    public ResponseDto<User> login(@RequestBody LoginDto requestBody, HttpSession session) {
         ResponseDto<User> result = authService.login(requestBody);
-        HttpHeaders headers = new HttpHeaders();
+        System.out.println(result.isResult());
         if (result.isResult()) {
             User user = result.getData();
             System.out.println("User found: " + user.getId());  // 로그 추가
             session.setAttribute("userId", user.getId());
             session.setAttribute("userType", user.getUser_type());
-            headers.setLocation(URI.create("/home.html?login=success"));
-            return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+            return ResponseDto.setSuccessData("found user", user);
         } else {
-            headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            return ResponseDto.setFailed("login failed");
         }
     }
 
 
     @Override
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         ResponseDto<?> result = authService.logout(request, response);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/index.html?logout=success")); // 로그아웃 후 로그인 화면으로 리다이렉트
-        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+        return result;
     }
 
     @PostMapping("/goresetpassword")

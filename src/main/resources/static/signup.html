@@ -36,19 +36,20 @@
         </div>
         <div class="form-right-side">
             <h1>Sign Up</h1>
-            <form class="input-container" action="/api/auth/signUp" method="post">
+            <div class="input-container">
+<!--            <form class="input-container" action="/api/auth/signUp" method="post">-->
                 <div class="input-wrap input-id">
                     <i class="fas fa-envelope"></i>
-                    <input placeholder="Email" type="text" name="id">
+                    <input placeholder="Email" type="text" name="id" id="id">
                 </div>
                 <div class="input-wrap input-password">
                     <i class="fas fa-key"></i>
-                    <input placeholder="Password" type="password" name="password">
+                    <input placeholder="Password" type="password" name="password" id="password">
                 </div>
                 <div class="input-wrap input-user">
                     <i class="fas fa-user"></i>
-                    <input class="user_name" placeholder="Name" type="text" name="name">
-                    <select class="input-user-type" name="user_type">
+                    <input class="user_name" placeholder="Name" type="text" name="name" id="name">
+                    <select class="input-user-type" name="user_type" id="user_type">
                         <option value="admin">admin</option>
                         <option value="pl">pl</option>
                         <option value="dev">dev</option>
@@ -57,20 +58,57 @@
                 </div>
                 <div class="input-wrap input-tel">
                     <i class="fas fa-phone"></i>
-                    <input placeholder="Tel" type="tel" name="tel">
+                    <input placeholder="Tel" type="tel" name="tel" id="tel">
                 </div>
                 <div class="input-wrap input-career">
                     <i class="fas fa-suitcase"></i>
-                    <input placeholder="Career" type="number" name="career">
+                    <input placeholder="Career" type="number" name="career" id="career">
                 </div>
-                <input type="submit" class="submit-btn" value="sign up">
-            </form>
+                <button class="submit-btn" onclick="signUp()">Sign Up</button>
+<!--            </form>-->
+            </div>
         </div>
     </div>
 </div>
 </body>
 
 <script>
+    function signUp(){
+        let id = document.getElementById('id').value;
+        let password = document.getElementById('password').value;
+        let name = document.getElementById('name').value;
+        let userType = document.getElementById('user_type').value;
+        let tel = document.getElementById('tel').value;
+        let career = document.getElementById('career').value;
+        const signup ={
+            id: id,
+            name: name,
+            password: password,
+            tel: tel,
+            user_type: userType,
+            career: career
+        }
+        fetch('/api/auth/signUp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(signup)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if(data.result){
+                    window.location.href = 'index.html?signup=success';
+                }
+                else{
+                    window.location.href = 'signup.html?error=true';
+                }
+            })
+            .catch(error => {
+                alert('failed');
+            })
+    }
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
         if (params.get('error') === 'true') {

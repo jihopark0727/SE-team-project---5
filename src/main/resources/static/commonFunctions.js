@@ -211,8 +211,9 @@ function getSelectedIssue() {
 
 function logout() {
     fetch('/api/auth/logout', { method: 'POST' })
+        .then(response => response.json())
         .then(response => {
-            if (response.ok) {
+            if (response.result) {
                 window.location.href = '/index.html?logout=success'; // Redirect to login on successful logout
             } else {
                 response.text().then(text => alert('Failed to logout: ' + text)); // 서버로부터의 실패 응답을 출력

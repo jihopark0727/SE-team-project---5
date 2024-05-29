@@ -40,7 +40,8 @@
         </div>
         <div class="form-right-side">
             <h1>Login</h1>
-            <form class="input-container" action="/api/auth/login" method="post" onsubmit="return validateForm()">
+<!--            <form class="input-container" action="/api/auth/login" method="post" onsubmit="return validateForm()">-->
+            <div class="input-container">
                 <div class="input-wrap input-id">
                     <i class="fas fa-envelope"></i>
                     <input placeholder="Email" type="text" name="id" id="id">
@@ -50,8 +51,9 @@
                     <input placeholder="Password" type="password" name="password" id="password">
                 </div>
                 <div class="error-message" id="error-message"></div>
-                <input type="submit" class="submit-btn" value="login">
-            </form>
+                <button class="submit-btn" onclick="login()">Log in</button>
+            </div>
+<!--            </form>-->
             <div class="extra-func">
                 <a id="forgotpassword" href="forgotpassword.html">Forgot Password</a>
                 <a id="signup" href="signup.html">Sign up</a>
@@ -74,6 +76,43 @@
             return false;
         }
         return true;
+    }
+    function login(){
+        let id = document.getElementById('id').value;
+        let password = document.getElementById('password').value;
+        let errorMessage = document.getElementById('error-message');
+        if (id === '' || id === null) {
+            errorMessage.textContent = '아이디를 입력해주세요.';
+            return false;
+        } else if (password === '' || password === null) {
+            errorMessage.textContent = '비밀번호를 입력해주세요.';
+            return false;
+        }
+        else {
+            const user = {
+                id: id,
+                password: password
+            }
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            })
+                .then(response => response.json())
+                .then(data => {
+                        if (data.result) {
+                            window.location.href = 'home.html?login=success';
+                        }
+                        else {
+                            window.location.href = 'index.html?error=true';
+                        }
+                })
+                .catch(error => {
+                    alert('failed');
+                })
+        }
     }
 
     window.onload = function() {
