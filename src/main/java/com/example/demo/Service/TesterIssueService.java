@@ -31,7 +31,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
     private UserRepository userRepository;
 
     @Override
-    public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId) {
+    public ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId, String priority) {
 
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
@@ -46,6 +46,7 @@ public class TesterIssueService implements IUserIssueService, ITesterIssueServic
         issue.setAssigneeId(null);
         issue.setFixerId(null);
         issue.setStatus("new");
+        issue.setPriority(priority);
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         Issue i = new Issue(issue);

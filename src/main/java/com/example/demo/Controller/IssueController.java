@@ -67,7 +67,8 @@ public class IssueController implements IIssueController {
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issue) {
         System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
-        ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId());
+        System.out.println("Received priority: " + issue.getPriority());
+        ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId(), issue.getPriority());
         if (response.isResult()) {
             return ResponseEntity.ok(response.getData());
         } else {

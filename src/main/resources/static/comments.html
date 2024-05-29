@@ -57,6 +57,7 @@
         <p><strong>Reported Time:</strong> <span id="reportedTime"></span></p>
         <p><strong>Last Modified Time:</strong> <span id="lastModifiedTime"></span></p>
         <p><strong>Status:</strong> <span id="status"></span></p>
+        <p><strong>Priority:</strong> <span id="priority"></span></p>
         <p><strong>Reporter ID:</strong> <span id="reporterId"></span></p>
         <p><strong>Assignee ID:</strong> <span id="assigneeId"></span></p>
         <p><strong>Fixer ID:</strong> <span id="fixerId"></span></p>
@@ -186,6 +187,7 @@
         document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
         document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
         document.getElementById('status').innerText = issue.status || 'N/A';
+        document.getElementById('priority').innerText = issue.priority || 'N/A';
         document.getElementById('reporterId').innerText = issue.reporterId || 'N/A';
         document.getElementById('assigneeId').innerText = issue.assigneeId || 'N/A';
         document.getElementById('fixerId').innerText = issue.fixerId || 'N/A';

@@ -37,7 +37,7 @@ public class IssueService {
         return issueRepository.findById(issueId);
     }
 
-    public Issue addIssue(Issue issue, Long projectId, String reporterId) {
+    public Issue addIssue(Issue issue, Long projectId, String reporterId, String priority) {
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
@@ -51,6 +51,7 @@ public class IssueService {
         issue.setAssigneeId(null);
         issue.setFixerId(null);
         issue.setStatus("new");
+        issue.setPriority(priority);
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         return issueRepository.save(issue);
