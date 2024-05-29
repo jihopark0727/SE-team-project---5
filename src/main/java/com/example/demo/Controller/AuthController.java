@@ -10,12 +10,16 @@ import com.example.demo.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
 import java.net.URI;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,21 +28,27 @@ public class AuthController implements IAuthController {
     @Autowired
     AuthService authService;
 
-    @Override
-    @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@ModelAttribute SignUpDto requestBody) {
-        ResponseDto<?> result = authService.signUp(requestBody);
-        HttpHeaders headers = new HttpHeaders();
-        if (result.isResult()) {
-            headers.setLocation(URI.create("/index.html?signup=success")); // 회원가입 후 로그인 화면으로 리다이렉트
-        } else {
-            headers.setLocation(URI.create("/signup.html?error=true")); // 회원가입 실패 시 에러 메시지와 함께 회원가입 화면으로 리다이렉트
-        }
-        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
-    }
-
     @Autowired
     private UserService userService;
+
+    @Override
+    @PostMapping("/signUp")
+    public ResponseEntity<?> signUp(@Valid @ModelAttribute SignUpDto requestBody, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.badRequest().body("{\"error\":true, \"messages\":\"" + errorMessages + "\"}");
+        }
+
+        ResponseDto<?> result = authService.signUp(requestBody);
+        if (result.isResult()) {
+            return ResponseEntity.ok().body("{\"success\":true, \"message\":\"회원가입 성공!\"}");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":true, \"messages\":\"회원가입 실패, 서버 내부 오류.\"}");
+        }
+    }
+
     @Override
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginDto requestBody, HttpSession session) {
@@ -47,28 +57,26 @@ public class AuthController implements IAuthController {
         if (result.isResult()) {
             User user = userService.findById(requestBody.getId());
             if (user != null) {
-                System.out.println("User found: " + user.getId());  // 로그 추가
                 session.setAttribute("userId", user.getId());
                 session.setAttribute("userType", user.getUser_type());
                 headers.setLocation(URI.create("/home.html?login=success"));
                 return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
             } else {
-                headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
+                headers.setLocation(URI.create("/index.html?error=true"));
                 return new ResponseEntity<>(headers, HttpStatus.FOUND);
             }
         } else {
-            headers.setLocation(URI.create("/index.html?error=true")); // 로그인 실패 시 쿼리 파라미터 추가
+            headers.setLocation(URI.create("/index.html?error=true"));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
     }
-
 
     @Override
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         ResponseDto<?> result = authService.logout(request, response);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/index.html?logout=success")); // 로그아웃 후 로그인 화면으로 리다이렉트
+        headers.setLocation(URI.create("/index.html?logout=success"));
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
