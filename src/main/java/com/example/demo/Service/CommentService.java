@@ -47,9 +47,11 @@ public class CommentService implements ICommentService {
         comment.setIssue(issue);
         comment.setUser(user);
         comment.setCreation_time(new Date());
+        issue.setLast_modified_time(new Date());
 
         // Comment 저장
         commentRepository.save(comment);
+        issueRepository.save(issue);
 
         return ResponseDto.setSuccessData("코멘트 생성에 성공했습니다.", issue);
     }
