@@ -11,9 +11,8 @@ import java.util.Map;
 
 public interface IIssueController {
     ResponseEntity<List<Issue>> browseIssues(Long projectId, String userType, SearchCondition con);
-    //ResponseEntity<Issue> getIssueById(Long projectId, Long issueId);
     ResponseEntity<Issue> addIssue(Long projectID, IssueDto issue);
     ResponseEntity<ResponseDto<?>> assignDevToIssue(Long projectId, Long issueId, Map<String, String> request);
-    //ResponseEntity<ResponseDto<?>> assignFixerToIssue(Long projectId, Long issueId, Map<String, String> request);
     ResponseEntity<ResponseDto<?>> updateIssueStatus(Long projectId, Long issueId, Map<String, String> request);
+    ResponseDto<?> updateIssuePriority(Long projectId, Long issueId, Map<String, String> request);
 }
