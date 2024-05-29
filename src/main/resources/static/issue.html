@@ -69,6 +69,32 @@
         <h2>All Issues</h2>
         <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
+    <div>
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter">
+            <option value="">All</option>
+            <option value="new">New</option>
+            <option value="assigned">Assigned</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+            <option value="reopened">Reopened</option>
+            <option value="fixed">Fixed</option>
+        </select>
+        <label for="priorityFilter">Priority:</label>
+        <select id="priorityFilter">
+            <option value="">All</option>
+            <option value="blocker">Blocker</option>
+            <option value="critical">Critical</option>
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+            <option value="trivial">Trivial</option>
+        </select>
+        <label for="reporterFilter">Reporter ID:</label>
+        <input type="text" id="reporterFilter">
+        <label for="assigneeFilter">Assignee ID:</label>
+        <input type="text" id="assigneeFilter">
+        <button onclick="updateIssueTable()">Search</button>
+    </div>
     <table class="table issue-table">
         <thead>
         <tr>
@@ -175,11 +201,19 @@
     }
 
     function updateIssueTable() {
+        var assigneeId = document.getElementById("assigneeFilter").value;
+        if(assigneeId === "") assigneeId = null;
+        var reporterId = document.getElementById("reporterFilter").value;
+        if(reporterId === "") reporterId = null;
+        var priority = document.getElementById("priorityFilter").value;
+        if(priority === "") priority = null;
+        var status = document.getElementById("statusFilter").value;
+        if(status === "") status = null;
         const condition = {
-            assigneeId : null,
-            reporterId : null,
-            priority : null,
-            status : null
+            assignee : assigneeId,
+            reporter : reporterId,
+            priority : priority,
+            status : status
         }
         fetch(`/api/projects/${projectId}/issues/${getUserType()}`, {
             method: 'POST',
@@ -202,7 +236,7 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
-                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
+                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : '';
                         const fixerClass = (currentUserType) === 'dev' && issue.assigneeId === currentUserId ? 'clickable' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
