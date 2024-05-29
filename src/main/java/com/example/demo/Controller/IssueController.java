@@ -35,6 +35,22 @@ public class IssueController implements IIssueController {
     @Autowired
     private IUserService userService;
 
+    // 첫 화면에서 모든 이슈를 조회하는 엔드포인트 추가
+    @GetMapping
+    public ResponseEntity<List<Issue>> getAllIssues(@PathVariable Long projectId) {
+        ResponseDto<List<Issue>> issues = issueService.getAllIssuesByProjectId(projectId);
+        if (issues.isResult()) {
+            List<Issue> issueList = issues.getData();
+            if (issueList.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.ok(issueList);
+            }
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @Override
     @PostMapping("/search")
     public ResponseEntity<List<Issue>> browseIssues(@PathVariable Long projectId,

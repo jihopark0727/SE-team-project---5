@@ -132,4 +132,14 @@ public class IssueService {
             return ResponseDto.setFailed("Failed to fetch issues");
         }
     }
+
+    // 검색 조건 없이 모든 이슈를 조회하는 메서드 추가
+    public ResponseDto<List<Issue>> getAllIssuesByProjectId(Long projectId) {
+        try {
+            List<Issue> issues = issueRepository.findByProjectId(projectId);
+            return ResponseDto.setSuccessData("All issues fetched successfully", issues);
+        } catch (Exception e) {
+            return ResponseDto.setFailed("Failed to fetch all issues");
+        }
+    }
 }

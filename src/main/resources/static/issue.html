@@ -230,16 +230,25 @@
                 return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
             })
             .then(issues => {
-                let tableContent = '';
+                displayIssues(issues);
+            })
+            .catch(error => {
+                console.error('Error loading the issues:', error);
+                alert('Error loading issues: ' + error.message);
+            });
+    }
 
-                if (issues.length > 0) {
-                    issues.forEach(issue => {
-                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
-                        const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId) ? 'clickable' : '';
-                        const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
-                        (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
-                        localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
-                        tableContent += `<tr>
+    function displayIssues(issues) {
+        let tableContent = '';
+
+        if (issues.length > 0) {
+            issues.forEach(issue => {
+                const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
+                const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId) ? 'clickable' : '';
+                const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
+                (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
+                localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
+                tableContent += `<tr>
                     <td>${issue.id}</td>
                     <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                     <td>${issue.description}</td>
@@ -250,51 +259,38 @@
                     <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
                     <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
                 </tr>`;
-                    });
-                } else {
-                    // 데이터가 없는 경우의 처리
-                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
-                }
-
-                document.getElementById('issueTableBody').innerHTML = tableContent;
-
-                // Assignee ID 클릭 이벤트 추가
-                document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
-                        td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
-                    }
-                });
-
-                // Fixer ID 클릭 이벤트 추가
-                document.querySelectorAll('.fixer.clickable').forEach(td => {
-                    td.onclick = () => openFixerModal(td.dataset.issueId);
-                });
-
-                // Status ID 클릭 이벤트 추가
-                document.querySelectorAll('.status.clickable').forEach(td => {
-                    td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading the issues:', error);
-                alert('Error loading issues: ' + error.message);
             });
+        } else {
+            // 데이터가 없는 경우의 처리
+            tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
+        }
+
+        document.getElementById('issueTableBody').innerHTML = tableContent;
+
+        // Assignee ID 클릭 이벤트 추가
+        document.querySelectorAll('.assignee.clickable').forEach(td => {
+            if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
+                td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
+            }
+        });
+
+        // Fixer ID 클릭 이벤트 추가
+        document.querySelectorAll('.fixer.clickable').forEach(td => {
+            td.onclick = () => openFixerModal(td.dataset.issueId);
+        });
+
+        // Status ID 클릭 이벤트 추가
+        document.querySelectorAll('.status.clickable').forEach(td => {
+            td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
+        });
     }
 
     function updateIssueTable() {
-        const condition = {
-            assignee: null,
-            reporter: null,
-            priority: null,
-            status: null
-        };
-
-        fetch(`/api/projects/${projectId}/issues/${getUserId()}`, {
-            method: 'POST',
+        fetch(`/api/projects/${projectId}/issues`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(condition)
+            }
         })
             .then(response => {
                 if (response.status === 204) {
@@ -306,50 +302,7 @@
                 return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
             })
             .then(issues => {
-                let tableContent = '';
-
-                if (issues.length > 0) {
-                    issues.forEach(issue => {
-                        const assigneeClass = currentUserType === 'pl' ? 'clickable pl-assignee' : 'clickable';
-                        const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId) ? 'clickable' : '';
-                        const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
-                        (currentUserType === 'pl' && issue.status === 'resolved') ? 'clickable' : '';
-                        localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
-                        tableContent += `<tr>
-                    <td>${issue.id}</td>
-                    <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
-                    <td>${issue.description}</td>
-                    <td>${formatDate(issue.reported_time)}</td>
-                    <td>${formatDate(issue.last_modified_time)}</td>
-                    <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
-                    <td>${issue.reporterId}</td>
-                    <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
-                    <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
-                </tr>`;
-                    });
-                } else {
-                    // 데이터가 없는 경우의 처리
-                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
-                }
-
-                document.getElementById('issueTableBody').innerHTML = tableContent;
-
-                // Assignee ID 클릭 이벤트 추가
-                document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (currentUserType === 'pl' || td.textContent === 'not assigned yet') {
-                        td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
-                    }
-                });
-
-                // Fixer ID 클릭 이벤트 추가
-                document.querySelectorAll('.fixer.clickable').forEach(td => {
-                    td.onclick = () => openFixerModal(td.dataset.issueId);
-                });
-
-                // Status ID 클릭 이벤트 추가
-                document.querySelectorAll('.status.clickable').forEach(td => {
-                    td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
-                });
+                displayIssues(issues);
             })
             .catch(error => {
                 console.error('Error loading the issues:', error);
