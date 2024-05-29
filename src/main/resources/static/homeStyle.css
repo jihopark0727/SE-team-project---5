@@ -172,29 +172,42 @@ body {
 
 .modal-content {
     background-color: #fefefe;
-    margin: 5% auto; /* 15% from the top and centered */
+    margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 70%; /* Could be more or less, depending on screen size */
-    max-width: 800px; /* Max width */
-    position: relative; /* For button positioning */
-    height: 80%; /* Fixed height to prevent overlapping */
+    width: 70%;
+    max-width: 800px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 80%;
 }
 
 .modal-table-container {
-    max-height: calc(100% - 150px); /* Adjust height as needed */
+    flex: 1;
     overflow-y: auto;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.modal-comment {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
 }
 
 .modal-content h2 {
     height: 50px;
 }
 .modal-input-wrap {
-    height: 60%;
+    height: auto; /* Allow the input wrap to auto adjust height */
 }
 .modal-input {
     height: 35px;
-    width: 60%;
+    width: 70%;
     padding: 10px;
     margin-bottom: 20px;
 }
@@ -205,15 +218,19 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    width: 200px;
 }
 .add-btn:hover {
     background-color: #45a049;
 }
 .close {
     color: #aaa;
-    float: right;
     font-size: 28px;
     font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px; /* Position the close button to the right */
+    cursor: pointer;
 }
 .close:hover,
 .close:focus {
@@ -238,13 +255,23 @@ body {
     background-color: darkgray; /* hover 시 배경색을 어두운 회색으로 변경 */
 }
 
+textarea.modal-input {
+    height: 60px;
+    margin-bottom: 10px;
+    resize: none;
+    flex-shrink: 0;
+}
+
+textarea.modal-input.no-resize {
+    resize: none;
+}
+
 .pagination-container {
     display: flex;
     justify-content: center;
-    position: absolute;
-    bottom: 10px;
-    width: calc(100% - 20px); /* To ensure it doesn't overflow the modal content */
     padding: 10px 20px;
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .pagination {
@@ -253,10 +280,25 @@ body {
     flex-grow: 1;
 }
 
-.pagination button {
+.pagination button,
+.pagination span {
     margin: 0 5px;
     cursor: pointer;
     padding: 5px;
+    height: 30px;
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination button {
+    border: none;
+    border-radius: 4px;
+}
+
+.pagination button:hover {
+    background-color: #dddddd;
 }
 
 .table .select-cell {
@@ -275,4 +317,5 @@ body {
     padding: 5px;
     height: 50px;
     font-size: 15px;
+}
 }

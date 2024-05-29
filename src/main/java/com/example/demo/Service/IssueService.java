@@ -99,6 +99,10 @@ public class IssueService {
             if (newStatus.equals("closed") && !userService.isUserPL(userId)) {
                 return ResponseDto.setFailed("Only the project leader can change the status to closed");
             }
+            if (newStatus.equals("reopened")) {
+                issue.setAssigneeId(null);
+                issue.setFixerId(null);
+            }
 
             issue.setStatus(newStatus);
             issue.setLast_modified_time(new Date());

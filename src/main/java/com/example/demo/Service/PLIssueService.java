@@ -25,8 +25,9 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
         if (issue == null) {
             return ResponseDto.setFailed("Issue not found");
         }
-        if (!"new".equals(issue.getStatus())) {
-            return ResponseDto.setFailed("Only issues with status 'new' can be assigned an assignee");
+        String status = issue.getStatus();
+        if (!status.equals("new") && !status.equals("reopened")) {
+            return ResponseDto.setFailed("Only issues with status 'new' or 'reopened' can be assigned an assignee");
         }
         issue.setAssigneeId(assigneeId);
         issue.setStatus("assigned");
@@ -41,9 +42,9 @@ public class PLIssueService implements IUserIssueService, IPLIssueService {
         if (optionalIssue.isPresent()) {
             Issue issue = optionalIssue.get();
 
-            // 추가된 로직: 상태 변경 가능 여부 검증
-            if (newStatus.equals("resolved") && !userID.equals(issue.getReporterId())) {
-                return ResponseDto.setFailed("Only the reporter can change the status to resolved");
+            if (newStatus.equals("reopened")) {
+                issue.setAssigneeId(null);
+                issue.setFixerId(null);
             }
 
             issue.setStatus(newStatus);

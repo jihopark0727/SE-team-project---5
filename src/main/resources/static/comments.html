@@ -14,6 +14,14 @@
         .issue-details p {
             margin: 5px 0;
         }
+        #addCommentModal-content {
+            width: 40%;
+            height: 40%;
+        }
+        #comment-modal-btn {
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -47,7 +55,6 @@
 <div class="content" id="contentArea">
     <div class="header comment-header" id="commentHeader">
         <h2>Issue Comments</h2>
-        <button class="open-modal-btn" id="comment-modal-btn" onclick="openModal('comment')">Add Comment</button>
     </div>
 
     <!-- Issue Details Section -->
@@ -62,7 +69,7 @@
         <p><strong>Assignee ID:</strong> <span id="assigneeId"></span></p>
         <p><strong>Fixer ID:</strong> <span id="fixerId"></span></p>
     </div>
-
+    <button class="open-modal-btn" id="comment-modal-btn" onclick="openModal('comment')">Add Comment</button>
     <table class="table comment-table">
         <thead>
         <tr>
@@ -80,7 +87,7 @@
 
 <!-- The Modal -->
 <div id="addCommentModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="addCommentModal-content">
         <span class="close" onclick="closeModal('comment')">&times;</span>
         <h2>Add New Comment</h2>
         <div class="modal-input-wrap">

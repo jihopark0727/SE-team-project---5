@@ -112,6 +112,13 @@
             return false;
         }
 
+        const project = {
+            name: projectName,
+            description: projectDescription,
+            creation_time: new Date().toISOString(),
+            last_modified_time: new Date().toISOString()
+        };
+
         fetch('/api/projects', {
             method: 'POST',
             headers: {

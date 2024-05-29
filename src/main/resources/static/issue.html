@@ -38,7 +38,37 @@
         }
 
         .issueBrowseContent {
+            height: 25px;
             margin-right: 10px;
+        }
+
+        #dev-recommend {
+            width: 70%;
+            height: 40px;
+            justify-content: center;
+            border: solid 1px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #issueBrowse-btn {
+            width: 70px;
+            cursor: pointer;
+        }
+
+        #changeStatusModal-content {
+            width: 40%;
+            height: 30%;
+        }
+
+        #assignFixerModal-content {
+            width: 40%;
+            height: 40%;
+        }
+
+        #statusMessage {
+            height: 50px;
+            line-height: 50px;
         }
 
     </style>
@@ -103,7 +133,7 @@
         <input class="issueBrowseContent" type="text" id="reporterFilter">
         <label for="assigneeFilter">Assignee ID:</label>
         <input class="issueBrowseContent" type="text" id="assigneeFilter">
-        <button onclick="updateIssueTable()">Search</button>
+        <button class="issueBrowseContent" id="issueBrowse-btn" onclick="updateIssueTable()">Search</button>
     </div>
     <table class="table issue-table">
         <thead>
@@ -134,13 +164,13 @@
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
-            <textarea class="modal-input" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
+            <textarea class="modal-input no-resize" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
             <div class="warning-message" id="issueWarningMessage"></div>
-            <select class="modal-input" id="priority" >
-                Priority
+            Priority
+            <select class="modal-input" id="priority">
                 <option value="blocker">Blocker</option>
                 <option value="critical">Critical</option>
-                <option value="major">Major</option>
+                <option value="major" selected>Major</option> <!-- 기본값 설정 -->
                 <option value="minor">Minor</option>
                 <option value="trivial">Trivial</option>
             </select>
@@ -169,25 +199,28 @@
                 </tbody>
             </table>
         </div>
-        <textarea class="modal-input" id="newCommentTextForPl" placeholder="Enter your comment here"></textarea>
-        <div class="warning-message" id="assigneeWarningMessage"></div>
-        <div class="pagination-container">
-            <div class="pagination">
-                <button onclick="previousPage()">Previous</button>
-                <span id="pageNumber"></span>
-                <button onclick="nextPage()">Next</button>
+        <div class="modal-comment">
+            <textarea class="modal-input no-resize" id="newCommentTextForPl" placeholder="Enter your comment here"></textarea>
+            <div class="warning-message" id="assigneeWarningMessage"></div>
+            <div id="dev-recommend"></div>
+            <div class="pagination-container">
+                <div class="pagination">
+                    <button onclick="previousPage()">Previous</button>
+                    <span id="pageNumber"></span>
+                    <button onclick="nextPage()">Next</button>
+                </div>
+                <button class="add-btn" onclick="assignDevToIssue()">Assign selected dev</button>
             </div>
-            <button class="add-btn" onclick="assignDevToIssue()">Assign selected dev</button>
         </div>
     </div>
 </div>
 
 <!-- The Modal for Assigning Fixer -->
 <div id="assignFixerModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="assignFixerModal-content">
         <span class="close" onclick="closeModal('assignFixer')">&times;</span>
         <h2>Assign Fixer</h2>
-        <textarea class="modal-input" id="newCommentTextForDev" placeholder="Enter your comment here"></textarea>
+        <textarea class="modal-input no-resize" id="newCommentTextForDev" placeholder="Enter your comment here"></textarea>
         <div class="warning-message" id="fixerWarningMessage"></div>
         <button class="add-btn" onclick="assignFixerToIssue()">Assign as Fixer</button>
     </div>
@@ -195,7 +228,7 @@
 
 <!-- Modal for Changing Issue Status -->
 <div id="changeStatusModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="changeStatusModal-content">
         <span class="close" onclick="closeModal('changeStatus')">&times;</span>
         <h2>Change Issue Status</h2>
         <p id="statusMessage"></p>
@@ -261,7 +294,7 @@
 
                 if (issues.length > 0) {
                     issues.forEach(issue => {
-                        const assigneeClass = (currentUserType === 'pl' && issue.status === 'new') ? 'clickable red' : '';
+                        const assigneeClass = (currentUserType === 'pl' && (issue.status === 'new' || issue.status === 'reopened')) ? 'clickable red' : '';
                         const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId && (issue.status === 'assigned' || issue.status === 'reopened')) ? 'clickable red' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') || (currentUserType === 'pl' && issue.status === 'closed') ? 'clickable red' : '';
@@ -281,7 +314,7 @@
                     });
                 } else {
                     // 데이터가 없는 경우의 처리
-                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
+                    tableContent = `<tr><td colspan="10">No issues found</td></tr>`;
                 }
 
                 document.getElementById('issueTableBody').innerHTML = tableContent;
@@ -418,9 +451,20 @@
             .then(response => response.json())
             .then(data => {
                 devs = data; // Save devs data
+                renderBestCandidates(devs); // 추천 개발자 표시
                 renderTable();
             })
             .catch(error => console.error('Error loading devs:', error));
+    }
+
+    function renderBestCandidates(devs) {
+        const topDevs = devs.slice(0, 3);
+        const bestCandidatesList = document.getElementById('dev-recommend');
+        bestCandidatesList.innerHTML = '';
+
+        // 상위 3명의 개발자를 콤마로 구분하여 문자열로 생성
+        const topDevsText = topDevs.map(dev => `${dev.name}`).join(', ');
+        bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
     }
 
     function openFixerModal(issueId) {
