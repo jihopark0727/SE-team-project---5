@@ -214,6 +214,15 @@
             <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
             <textarea class="modal-input no-resize comment" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
+            <div class="modal-input">Priority:
+                <select class="modal-input" id="priority">
+                    <option value="blocker">Blocker</option>
+                    <option value="critical">Critical</option>
+                    <option value="major" selected>Major</option> <!-- 기본값 설정 -->
+                    <option value="minor">Minor</option>
+                    <option value="trivial">Trivial</option>
+                </select>
+            </div>
             <div class="warning-message" id="issueWarningMessage"></div>
             <button class="add-btn" onclick="addNewIssue()">Add Issue</button>
         </div>
@@ -423,6 +432,7 @@
         }
 
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
+        const priority = document.getElementById('priority').value;
         const issue = {
             title: issueTitle,
             description: issueDescription,
@@ -430,7 +440,7 @@
             last_modified_time: new Date().toISOString(),
             reporterId: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
-            priority: 'major',
+            priority: priority,
             assigneeId: null,
             fixerId: null,
             project_id: projectId // 선택된 프로젝트 ID
