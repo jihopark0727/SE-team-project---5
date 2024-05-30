@@ -394,4 +394,5 @@ window.onload = function() {
     commonLoad();
     setSelectedProject();
     updateIssueTable();
+    loadIssueDetails();
 };
