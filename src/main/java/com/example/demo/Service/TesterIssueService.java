@@ -45,7 +45,7 @@ public class TesterIssueService extends UserIssueService implements ITesterIssue
         issue.setFixerId(null);
         issue.setStatus("new");
         issue.setPriority(priority);
-        issue.setIssue_type(issueType);
+        issue.setIssueType(issueType);
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         Issue i = new Issue(issue);

@@ -8,4 +8,5 @@ public class SearchCondition {
     private String assignee;
     private String priority;
     private String status;
+    private String issueType;
 }

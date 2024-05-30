@@ -21,30 +21,6 @@
         #comment-modal-btn {
             margin-bottom: 10px;
         }
-        .comment-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* 테이블 레이아웃 고정 */
-        }
-
-        .comment-table th, .comment-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .comment-table th {
-            font-weight: bold;
-            background-color: #f2f2f2;
-        }
-
-        .comment-table th.comment-id, .comment-table td.comment-id {
-            width: 50px; /* comment ID 셀의 최소 너비 */
-        }
-
-        .comment-table th.comment-content, .comment-table td.comment-content {
-            width: 600px; /* comment ID 셀의 최소 너비 */
-        }
 
         .comment-table tr:hover {
             background-color: #f1f1f1;
@@ -105,8 +81,8 @@
     <table class="table comment-table">
         <thead>
         <tr>
-            <th class="comment-id">ID</th>
-            <th class="comment-content">Content</th>
+            <th class="table-id">ID</th>
+            <th class="table-content">Content</th>
             <th>Creation Time</th>
             <th>User ID</th>
         </tr>
@@ -153,8 +129,8 @@
                 if (comments.length > 0) {
                     comments.forEach(comment => {
                         tableContent += `<tr>
-                        <td class="comment-id">${comment.id}</td>
-                        <td class="comment-content">${comment.content}</td>
+                        <td class="table-id">${comment.id}</td>
+                        <td class="table-content">${comment.content}</td>
                         <td>${formatDate(comment.creation_time)}</td>
                         <td>${comment.user.id}</td>
                     </tr>`;
@@ -174,15 +150,15 @@
         const issueId = getSelectedIssue().id;
         const issue = JSON.parse(localStorage.getItem(issueId.toString()));
         document.getElementById('issueId').innerText = issue.id || 'N/A';
-        document.getElementById('issueType').innerText = issue.issue_type || 'N/A';
+        document.getElementById('issueType').innerText = issue.issueType || 'N/A';
         document.getElementById('issueDescription').innerText = issue.description || 'N/A';
         document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
         document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
         document.getElementById('status').innerText = issue.status || 'N/A';
         document.getElementById('priority').innerText = issue.priority || 'N/A';
-        document.getElementById('reporterId').innerText = issue.reporterId || 'N/A';
-        document.getElementById('assigneeId').innerText = issue.assigneeId || 'N/A';
-        document.getElementById('fixerId').innerText = issue.fixerId || 'N/A';
+        document.getElementById('reporterId').innerText = issue.reporterId || 'not assigned';
+        document.getElementById('assigneeId').innerText = issue.assigneeId || 'not assigned';
+        document.getElementById('fixerId').innerText = issue.fixerId || 'not assigned';
     }
 
     window.onload = function() {

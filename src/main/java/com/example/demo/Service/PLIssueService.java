@@ -92,7 +92,7 @@ public class PLIssueService extends UserIssueService implements IPLIssueService 
         if(issue == null) {
             return ResponseDto.setFailed("Cannot find issue with id " + issueId);
         } else {
-            issue.setIssue_type(issueType);
+            issue.setIssueType(issueType);
             issue.setLast_modified_time(new Date());
             issueRepository.save(issue);
             return ResponseDto.setSuccess("success");

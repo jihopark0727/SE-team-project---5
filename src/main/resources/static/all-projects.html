@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <script src="commonFunctions.js"></script>
     <style>
+        .project-table th.project-id, .comment-table td.project-id {
+            width: 50px;
+        }
 
     </style>
 </head>
@@ -34,13 +37,6 @@
     </div>
 </div>
 
-<!-- Left Navigation Bar -->
-<div class="left-navbar" id="leftNavBar">
-    <a href="issue.html">Issues</a>
-    <a href="issue-statistics.html">Issue Statistics</a>
-    <a href="user.html">Users</a>
-</div>
-
 <!-- Main Content Area -->
 <div class="content" id="contentArea">
     <div class="header project-header">
@@ -50,9 +46,9 @@
     <table class="table project-table">
         <thead>
         <tr>
-            <th>Project ID</th>
+            <th class="table-id">Project ID</th>
             <th>Project Name</th>
-            <th>Description</th>
+            <th class="table-content">Description</th>
             <th>Creation Time</th>
             <th>Last Modified Time</th>
         </tr>
@@ -89,9 +85,9 @@
 
                 projects.forEach(project => {
                     tableContent += `<tr>
-                    <td>${project.id}</td>
+                    <td class="table-id"">${project.id}</td>
                     <td><a href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
-                    <td>${project.description}</td>
+                    <td class="table-content">${project.description}</td>
                     <td>${formatDate(project.creation_time)}</td>
                     <td>${formatDate(project.last_modified_time)}</td>
                     </tr>`;
@@ -146,7 +142,8 @@
     // Load projects when the page loads
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        commonLoad();
+        adjustUser();
+        fetchProjectList();
         updateProjectTable();
     };
 

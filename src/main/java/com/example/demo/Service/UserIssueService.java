@@ -19,11 +19,14 @@ public abstract class UserIssueService implements IUserIssueService {
         String assigneeId = condition.getAssignee();
         String priority = condition.getPriority();
         String status = condition.getStatus();
+        String issueType = condition.getIssueType();
         int select = 0;
         if(priority != null) select += 1;
         if(status != null) select += 2;
         if(reporterId != null) select += 4;
         if(assigneeId != null) select += 8;
+        if(issueType != null) select += 16;
+
         switch(select){
             case 0:
                 return ResponseDto.setSuccessData("list", issueRepository.findByProjectId(projectId));
@@ -57,6 +60,39 @@ public abstract class UserIssueService implements IUserIssueService {
                 return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndStatus(projectId, assigneeId, reporterId, status));
             case 15:
                 return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndPriorityAndStatus(projectId, assigneeId, reporterId, priority, status));
+            // issueType 조건 추가
+            case 16:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndIssueType(projectId, issueType));
+            case 17:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndPriorityAndIssueType(projectId, priority, issueType));
+            case 18:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndStatusAndIssueType(projectId, status, issueType));
+            case 19:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndPriorityAndStatusAndIssueType(projectId, priority, status, issueType));
+            case 20:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndIssueType(projectId, reporterId, issueType));
+            case 21:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriorityAndIssueType(projectId, reporterId, priority, issueType));
+            case 22:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndStatusAndIssueType(projectId, reporterId, status, issueType));
+            case 23:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndReporterIdAndPriorityAndStatusAndIssueType(projectId, reporterId, priority, status, issueType));
+            case 24:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndIssueType(projectId, assigneeId, issueType));
+            case 25:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndPriorityAndIssueType(projectId, assigneeId, priority, issueType));
+            case 26:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndStatusAndIssueType(projectId, assigneeId, status, issueType));
+            case 27:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndPriorityAndStatusAndIssueType(projectId, assigneeId, priority, status, issueType));
+            case 28:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndIssueType(projectId, assigneeId, reporterId, issueType));
+            case 29:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndPriorityAndIssueType(projectId, assigneeId, reporterId, priority, issueType));
+            case 30:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndStatusAndIssueType(projectId, assigneeId, reporterId, status, issueType));
+            case 31:
+                return ResponseDto.setSuccessData("list", issueRepository.findByProjectIdAndAssigneeIdAndReporterIdAndPriorityAndStatusAndIssueType(projectId, assigneeId, reporterId, priority, status, issueType));
         }
         return ResponseDto.setFailed("failed");
     }

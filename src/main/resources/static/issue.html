@@ -23,67 +23,26 @@
         .clickable {
             cursor: pointer;
         }
-        .issue-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* 테이블 레이아웃 고정 */
-        }
 
-        .issue-table th, .issue-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .issue-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .issue-table th.issue-id, .issue-table td.issue-id {
-            width: 50px; /* Issue ID 셀의 최소 너비 */
-        }
-
-        .issue-table tr:hover {
-            background-color: #f1f1f1;
-        }
-        .dev-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .dev-table th, .dev-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .dev-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .dev-table tr:hover {
-            background-color: #f1f1f1;
+        .issue-table th.priority, .issue-table td.priority {
+            width: 80px;
         }
 
         #issueBrowseArea {
-            height: 60px;
-            line-height: 60px;
+            height: 50px;
         }
 
         .issueBrowseContent {
-            height: 25px;
+            height: 30px;
             margin-right: 10px;
             padding: 5px;
         }
-
-        #dev-recommend {
-            width: 70%;
-            height: 40px;
-            justify-content: center;
-            border: solid 1px;
-            padding: 10px;
-            margin-bottom: 10px;
+        #reporterFilter {
+           width: 100px;
         }
-
+        #assigneeFilter {
+            width: 100px;
+        }
         #issueBrowse-btn {
             width: 70px;
             cursor: pointer;
@@ -96,7 +55,14 @@
         #issueBrowse-btn:hover {
             background-color: #666;
         }
-
+        #dev-recommend {
+            width: 70%;
+            height: 40px;
+            justify-content: center;
+            border: solid 1px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
         #addIssueModal-content {
             width: 40%;
             height: 60%;
@@ -159,6 +125,17 @@
         <button class="open-modal-btn" id="issue-modal-btn" onclick="openModal('issue')">Add Issue</button>
     </div>
     <div id="issueBrowseArea">
+        <label for="issueTypeFilter">Type:</label>
+        <select class="issueBrowseContent" id="issueTypeFilter">
+            <option value="">All</option>
+            <option value="bug">Bug</option>
+            <option value="feature">Feature</option>
+            <option value="improvement">Improvement</option>
+            <option value="task">Task</option>
+            <option value="epic">Epic</option>
+            <option value="story">Story</option>
+            <option value="sub-task">Sub-task</option>
+        </select>
         <label for="statusFilter">Status:</label>
         <select class="issueBrowseContent" id="statusFilter">
             <option value="">All</option>
@@ -187,14 +164,14 @@
     <table class="table issue-table">
         <thead>
         <tr>
-            <th class="issue-id">ID</th>
+            <th class="table-id">ID</th>
             <th>Type</th>
             <th>Title</th>
             <th>Description</th>
             <th>Reported</th>
             <th>Updated</th>
             <th>Status</th>
-            <th>Priority</th>
+            <th class="priority">Priority</th>
             <th>Reporter ID</th>
             <th>Assignee ID</th>
             <th>Fixer ID</th>
@@ -363,12 +340,15 @@
         if(reporterId === "") reporterId = null;
         var priority = document.getElementById("priorityFilter").value;
         if(priority === "") priority = null;
+        var issueType = document.getElementById("issueTypeFilter").value;
+        if(issueType === "") issueType = null;
         var status = document.getElementById("statusFilter").value;
         if(status === "") status = null;
         const condition = {
             assignee : assigneeId,
             reporter : reporterId,
             priority : priority,
+            issueType: issueType,
             status : status
         }
         fetch(`/api/projects/${projectId}/issues/${getUserType()}`, {
@@ -400,8 +380,8 @@
                         const issueTypeClass = (currentUserType === 'pl') ? 'clickable blue' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
-                        <td class="issue-id">${issue.id}</td>
-                        <td class="issueType ${issueTypeClass}" data-issue-id="${issue.id}">${issue.issue_type}</td>
+                        <td class="table-id">${issue.id}</td>
+                        <td class="issueType ${issueTypeClass}" data-issue-id="${issue.id}">${issue.issueType}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time).substring(0, 10)}</td>
@@ -409,8 +389,8 @@
                         <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
                         <td class="priority ${priorityClass}" data-issue-id="${issue.id}">${issue.priority}</td>
                         <td>${issue.reporterId}</td>
-                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
-                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
+                        <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned' : issue.assigneeId}</td>
+                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.fixerId === null ? 'not assigned' : issue.fixerId}</td>
                     </tr>`;
                     });
                 } else {
@@ -422,7 +402,7 @@
 
                 // Assignee ID 클릭 이벤트 추가
                 document.querySelectorAll('.assignee.clickable').forEach(td => {
-                    if (currentUserType === 'pl' && td.textContent === 'not assigned yet') {
+                    if (currentUserType === 'pl' && td.textContent === 'not assigned') {
                         td.onclick = () => openAssignModal(td.dataset.issueId, td.dataset.issueTitle, projectId);
                     }
                 });

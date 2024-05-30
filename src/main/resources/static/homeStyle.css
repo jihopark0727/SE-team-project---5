@@ -83,7 +83,7 @@ body {
 }
 
 .left-navbar {
-    width: 200px;
+    width: 180px;
     background-color: #f4f4f4;
     padding: 10px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
@@ -146,7 +146,7 @@ body {
     table-layout: fixed; /* Fixes table layout */
 }
 .table th, .table td {
-    border: 1px solid black;
+    border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
     white-space: nowrap; /* Prevents text from wrapping */
@@ -156,6 +156,16 @@ body {
 .table th {
     background-color: #f2f2f2;
     text-align: center;
+    font-weight: bold;
+}
+.table th.table-id, .table td.table-id {
+    width: 50px;
+}
+.table th.table-content, .table td.table-content {
+    width: 600px;
+}
+.table tr:hover {
+    background-color: #f1f1f1;
 }
 .modal {
     display: none; /* Hidden by default */
@@ -318,8 +328,4 @@ textarea.modal-input.no-resize {
     padding: 5px;
     height: 35px;
     font-size: 15px;
-}
-
-.comment {
-
 }
