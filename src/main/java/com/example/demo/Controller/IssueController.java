@@ -100,4 +100,13 @@ public class IssueController implements IIssueController {
             return ResponseEntity.status(400).body(response);
         }
     }
+    @Override
+    @PostMapping("/{issueId}/priority")
+    public ResponseDto<?> updateIssuePriority(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request){
+        String priority = request.get("priority");
+        String userId = request.get("userId");
+        String userType = request.get("userType");
+        IUserIssueService service = factory.getIssueService(userType);
+        return service.updatePriority(issueId, priority);
+    }
 }
