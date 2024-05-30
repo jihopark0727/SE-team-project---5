@@ -17,6 +17,8 @@ function openModal(content) {
         modal = 'changeStatusModal';
     } else if (content === 'changePriority') { // 추가된 부분
         modal = 'changePriorityModal';
+    } else if (content === 'changeIssueType') { // 추가된 부분
+        modal = 'changeIssueTypeModal';
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -40,6 +42,8 @@ function closeModal(content) {
         modal = 'changeStatusModal';
     } else if (content === 'changePriority') { // 추가된 부분
         modal = 'changePriorityModal';
+    } else if (content === 'changeIssueType') { // 추가된 부분
+        modal = 'changeIssueTypeModal';
     }
     clearModal(content);
     document.getElementById(modal).style.display = 'none';
@@ -154,13 +158,6 @@ function selectIssue(issueId) {
     const issue = localStorage.getItem(issueId);
     localStorage.setItem('selectedIssue', issue);
     window.location.href = 'comments.html';
-    // fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}`)
-    //     .then(response => response.json())
-    //     .then(issue => {
-    //         localStorage.setItem('selectedIssue', JSON.stringify(issue));
-    //         window.location.href = 'comments.html';
-    //     })
-    //     .catch(error => console.error('Error selecting the issue:', error));
 }
 
 function showLeftNavbar() {
@@ -331,6 +328,15 @@ function openPriorityChangeModal(issueId) {
     openModal('changePriority');
 }
 
+function openIssueTypeChangeModal(issueId) {
+    document.getElementById('confirmIssueTypeChange').onclick = function() {
+        changeIssueType(issueId);
+        closeModal('changeIssueType');
+    };
+
+    openModal('changeIssueType');
+}
+
 function changeIssueStatus(issueId, newStatus) {
     const userId = getUserId();
     fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}/status`, {
@@ -372,6 +378,29 @@ function changeIssuePriority(issueId) {
         .catch(error => {
             console.error('Error changing issue priority:', error);
             alert('Error changing issue priority: ' + error.message);
+        });
+}
+
+function changeIssueType(issueId) {
+    const userId = getUserId();
+    const newIssueType = document.getElementById('issueTypeSelect').value;
+    fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}/issue_type`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ issueType: newIssueType, userId: userId, userType: getUserType() })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to change issue priority');
+            }
+            alert(`${newIssueType}으로 이슈 타입이 변경되었습니다.`);
+            updateIssueTable();
+        })
+        .catch(error => {
+            console.error('Error changing issue type:', error);
+            alert('Error changing issue type: ' + error.message);
         });
 }
 

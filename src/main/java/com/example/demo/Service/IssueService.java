@@ -37,7 +37,7 @@ public class IssueService {
         return issueRepository.findById(issueId);
     }
 
-    public Issue addIssue(Issue issue, Long projectId, String reporterId, String priority) {
+    public Issue addIssue(Issue issue, Long projectId, String reporterId, String priority, String issueType) {
         Project project = projectRepository.findById(projectId).orElse(null);
         User reporter = userRepository.findById(reporterId).orElse(null);
         if (project == null) {
@@ -52,6 +52,7 @@ public class IssueService {
         issue.setFixerId(null);
         issue.setStatus("new");
         issue.setPriority(priority);
+        issue.setIssue_type(issueType);
         issue.setReported_time(new Date());
         issue.setLast_modified_time(new Date());
         return issueRepository.save(issue);
@@ -112,4 +113,5 @@ public class IssueService {
             return ResponseDto.setFailed("Issue not found");
         }
     }
+
 }

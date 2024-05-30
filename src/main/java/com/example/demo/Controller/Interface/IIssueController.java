@@ -15,4 +15,5 @@ public interface IIssueController {
     ResponseEntity<ResponseDto<?>> assignDevToIssue(Long projectId, Long issueId, Map<String, String> request);
     ResponseEntity<ResponseDto<?>> updateIssueStatus(Long projectId, Long issueId, Map<String, String> request);
     ResponseDto<?> updateIssuePriority(Long projectId, Long issueId, Map<String, String> request);
+    ResponseDto<?> updateIssueType(Long projectId, Long issueId, Map<String, String> request);
 }

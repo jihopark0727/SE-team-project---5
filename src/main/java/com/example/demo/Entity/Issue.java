@@ -18,6 +18,7 @@ public class Issue {
     private String description;
     private String status;
     private String priority;
+    private String issue_type;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -35,6 +36,7 @@ public class Issue {
         this.description = dto.getDescription();
         this.status = dto.getStatus();
         this.priority = dto.getPriority();
+        this.issue_type = dto.getIssue_type();
         this.reported_time = dto.getReported_time();
         this.last_modified_time = dto.getLast_modified_time();
         this.reporterId = dto.getReporterId();

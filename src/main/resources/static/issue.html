@@ -16,6 +16,10 @@
             color: green;
             font-weight: bold;
         }
+        .blue {
+            color: blue;
+            font-weight: bold;
+        }
         .clickable {
             cursor: pointer;
         }
@@ -98,7 +102,7 @@
             height: 60%;
         }
 
-        #changeStatusModal-content {
+        .changeModal-content {
             width: 40%;
             height: 30%;
         }
@@ -108,15 +112,11 @@
             height: 40%;
         }
 
-        #changePriorityModal-content {
-            width: 40%;
-            height: 30%;
-        }
         #statusMessage {
             height: 50px;
             line-height: 50px;
         }
-        #prioritySelect {
+        .changeModal-select {
             margin-top: 10px;
         }
     </style>
@@ -188,6 +188,7 @@
         <thead>
         <tr>
             <th class="issue-id">ID</th>
+            <th>Type</th>
             <th>Title</th>
             <th>Description</th>
             <th>Reported</th>
@@ -221,6 +222,17 @@
                     <option value="major" selected>Major</option> <!-- 기본값 설정 -->
                     <option value="minor">Minor</option>
                     <option value="trivial">Trivial</option>
+                </select>
+            </div>
+            <div class="modal-input">Issue Type:
+                <select class="modal-input" id="issueType">
+                    <option value="bug">Bug</option>
+                    <option value="feature">Feature</option>
+                    <option value="improvement">Improvement</option>
+                    <option value="task" selected>Task</option>
+                    <option value="epic">Epic</option>
+                    <option value="story">Story</option>
+                    <option value="sub-task">Sub-task</option>
                 </select>
             </div>
             <div class="warning-message" id="issueWarningMessage"></div>
@@ -278,7 +290,7 @@
 
 <!-- Modal for Changing Issue Status -->
 <div id="changeStatusModal" class="modal">
-    <div class="modal-content" id="changeStatusModal-content">
+    <div class="modal-content changeModal-content" id="changeStatusModal-content">
         <span class="close" onclick="closeModal('changeStatus')">&times;</span>
         <h2>Change Issue Status</h2>
         <p id="statusMessage"></p>
@@ -288,11 +300,11 @@
 
 <!-- Modal for Changing Issue Priority -->
 <div id="changePriorityModal" class="modal">
-    <div class="modal-content" id="changePriorityModal-content">
+    <div class="modal-content changeModal-content" id="changePriorityModal-content">
         <span class="close" onclick="closeModal('changePriority')">&times;</span>
         <h2>Change Issue Priority</h2>
         <label for="prioritySelect">Select Priority:</label>
-        <select id="prioritySelect" class="modal-input">
+        <select id="prioritySelect" class="modal-input changeModal-select">
             <option value="blocker">Blocker</option>
             <option value="critical">Critical</option>
             <option value="major" selected>Major</option>
@@ -300,6 +312,25 @@
             <option value="trivial">Trivial</option>
         </select>
         <button class="add-btn" id="confirmPriorityChange">Yes</button>
+    </div>
+</div>
+
+<!-- Modal for Changing Issue Type -->
+<div id="changeIssueTypeModal" class="modal">
+    <div class="modal-content changeModal-content" id="changeIssueTypeModal-content">
+        <span class="close" onclick="closeModal('changeIssueType')">&times;</span>
+        <h2>Change Issue Type</h2>
+        <label for="issueTypeSelect">Select Type:</label>
+        <select id="issueTypeSelect" class="modal-input changeModal-select">
+            <option value="bug">Bug</option>
+            <option value="feature">Feature</option>
+            <option value="improvement">Improvement</option>
+            <option value="task" selected>Task</option>
+            <option value="epic">Epic</option>
+            <option value="story">Story</option>
+            <option value="sub-task">Sub-task</option>
+        </select>
+        <button class="add-btn" id="confirmIssueTypeChange">Yes</button>
     </div>
 </div>
 
@@ -366,9 +397,11 @@
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') || (currentUserType === 'pl' && issue.status === 'closed') ? 'clickable red' : '';
                         const priorityClass = (currentUserType === 'pl') ? 'clickable green' : '';
+                        const issueTypeClass = (currentUserType === 'pl') ? 'clickable blue' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
                         <td class="issue-id">${issue.id}</td>
+                        <td class="issueType ${issueTypeClass}" data-issue-id="${issue.id}">${issue.issue_type}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time).substring(0, 10)}</td>
@@ -382,7 +415,7 @@
                     });
                 } else {
                     // 데이터가 없는 경우의 처리
-                    tableContent = `<tr><td colspan="10">No issues found</td></tr>`;
+                    tableContent = `<tr><td colspan="11">No issues found</td></tr>`;
                 }
 
                 document.getElementById('issueTableBody').innerHTML = tableContent;
@@ -407,6 +440,11 @@
                 // Priority change 클릭 이벤트 추가
                 document.querySelectorAll('.priority.clickable').forEach(td => {
                     td.onclick = () => openPriorityChangeModal(td.dataset.issueId);
+                });
+
+                // issueType change 클릭 이벤트 추가
+                document.querySelectorAll('.issueType.clickable').forEach(td => {
+                    td.onclick = () => openIssueTypeChangeModal(td.dataset.issueId);
                 });
             })
             .catch(error => {
@@ -433,6 +471,7 @@
 
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
         const priority = document.getElementById('priority').value;
+        const issueType = document.getElementById('issueType').value;
         const issue = {
             title: issueTitle,
             description: issueDescription,
@@ -441,6 +480,7 @@
             reporterId: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
             priority: priority,
+            issue_type: issueType,
             assigneeId: null,
             fixerId: null,
             project_id: projectId // 선택된 프로젝트 ID

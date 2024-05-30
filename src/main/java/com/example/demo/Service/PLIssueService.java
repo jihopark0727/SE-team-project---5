@@ -62,7 +62,7 @@ public class PLIssueService extends UserIssueService implements IPLIssueService 
         var user = userRepository.findById(userId);
         if(user.isPresent()){
             if(!user.get().getUser_type().equals("pl")){
-                return ResponseDto.setFailed("Priority can only changed by PL");
+                return ResponseDto.setFailed("Priority can only be changed by PL");
             }
         }
         else return ResponseDto.setFailed("Cannot find user");
@@ -72,6 +72,27 @@ public class PLIssueService extends UserIssueService implements IPLIssueService 
             return ResponseDto.setFailed("Cannot find issue with id " + issueId);
         } else {
             issue.setPriority(priority);
+            issue.setLast_modified_time(new Date());
+            issueRepository.save(issue);
+            return ResponseDto.setSuccess("success");
+        }
+    }
+
+    @Override
+    public ResponseDto<?> updateIssueType(String userId, Long issueId, String issueType) {
+        var user = userRepository.findById(userId);
+        if(user.isPresent()){
+            if(!user.get().getUser_type().equals("pl")){
+                return ResponseDto.setFailed("Issue Type can only be changed by PL");
+            }
+        }
+        else return ResponseDto.setFailed("Cannot find user");
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+
+        if(issue == null) {
+            return ResponseDto.setFailed("Cannot find issue with id " + issueId);
+        } else {
+            issue.setIssue_type(issueType);
             issue.setLast_modified_time(new Date());
             issueRepository.save(issue);
             return ResponseDto.setSuccess("success");

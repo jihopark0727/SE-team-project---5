@@ -53,22 +53,12 @@ public class IssueController implements IIssueController {
             return ResponseEntity.badRequest().build();
         }
     }
-//    @Override
-//    @GetMapping("/{issueId}")
-//    public ResponseEntity<Issue> getIssueById(@PathVariable Long projectId, @PathVariable Long issueId) {
-//        Optional<Issue> issue = issueService.getIssueById(issueId);
-//        if (issue.isPresent()) {
-//            return ResponseEntity.ok(issue.get());
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
     @Override
     @PostMapping
     public ResponseEntity<Issue> addIssue(@PathVariable Long projectId, @RequestBody IssueDto issue) {
         System.out.println("Received reporter ID: " + issue.getReporterId());  // 로거나 콘솔을 통해 리포터 ID 확인
         System.out.println("Received priority: " + issue.getPriority());
-        ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId(), issue.getPriority());
+        ResponseDto<Issue> response = testerService.addIssue(issue, projectId, issue.getReporterId(), issue.getPriority(), issue.getIssue_type());
         if (response.isResult()) {
             return ResponseEntity.ok(response.getData());
         } else {
@@ -106,5 +96,13 @@ public class IssueController implements IIssueController {
         String priority = request.get("priority");
         String userId = request.get("userId");
         return plService.updatePriority(userId, issueId, priority);
+    }
+
+    @Override
+    @PostMapping("/{issueId}/issue_type")
+    public ResponseDto<?> updateIssueType(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request){
+        String issueType = request.get("issueType");
+        String userId = request.get("userId");
+        return plService.updateIssueType(userId, issueId, issueType);
     }
 }

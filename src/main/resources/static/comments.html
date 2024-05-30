@@ -90,8 +90,9 @@
 
     <!-- Issue Details Section -->
     <div class="issue-details">
+        <p><strong>ID:</strong> <span id="issueId"></span></p>
+        <p><strong>Type:</strong> <span id="issueType"></span></p>
         <p><strong>Description:</strong> <span id="issueDescription"></span></p>
-        <p><strong>Issue ID:</strong> <span id="issueId"></span></p>
         <p><strong>Reported Time:</strong> <span id="reportedTime"></span></p>
         <p><strong>Last Modified Time:</strong> <span id="lastModifiedTime"></span></p>
         <p><strong>Status:</strong> <span id="status"></span></p>
@@ -172,8 +173,9 @@
     function loadIssueDetails() {
         const issueId = getSelectedIssue().id;
         const issue = JSON.parse(localStorage.getItem(issueId.toString()));
-        document.getElementById('issueDescription').innerText = issue.description || 'N/A';
         document.getElementById('issueId').innerText = issue.id || 'N/A';
+        document.getElementById('issueType').innerText = issue.issue_type || 'N/A';
+        document.getElementById('issueDescription').innerText = issue.description || 'N/A';
         document.getElementById('reportedTime').innerText = issue.reported_time ? new Date(issue.reported_time).toLocaleString() : 'N/A';
         document.getElementById('lastModifiedTime').innerText = issue.last_modified_time ? new Date(issue.last_modified_time).toLocaleString() : 'N/A';
         document.getElementById('status').innerText = issue.status || 'N/A';

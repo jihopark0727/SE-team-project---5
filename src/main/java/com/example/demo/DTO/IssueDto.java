@@ -16,6 +16,7 @@ public class IssueDto {
     private String description;
     private String status;
     private String priority;
+    private String issue_type;
     private Project project;
     private Date reported_time;
     private Date last_modified_time;

@@ -5,5 +5,5 @@ import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 
 public interface ITesterIssueService {
-    ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId, String priority);
+    ResponseDto<Issue> addIssue(IssueDto issue, Long projectId, String reporterId, String priority, String issueType);
 }
