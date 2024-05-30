@@ -33,7 +33,7 @@ public class AuthService implements IAuthService {
         }
 
         // password 중복 확인
-        if(password.equals(confirmPassword)) {
+        if(!password.equals(confirmPassword)) {
             return ResponseDto.setFailed("비밀번호가 일치하지 않습니다.");
         }
 

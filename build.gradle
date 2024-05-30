@@ -34,8 +34,12 @@ dependencies {
     // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // JUnit 4
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.12.4'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    // Remove useJUnitPlatform() to use JUnit 4
+    // useJUnitPlatform()
 }
