@@ -15,6 +15,30 @@
         .clickable {
             cursor: pointer;
         }
+        .issue-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* 테이블 레이아웃 고정 */
+        }
+
+        .issue-table th, .issue-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .issue-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .issue-table th.issue-id, .issue-table td.issue-id {
+            width: 50px; /* Issue ID 셀의 최소 너비 */
+        }
+
+        .issue-table tr:hover {
+            background-color: #f1f1f1;
+        }
         .dev-table {
             width: 100%;
             border-collapse: collapse;
@@ -40,6 +64,7 @@
         .issueBrowseContent {
             height: 25px;
             margin-right: 10px;
+            padding: 5px;
         }
 
         #dev-recommend {
@@ -54,6 +79,11 @@
         #issueBrowse-btn {
             width: 70px;
             cursor: pointer;
+        }
+
+        #addIssueModal-content {
+            width: 40%;
+            height: 60%;
         }
 
         #changeStatusModal-content {
@@ -138,8 +168,8 @@
     <table class="table issue-table">
         <thead>
         <tr>
-            <th>Issue ID</th>
-            <th>Issue Title</th>
+            <th class="issue-id">ID</th>
+            <th>Title</th>
             <th>Description</th>
             <th>Reported Time</th>
             <th>Last Modified Time</th>
@@ -158,7 +188,7 @@
 
 <!-- The Modal for Adding Issues -->
 <div id="addIssueModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="addIssueModal-content">
         <span class="close" onclick="closeModal('issue')">&times;</span>
         <h2>Add New Issue</h2>
         <div class="modal-input-wrap">
@@ -300,7 +330,7 @@
                         (currentUserType === 'pl' && issue.status === 'resolved') || (currentUserType === 'pl' && issue.status === 'closed') ? 'clickable red' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
-                        <td>${issue.id}</td>
+                        <td class="issue-id">${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
                         <td>${formatDate(issue.reported_time)}</td>
@@ -433,6 +463,7 @@
         currentIssueId = issueId;
         openModal('assignFixer');
     }
+
 
     function assignDevToIssue() {
         let selectedDev = document.querySelector('#devTableBody input[type="radio"]:checked');

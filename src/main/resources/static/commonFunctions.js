@@ -363,12 +363,6 @@ function addNewComment(issueId, role) {
     })
         .then(response => {
             if (response.ok) {
-                if (role === 'all') {
-                    alert('코멘트가 성공적으로 추가되었습니다.');
-                    closeModal('comment');
-                    updateCommentTable();
-                    loadIssueDetails();
-                }
                 document.querySelectorAll('.warning-message').textContent = '';
                 return response.json();
             } else {
@@ -378,6 +372,12 @@ function addNewComment(issueId, role) {
         .then(issue => {
             const data = issue.data;
             localStorage.setItem(data.id.toString(), JSON.stringify(data));
+            if (role === 'all') {
+                alert('코멘트가 성공적으로 추가되었습니다.');
+                closeModal('comment');
+                updateCommentTable();
+                loadIssueDetails();
+            }
         })
         .catch(error => {
             alert('이슈 추가 실패!');

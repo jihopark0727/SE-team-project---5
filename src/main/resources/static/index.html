@@ -56,20 +56,6 @@
 </div>
 </body>
 <script>
-    function validateForm() {
-        let id = document.getElementById('id').value;
-        let password = document.getElementById('password').value;
-        let errorMessage = document.getElementById('error-message');
-
-        if (id === '') {
-            errorMessage.textContent = '아이디를 입력해주세요.';
-            return false;
-        } else if (password === '') {
-            errorMessage.textContent = '비밀번호를 입력해주세요.';
-            return false;
-        }
-        return true;
-    }
     function login(){
         let id = document.getElementById('id').value;
         let password = document.getElementById('password').value;

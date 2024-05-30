@@ -140,7 +140,6 @@
 
     function loadIssueDetails() {
         const issueId = getSelectedIssue().id;
-        const projectId = getSelectedProject().id;
         const issue = JSON.parse(localStorage.getItem(issueId.toString()));
         document.getElementById('issueDescription').innerText = issue.description || 'N/A';
         document.getElementById('issueId').innerText = issue.id || 'N/A';
