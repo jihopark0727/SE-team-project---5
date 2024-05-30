@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Issues</title>
+    <link rel="stylesheet" href="homeStyle.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="commonFunctions.js"></script>
+    <style>
+        .red {
+            color: red; /* PL 사용자를 위한 색상 */
+            font-weight: bold;
+        }
+        .clickable {
+            cursor: pointer;
+        }
+        .issue-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* 테이블 레이아웃 고정 */
+        }
+
+        .issue-table th, .issue-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .issue-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .issue-table th.issue-id, .issue-table td.issue-id {
+            width: 50px; /* Issue ID 셀의 최소 너비 */
+        }
+
+        .issue-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .dev-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dev-table th, .dev-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .dev-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .dev-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        #issueBrowseArea {
+            height: 60px;
+            line-height: 60px;
+        }
+
+        .issueBrowseContent {
+            height: 25px;
+            margin-right: 10px;
+            padding: 5px;
+        }
+
+        #dev-recommend {
+            width: 70%;
+            height: 40px;
+            justify-content: center;
+            border: solid 1px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #issueBrowse-btn {
+            width: 70px;
+            cursor: pointer;
+        }
+
+        #addIssueModal-content {
+            width: 40%;
+            height: 60%;
+        }
+
+        #changeStatusModal-content {
+            width: 40%;
+            height: 30%;
+        }
+
+        #assignFixerModal-content {
+            width: 40%;
+            height: 40%;
+        }
+
+        #statusMessage {
+            height: 50px;
+            line-height: 50px;
+        }
+        /* 차트 스타일 추가 */
+        .chart-container {
+            width: 80%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="top-navbar">
+    <div class="home-icon">
+        <a href="home.html">IMS</a>
+    </div>
+
+    <div class="nav-items">
+        <div class="nav-item" id="projectNav" onmouseover="showDropdown('projectDropdown')" onmouseout="hideDropdown('projectDropdown')">
+            <div id="project-btn">Projects</div>
+            <div class="dropdown-content" id="projectDropdown">
+                <!-- Project links will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+    <div class="nav-item account" id="userAccount">
+        <!-- 동적으로 아이디 표시 -->
+        <span id="userIdDisplay"></span>
+        <!-- 로그아웃 버튼 -->
+        <button id="logoutButton" class="logoutButton" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- Left Navigation Bar -->
+<div class="left-navbar" id="leftNavBar">
+    <a href="issue.html">Issues</a>
+    <a href="issue-statistics.html">Issue Statistics</a>
+    <a href="user.html">Users</a>
+</div>
+
+<!-- Main Content Area -->
+<div class="content" id="contentArea">
+    <div class="header statistics-header" id="statisticsHeader">
+        <h2>Issue Statistics</h2>
+    </div>
+    <!-- 차트 표시를 위한 컨테이너 -->
+    <div class="chart-container">
+        <canvas id="issuesPerDayChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="issuesPerMonthChart"></canvas>
+    </div>
+</div>
+
+<script>
+    function updateCharts() {
+        const condition = {
+            assignee : null,
+            reporter : null,
+            priority : null,
+            status : null
+        }
+        fetch(`/api/projects/${projectId}/issues/${getUserType()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(condition)
+        })
+            .then(response => {
+                if (response.status === 204) {
+                    return [];  // No Content인 경우, 빈 배열 반환
+                }
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
+            })
+            .then(issues => {
+                const issuesPerDay = {};
+                const issuesPerMonth = {};
+
+                issues.forEach(issue => {
+                    const reportedDate = new Date(issue.reported_time);
+                    const day = reportedDate.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+                    const month = reportedDate.toISOString().split('T')[0].substring(0, 7); // YYYY-MM 형식
+
+                    // 일별 이슈 카운트
+                    if (!issuesPerDay[day]) {
+                        issuesPerDay[day] = 0;
+                    }
+                    issuesPerDay[day]++;
+
+                    // 월별 이슈 카운트
+                    if (!issuesPerMonth[month]) {
+                        issuesPerMonth[month] = 0;
+                    }
+                    issuesPerMonth[month]++;
+                });
+
+                // 일별 이슈 차트 업데이트
+                const issuesPerDayLabels = Object.keys(issuesPerDay).sort();
+                const issuesPerDayData = issuesPerDayLabels.map(day => issuesPerDay[day]);
+
+                const issuesPerDayChart = new Chart(document.getElementById('issuesPerDayChart'), {
+                    type: 'line',
+                    data: {
+                        labels: issuesPerDayLabels,
+                        datasets: [{
+                            label: 'Issues per Day',
+                            data: issuesPerDayData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day',
+                                    tooltipFormat: 'll'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // 월별 이슈 차트 업데이트
+                const issuesPerMonthLabels = Object.keys(issuesPerMonth).sort();
+                const issuesPerMonthData = issuesPerMonthLabels.map(month => issuesPerMonth[month]);
+
+                const issuesPerMonthChart = new Chart(document.getElementById('issuesPerMonthChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: issuesPerMonthLabels,
+                        datasets: [{
+                            label: 'Issues per Month',
+                            data: issuesPerMonthData,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'month',
+                                    tooltipFormat: 'll'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+    }
+
+    window.onload = function() {
+        commonLoad();
+        setSelectedProject();
+        updateCharts();
+    }
+
+</script>
+
+</body>
+</html>
