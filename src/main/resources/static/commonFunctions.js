@@ -331,6 +331,65 @@ function changeIssueStatus(issueId, newStatus) {
         });
 }
 
+function addNewComment(issueId, role) {
+    let commentText;
+    let warningMessage = document.querySelector('.warning-message');
+    if (role === 'all') {
+        commentText = document.getElementById('newCommentText').value;;
+    } else if (role === 'tester') {
+        commentText = document.getElementById('newCommentTextForTester').value;
+    } else if (role === 'pl') {
+        commentText = document.getElementById('newCommentTextForPl').value;
+    } else if (role === 'dev') {
+        commentText = document.getElementById('newCommentTextForDev').value;
+    }
+    if (commentText === null || commentText === '') {
+        warningMessage.textContent = '코멘트를 입력해주세요.';
+    }
+    const projectId = getSelectedProject().id;
+    const userId = getUserId();
+    const comment = {
+        content: commentText,
+        issue_id: issueId,
+        user_id: userId
+    };
+
+    fetch(`/api/projects/${projectId}/issues/${issueId}/comments/add_comment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(comment)
+    })
+        .then(response => {
+            if (response.ok) {
+                if (role === 'all') {
+                    alert('코멘트가 성공적으로 추가되었습니다.');
+                    closeModal('comment');
+                    updateCommentTable();
+                    loadIssueDetails();
+                }
+                document.querySelectorAll('.warning-message').textContent = '';
+                return response.json();
+            } else {
+                response.text().then(text => alert('Failed to add comment: ' + text));
+            }
+        })
+        .then(issue => {
+            const data = issue.data;
+            localStorage.setItem(data.id.toString(), JSON.stringify(data));
+        })
+        .catch(error => {
+            alert('이슈 추가 실패!');
+            console.error('Error:', error);
+        });
+
+    const comments = document.querySelectorAll('.comment');
+    comments.forEach(comment => {
+        comment.textContent = '';
+    });
+}
+
 window.onload = function() {
     commonLoad();
     setSelectedProject();

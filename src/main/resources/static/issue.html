@@ -164,7 +164,7 @@
         <div class="modal-input-wrap">
             <input type="text" class="modal-input" id="newIssueTitle" placeholder="Issue Title">
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
-            <textarea class="modal-input no-resize" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
+            <textarea class="modal-input no-resize comment" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
             <div class="warning-message" id="issueWarningMessage"></div>
             Priority
             <select class="modal-input" id="priority">
@@ -200,7 +200,7 @@
             </table>
         </div>
         <div class="modal-comment">
-            <textarea class="modal-input no-resize" id="newCommentTextForPl" placeholder="Enter your comment here"></textarea>
+            <textarea class="modal-input no-resize comment" id="newCommentTextForPl" placeholder="Enter your comment here"></textarea>
             <div class="warning-message" id="assigneeWarningMessage"></div>
             <div id="dev-recommend"></div>
             <div class="pagination-container">
@@ -220,7 +220,7 @@
     <div class="modal-content" id="assignFixerModal-content">
         <span class="close" onclick="closeModal('assignFixer')">&times;</span>
         <h2>Assign Fixer</h2>
-        <textarea class="modal-input no-resize" id="newCommentTextForDev" placeholder="Enter your comment here"></textarea>
+        <textarea class="modal-input no-resize comment" id="newCommentTextForDev" placeholder="Enter your comment here"></textarea>
         <div class="warning-message" id="fixerWarningMessage"></div>
         <button class="add-btn" onclick="assignFixerToIssue()">Assign as Fixer</button>
     </div>
@@ -388,7 +388,7 @@
                 return response.json();
             })
             .then(newIssue => {
-                addComment(newIssue.id, 'tester');
+                addNewComment(newIssue.id, 'tester');
                 closeModal('issue');
                 alert('이슈가 성공적으로 추가되었습니다.');
                 warningMessage.textContent = '';
@@ -403,45 +403,7 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
-    function addComment(issueId, role) {
-        let commentText;
-        if (role === 'tester') {
-            commentText = document.getElementById('newCommentTextForTester').value;
-        } else if (role === 'pl') {
-            commentText = document.getElementById('newCommentTextForPl').value;
-        } else if (role === 'dev') {
-            commentText = document.getElementById('newCommentTextForDev').value;
-        }
-        const projectId = getSelectedProject().id;
-        const userId = getUserId();
-        const comment = {
-            content: commentText,
-            issue_id: issueId,
-            user_id: userId
-        };
 
-        fetch(`/api/projects/${projectId}/issues/${issueId}/comments/add_comment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(comment)
-        })
-            .then(response => {
-                if (response.ok) {
-                    document.querySelectorAll('.warning-message').textContent = '';
-                } else {
-                    response.text().then(text => alert('이슈 추가 실패!' + text));
-                }
-            })
-            .catch(error => {
-                alert('이슈 추가 실패!');
-                console.error('Error:', error);
-            });
-
-        document.getElementById('newCommentTextForTester').value = '';
-
-    }
 
     function openAssignModal(issueId, issueTitle, projectId) {
         currentIssueId = issueId; // Set the current issue ID
@@ -496,7 +458,7 @@
                 if (!response.ok) {
                     throw new Error('Failed to assign dev');
                 }
-                addComment(currentIssueId, 'pl');
+                addNewComment(currentIssueId, 'pl');
                 alert(`${currentIssueTitle}에 ${selectedDevId}가 성공적으로 할당되었습니다!`)
                 closeModal('assignDev');
                 updateIssueTable();
@@ -525,7 +487,7 @@
                 if (!response.ok) {
                     throw new Error('Failed to assign fixer');
                 }
-                addComment(currentIssueId, 'dev');
+                addNewComment(currentIssueId, 'dev');
                 closeModal('assignFixer');
                 updateIssueTable();
             })
