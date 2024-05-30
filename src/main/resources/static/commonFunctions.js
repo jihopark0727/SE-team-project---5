@@ -43,10 +43,7 @@ function closeModal(content) {
     }
     clearModal(content);
     document.getElementById(modal).style.display = 'none';
-    let warningMessages = document.querySelectorAll('.warning-message');
-    warningMessages.forEach(element => {
-        element.textContent = '';
-    });
+}
 
 
 function clearModal(content) {
@@ -68,7 +65,18 @@ function clearModal(content) {
     } else if (content === 'changeStatus') {
         modal = 'changeStatusModal';
     }
-}
+    let warningMessages = document.querySelectorAll('.warning-message');
+    if (warningMessages) {
+        warningMessages.forEach(warningMessage => {
+            warningMessage.textContent = '';
+        });
+    }
+    let comments = document.querySelectorAll('.comment');
+    if (comments) {
+        comments.forEach(comment => {
+            comment.textContent = '';
+        });
+    }
 }
 
 function formatDate(dateString) {

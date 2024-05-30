@@ -360,7 +360,7 @@
                         <td class="priority ${priorityClass}" data-issue-id="${issue.id}">${issue.priority}</td>
                         <td>${issue.reporterId}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
-                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
+                        <td class="fixer ${fixerClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
                     </tr>`;
                     });
                 } else {
@@ -379,7 +379,7 @@
 
                 // Fixer ID 클릭 이벤트 추가
                 document.querySelectorAll('.fixer.clickable').forEach(td => {
-                    td.onclick = () => openFixerModal(td.dataset.issueId);
+                    td.onclick = () => openFixerModal(td.dataset.issueId, td.dataset.issueTitle);
                 });
 
                 // Status change 클릭 이벤트 추가
@@ -484,8 +484,9 @@
         bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
     }
 
-    function openFixerModal(issueId) {
+    function openFixerModal(issueId, issueTitle) {
         currentIssueId = issueId;
+        currentIssueTitle = issueTitle; // Set the current issue title
         openModal('assignFixer');
     }
 
@@ -543,6 +544,7 @@
                     throw new Error('Failed to assign fixer');
                 }
                 addNewComment(currentIssueId, 'dev');
+                alert(`${currentIssueTitle}가 성공적으로 fix되었습니다!`);
                 closeModal('assignFixer');
                 updateIssueTable();
             })
