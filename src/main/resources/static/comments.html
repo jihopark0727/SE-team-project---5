@@ -21,6 +21,34 @@
         #comment-modal-btn {
             margin-bottom: 10px;
         }
+        .comment-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* 테이블 레이아웃 고정 */
+        }
+
+        .comment-table th, .comment-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .comment-table th {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+
+        .comment-table th.comment-id, .comment-table td.comment-id {
+            width: 50px; /* comment ID 셀의 최소 너비 */
+        }
+
+        .comment-table th.comment-content, .comment-table td.comment-content {
+            width: 600px; /* comment ID 셀의 최소 너비 */
+        }
+
+        .comment-table tr:hover {
+            background-color: #f1f1f1;
+        }
 
     </style>
 </head>
@@ -76,8 +104,8 @@
     <table class="table comment-table">
         <thead>
         <tr>
-            <th>Comment ID</th>
-            <th>Content</th>
+            <th class="comment-id">ID</th>
+            <th class="comment-content">Content</th>
             <th>Creation Time</th>
             <th>User ID</th>
         </tr>
@@ -124,8 +152,8 @@
                 if (comments.length > 0) {
                     comments.forEach(comment => {
                         tableContent += `<tr>
-                        <td>${comment.id}</td>
-                        <td>${comment.content}</td>
+                        <td class="comment-id">${comment.id}</td>
+                        <td class="comment-content">${comment.content}</td>
                         <td>${formatDate(comment.creation_time)}</td>
                         <td>${comment.user.id}</td>
                     </tr>`;

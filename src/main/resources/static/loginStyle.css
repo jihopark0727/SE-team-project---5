@@ -37,7 +37,7 @@
     justify-content: center;
     align-items: center;
     color: #ffffff;
-    background-color: #2178ff;
+    background-color: #444;
 }
 .form-left-side h1{
     color: #ffffff;
@@ -61,7 +61,7 @@
     background: #ffffff;
 }
 .form-right-side h1{
-    color: #2178ff;
+    color: #444;
     width: 100%;
     text-align: center;
     opacity: 0.9;
@@ -77,7 +77,7 @@
     height: 45px;
     margin-top: 20px;
     border-radius: 2px;
-    border-bottom: solid 2px #2178ff;
+    border-bottom: solid 2px #444;
     display: flex;
     align-items: center;
     padding-left: 35px; 
@@ -86,7 +86,7 @@
 .input-wrap i {
     position: absolute; 
     left: 10px; 
-    color: #2178ff;
+    color: #444;
     line-height: 45px;
 }
 
@@ -108,11 +108,11 @@
     color:#ffffff;
     border: 0;
     border-radius: 4px;
-    background: #69a2ff;
+    background: #666;
     cursor: pointer;
 }
 .submit-btn:hover{
-    background : #2178ff;
+    background : #444;
 }
 
 .warning-message {
