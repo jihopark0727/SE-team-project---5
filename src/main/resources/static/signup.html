@@ -9,6 +9,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
 
+        .input-container{
+
+        }
+
         .form-container{
             height: 600px;
         }
@@ -37,7 +41,6 @@
         <div class="form-right-side">
             <h1>Sign Up</h1>
             <div class="input-container">
-<!--            <form class="input-container" action="/api/auth/signUp" method="post">-->
                 <div class="input-wrap input-id">
                     <i class="fas fa-envelope"></i>
                     <input placeholder="Email" type="text" name="id" id="id">
@@ -64,8 +67,8 @@
                     <i class="fas fa-suitcase"></i>
                     <input placeholder="Career" type="number" name="career" id="career">
                 </div>
+                <div class="warning-message"></div>
                 <button class="submit-btn" onclick="signUp()">Sign Up</button>
-<!--            </form>-->
             </div>
         </div>
     </div>
@@ -73,6 +76,11 @@
 </body>
 
 <script>
+    function validateTel(tel) {
+        const telRegex = /^\d{3}-\d{3,4}-\d{4}$/;
+        return telRegex.test(tel);
+    }
+
     function signUp(){
         let id = document.getElementById('id').value;
         let password = document.getElementById('password').value;
@@ -80,14 +88,42 @@
         let userType = document.getElementById('user_type').value;
         let tel = document.getElementById('tel').value;
         let career = document.getElementById('career').value;
-        const signup ={
+        let warningMessage = document.querySelector('.warning-message');
+
+        if (id === '' || id === null) {
+            warningMessage.innerHTML = '아이디를 입력해주세요.';
+            return false;
+        }
+        if (password === '' || password === null) {
+            warningMessage.innerHTML = '비밀번호를 입력해주세요.';
+            return false;
+        }
+        if (name === '' || name === null) {
+            warningMessage.innerHTML = '이름을 입력해주세요.';
+            return false;
+        }
+        if (!validateTel(tel)) {
+            warningMessage.innerHTML = '전화번호 형식이 유효하지 않습니다.<br>형식: 010-1234-5678';
+            return false;
+        }
+        if (career === '' || career === null) {
+            warningMessage.innerHTML = '경력을 입력해주세요.';
+            return false;
+        }
+        if (career < 0 || career >= 100) {
+            warningMessage.innerHTML = '경력은 0 이상 100 미만이어야 합니다.<br>';
+            return false;
+        }
+
+        const signup = {
             id: id,
             name: name,
             password: password,
             tel: tel,
             user_type: userType,
             career: career
-        }
+        };
+
         fetch('/api/auth/signUp', {
             method: 'POST',
             headers: {
@@ -99,6 +135,7 @@
             .then(data => {
                 console.log(data);
                 if(data.result){
+                    warningMessage.innerHTML = '';
                     window.location.href = 'index.html?signup=success';
                 }
                 else{
@@ -107,7 +144,7 @@
             })
             .catch(error => {
                 alert('failed');
-            })
+            });
     }
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
