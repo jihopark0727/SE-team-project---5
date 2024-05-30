@@ -190,8 +190,8 @@
             <th class="issue-id">ID</th>
             <th>Title</th>
             <th>Description</th>
-            <th>Reported Time</th>
-            <th>Last Modified Time</th>
+            <th>Reported</th>
+            <th>Updated</th>
             <th>Status</th>
             <th>Priority</th>
             <th>Reporter ID</th>
@@ -371,8 +371,8 @@
                         <td class="issue-id">${issue.id}</td>
                         <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td>${issue.description}</td>
-                        <td>${formatDate(issue.reported_time)}</td>
-                        <td>${formatDate(issue.last_modified_time)}</td>
+                        <td>${formatDate(issue.reported_time).substring(0, 10)}</td>
+                        <td>${formatDate(issue.last_modified_time).substring(0, 10)}</td>
                         <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
                         <td class="priority ${priorityClass}" data-issue-id="${issue.id}">${issue.priority}</td>
                         <td>${issue.reporterId}</td>
