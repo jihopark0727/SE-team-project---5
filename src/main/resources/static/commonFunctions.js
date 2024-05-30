@@ -60,6 +60,7 @@ function clearModal(content) {
         document.getElementById('newCommentTextForPl').value = '';
     } else if (content === 'assignFixer') {
         modal = 'assignFixerModal';
+        document.getElementById('newCommentTextForDev').value = '';
     } else if (content === 'user') {
         modal = 'addUserModal';
     } else if (content === 'changeStatus') {
