@@ -15,6 +15,8 @@ function openModal(content) {
         modal = 'addUserModal';
     } else if (content === 'changeStatus') { // 추가된 부분
         modal = 'changeStatusModal';
+    } else if (content === 'changePriority') { // 추가된 부분
+        modal = 'changePriorityModal';
     }
     document.getElementById(modal).style.display = 'block';
 }
@@ -36,6 +38,8 @@ function closeModal(content) {
         modal = 'addUserModal';
     } else if (content === 'changeStatus') {
         modal = 'changeStatusModal';
+    } else if (content === 'changePriority') { // 추가된 부분
+        modal = 'changePriorityModal';
     }
     clearModal(content);
     document.getElementById(modal).style.display = 'none';
@@ -309,9 +313,17 @@ function openStatusChangeModal(issueId, currentStatus) {
     openModal('changeStatus');
 }
 
+function openPriorityChangeModal(issueId) {
+    document.getElementById('confirmPriorityChange').onclick = function() {
+        changeIssuePriority(issueId);
+        closeModal('changePriority');
+    };
+
+    openModal('changePriority');
+}
+
 function changeIssueStatus(issueId, newStatus) {
     const userId = getUserId();
-
     fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}/status`, {
         method: 'PUT',
         headers: {
@@ -328,6 +340,29 @@ function changeIssueStatus(issueId, newStatus) {
         .catch(error => {
             console.error('Error changing issue status:', error);
             alert('Error changing issue status: ' + error.message);
+        });
+}
+
+function changeIssuePriority(issueId) {
+    const userId = getUserId();
+    const newPriority = document.getElementById('prioritySelect').value;
+    fetch(`/api/projects/${getSelectedProject().id}/issues/${issueId}/priority`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ priority: newPriority, userId: userId, userType: getUserType() })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to change issue priority');
+            }
+            alert(`${newPriority}으로 우선순위가 변경되었습니다.`);
+            updateIssueTable();
+        })
+        .catch(error => {
+            console.error('Error changing issue priority:', error);
+            alert('Error changing issue priority: ' + error.message);
         });
 }
 

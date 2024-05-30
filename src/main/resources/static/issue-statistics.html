@@ -11,99 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="commonFunctions.js"></script>
     <style>
-        .red {
-            color: red; /* PL 사용자를 위한 색상 */
-            font-weight: bold;
-        }
-        .clickable {
-            cursor: pointer;
-        }
-        .issue-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* 테이블 레이아웃 고정 */
-        }
-
-        .issue-table th, .issue-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .issue-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .issue-table th.issue-id, .issue-table td.issue-id {
-            width: 50px; /* Issue ID 셀의 최소 너비 */
-        }
-
-        .issue-table tr:hover {
-            background-color: #f1f1f1;
-        }
-        .dev-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .dev-table th, .dev-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .dev-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .dev-table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        #issueBrowseArea {
-            height: 60px;
-            line-height: 60px;
-        }
-
-        .issueBrowseContent {
-            height: 25px;
-            margin-right: 10px;
-            padding: 5px;
-        }
-
-        #dev-recommend {
-            width: 70%;
-            height: 40px;
-            justify-content: center;
-            border: solid 1px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        #issueBrowse-btn {
-            width: 70px;
-            cursor: pointer;
-        }
-
-        #addIssueModal-content {
-            width: 40%;
-            height: 60%;
-        }
-
-        #changeStatusModal-content {
-            width: 40%;
-            height: 30%;
-        }
-
-        #assignFixerModal-content {
-            width: 40%;
-            height: 40%;
-        }
-
-        #statusMessage {
-            height: 50px;
-            line-height: 50px;
-        }
-        /* 차트 스타일 추가 */
         .chart-container {
             width: 80%;
             margin: 0 auto;
@@ -185,8 +92,11 @@
 
                 issues.forEach(issue => {
                     const reportedDate = new Date(issue.reported_time);
-                    const day = reportedDate.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-                    const month = reportedDate.toISOString().split('T')[0].substring(0, 7); // YYYY-MM 형식
+                    // month: YYYY-MM-DD 형식의 문자열
+                    const day = `${reportedDate.getFullYear()}-${String(reportedDate.getMonth() + 1).padStart(2, '0')}-${String(reportedDate.getDate()).padStart(2, '0')}`;
+
+                    // month: YYYY-MM 형식의 문자열
+                    const month = `${reportedDate.getFullYear()}-${String(reportedDate.getMonth() + 1).padStart(2, '0')}`;
 
                     // 일별 이슈 카운트
                     if (!issuesPerDay[day]) {
@@ -206,7 +116,7 @@
                 const issuesPerDayData = issuesPerDayLabels.map(day => issuesPerDay[day]);
 
                 const issuesPerDayChart = new Chart(document.getElementById('issuesPerDayChart'), {
-                    type: 'line',
+                    type: 'bar',
                     data: {
                         labels: issuesPerDayLabels,
                         datasets: [{

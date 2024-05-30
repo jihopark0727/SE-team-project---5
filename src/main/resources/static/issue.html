@@ -12,6 +12,10 @@
             color: red; /* PL 사용자를 위한 색상 */
             font-weight: bold;
         }
+        .green {
+            color: green;
+            font-weight: bold;
+        }
         .clickable {
             cursor: pointer;
         }
@@ -96,14 +100,16 @@
             height: 40%;
         }
 
+        #changePriorityModal-content {
+            width: 40%;
+            height: 30%;
+        }
         #statusMessage {
             height: 50px;
             line-height: 50px;
         }
-        /* 차트 스타일 추가 */
-        .chart-container {
-            width: 80%;
-            margin: 0 auto;
+        #prioritySelect {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -201,14 +207,6 @@
             <input type="text" class="modal-input" id="newIssueDesc" placeholder="Description">
             <textarea class="modal-input no-resize comment" id="newCommentTextForTester" placeholder="Enter your comment here"></textarea>
             <div class="warning-message" id="issueWarningMessage"></div>
-            Priority
-            <select class="modal-input" id="priority">
-                <option value="blocker">Blocker</option>
-                <option value="critical">Critical</option>
-                <option value="major" selected>Major</option> <!-- 기본값 설정 -->
-                <option value="minor">Minor</option>
-                <option value="trivial">Trivial</option>
-            </select>
             <button class="add-btn" onclick="addNewIssue()">Add Issue</button>
         </div>
     </div>
@@ -268,6 +266,23 @@
         <h2>Change Issue Status</h2>
         <p id="statusMessage"></p>
         <button class="add-btn" id="confirmStatusChange">Yes</button>
+    </div>
+</div>
+
+<!-- Modal for Changing Issue Priority -->
+<div id="changePriorityModal" class="modal">
+    <div class="modal-content" id="changePriorityModal-content">
+        <span class="close" onclick="closeModal('changePriority')">&times;</span>
+        <h2>Change Issue Priority</h2>
+        <label for="prioritySelect">Select Priority:</label>
+        <select id="prioritySelect" class="modal-input">
+            <option value="blocker">Blocker</option>
+            <option value="critical">Critical</option>
+            <option value="major" selected>Major</option>
+            <option value="minor">Minor</option>
+            <option value="trivial">Trivial</option>
+        </select>
+        <button class="add-btn" id="confirmPriorityChange">Yes</button>
     </div>
 </div>
 
@@ -333,6 +348,7 @@
                         const fixerClass = (currentUserType === 'dev' && issue.assigneeId === currentUserId && (issue.status === 'assigned' || issue.status === 'reopened')) ? 'clickable red' : '';
                         const statusClass = (currentUserType === 'tester' && issue.reporterId === currentUserId && issue.status === 'fixed') ||
                         (currentUserType === 'pl' && issue.status === 'resolved') || (currentUserType === 'pl' && issue.status === 'closed') ? 'clickable red' : '';
+                        const priorityClass = (currentUserType === 'pl') ? 'clickable green' : '';
                         localStorage.setItem(issue.id.toString(), JSON.stringify(issue));
                         tableContent += `<tr>
                         <td class="issue-id">${issue.id}</td>
@@ -341,7 +357,7 @@
                         <td>${formatDate(issue.reported_time)}</td>
                         <td>${formatDate(issue.last_modified_time)}</td>
                         <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
-                        <td>${issue.priority}</td>
+                        <td class="priority ${priorityClass}" data-issue-id="${issue.id}">${issue.priority}</td>
                         <td>${issue.reporterId}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned yet' : issue.assigneeId}</td>
                         <td class="fixer ${fixerClass}" data-issue-id="${issue.id}">${issue.fixerId === null ? 'not assigned yet' : issue.fixerId}</td>
@@ -366,9 +382,14 @@
                     td.onclick = () => openFixerModal(td.dataset.issueId);
                 });
 
-                // Status ID 클릭 이벤트 추가
+                // Status change 클릭 이벤트 추가
                 document.querySelectorAll('.status.clickable').forEach(td => {
                     td.onclick = () => openStatusChangeModal(td.dataset.issueId, td.dataset.issueStatus);
+                });
+
+                // Priority change 클릭 이벤트 추가
+                document.querySelectorAll('.priority.clickable').forEach(td => {
+                    td.onclick = () => openPriorityChangeModal(td.dataset.issueId);
                 });
             })
             .catch(error => {
@@ -394,7 +415,6 @@
         }
 
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
-        const priority = document.getElementById('priority').value;
         const issue = {
             title: issueTitle,
             description: issueDescription,
@@ -402,7 +422,7 @@
             last_modified_time: new Date().toISOString(),
             reporterId: currentUserId,  // 현재 로그인한 사용자의 ID를 리포터로 설정
             status: 'new',  // 초기 상태는 'new'
-            priority: priority,
+            priority: 'major',
             assigneeId: null,
             fixerId: null,
             project_id: projectId // 선택된 프로젝트 ID
@@ -468,7 +488,6 @@
         currentIssueId = issueId;
         openModal('assignFixer');
     }
-
 
     function assignDevToIssue() {
         let selectedDev = document.querySelector('#devTableBody input[type="radio"]:checked');
