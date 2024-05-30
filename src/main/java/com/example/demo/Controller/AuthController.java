@@ -62,9 +62,9 @@ public class AuthController implements IAuthController {
         ResponseDto<?> result = authService.logout(request, response);
         return result;
     }
-
+    @Override
     @PostMapping("/goresetpassword")
-    public ResponseEntity<?> goResetPassword(@RequestBody ForgotPasswordRequestDto request) {
+    public ResponseEntity<?> findPassword(@RequestBody ForgotPasswordRequestDto request) {
         ForgotPasswordResponseDto response = authService.findPassword(request.getEmail(), request.getName(), request.getTel());
         if (response != null) {
             return ResponseEntity.ok(ResponseDto.setSuccessData("Password found", response));

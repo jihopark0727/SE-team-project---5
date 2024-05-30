@@ -96,7 +96,7 @@ public class AuthService implements IAuthService {
         response.addCookie(cookie);
         return ResponseDto.setSuccess("로그아웃에 성공하였습니다.");
     }
-
+    @Override
     public ForgotPasswordResponseDto findPassword(String id, String name, String tel) {
         User user = userRepository.findByIdAndNameAndTel(id, name, tel);
         if (user != null) {

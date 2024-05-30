@@ -1,5 +1,6 @@
 package com.example.demo.Controller.Interface;
 
+import com.example.demo.DTO.ForgotPasswordRequestDto;
 import com.example.demo.DTO.LoginDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.DTO.SignUpDto;
@@ -13,4 +14,5 @@ public interface IAuthController {
     ResponseDto<?> signUp(SignUpDto requestBody);
     ResponseDto<User> login(LoginDto requestBody, HttpSession session);
     ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response);
+    ResponseEntity<?> findPassword(ForgotPasswordRequestDto request);
 }
