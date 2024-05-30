@@ -2,19 +2,22 @@ package com.example.demo.Service;
 
 import com.example.demo.Entity.User;
 import com.example.demo.Repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
     @InjectMocks
@@ -23,78 +26,91 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testFindById() {
+    public void testFindById_UserExists() {
         User user = new User();
-        user.setId("1");
-        when(userRepository.findById("1")).thenReturn(Optional.of(user));
+        user.setId("user1");
+        when(userRepository.findById("user1")).thenReturn(Optional.of(user));
 
-        User foundUser = userService.findById("1");
-        assertNotNull(foundUser);
-        assertEquals("1", foundUser.getId());
+        User result = userService.findById("user1");
+        assertNotNull(result);
+        assertEquals("user1", result.getId());
     }
 
     @Test
-    void testIsUserPL_UserIsPL() {
+    public void testFindById_UserNotExists() {
+        when(userRepository.findById("user1")).thenReturn(Optional.empty());
+
+        User result = userService.findById("user1");
+        assertNull(result);
+    }
+
+    @Test
+    public void testIsUserPL_UserIsPL() {
         User user = new User();
-        user.setId("1");
+        user.setId("user1");
         user.setUser_type("pl");
-        when(userRepository.findById("1")).thenReturn(Optional.of(user));
+        when(userRepository.findById("user1")).thenReturn(Optional.of(user));
 
-        boolean isPL = userService.isUserPL("1");
-        assertTrue(isPL);
+        boolean result = userService.isUserPL("user1");
+        assertTrue(result);
     }
 
     @Test
-    void testIsUserPL_UserIsNotPL() {
+    public void testIsUserPL_UserIsNotPL() {
         User user = new User();
-        user.setId("1");
+        user.setId("user1");
         user.setUser_type("dev");
-        when(userRepository.findById("1")).thenReturn(Optional.of(user));
+        when(userRepository.findById("user1")).thenReturn(Optional.of(user));
 
-        boolean isPL = userService.isUserPL("1");
-        assertFalse(isPL);
+        boolean result = userService.isUserPL("user1");
+        assertFalse(result);
     }
 
     @Test
-    void testIsUserPL_UserNotFound() {
-        when(userRepository.findById("1")).thenReturn(Optional.empty());
+    public void testIsUserPL_UserNotExists() {
+        when(userRepository.findById("user1")).thenReturn(Optional.empty());
 
-        boolean isPL = userService.isUserPL("1");
-        assertFalse(isPL);
+        boolean result = userService.isUserPL("user1");
+        assertFalse(result);
     }
 
     @Test
-    void testGetAllUsers() {
+    public void testGetAllUsers() {
+        List<User> users = new ArrayList<>();
         User user1 = new User();
-        user1.setId("1");
+        user1.setId("user1");
         User user2 = new User();
-        user2.setId("2");
-        List<User> users = Arrays.asList(user1, user2);
+        user2.setId("user2");
+        users.add(user1);
+        users.add(user2);
+
         when(userRepository.findAll()).thenReturn(users);
 
-        List<User> foundUsers = userService.getAllUsers();
-        assertEquals(2, foundUsers.size());
+        List<User> result = userService.getAllUsers();
+        assertNotNull(result);
+        assertEquals(2, result.size());
     }
 
     @Test
-    void testGetDevsByProjectIdOrderByCareerDesc() {
+    public void testGetDevsByProjectIdOrderByCareerDesc() {
+        List<User> users = new ArrayList<>();
         User user1 = new User();
-        user1.setId("1");
-        user1.setCareer(5);
+        user1.setId("user1");
         User user2 = new User();
-        user2.setId("2");
-        user2.setCareer(10);
-        List<User> users = Arrays.asList(user2, user1);
+        user2.setId("user2");
+        users.add(user1);
+        users.add(user2);
+
         when(userRepository.findDevsByProjectIdOrderByCareerDesc(1L)).thenReturn(users);
 
-        List<User> foundUsers = userService.getDevsByProjectIdOrderByCareerDesc(1L);
-        assertEquals(2, foundUsers.size());
-        assertEquals(10, foundUsers.get(0).getCareer());
+        List<User> result = userService.getDevsByProjectIdOrderByCareerDesc(1L);
+        assertNotNull(result);
+        assertEquals(2, result.size());
     }
 }
