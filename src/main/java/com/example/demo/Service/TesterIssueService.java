@@ -21,8 +21,6 @@ import java.util.Optional;
 
 @Service
 public class TesterIssueService extends UserIssueService implements ITesterIssueService {
-    @Autowired
-    private IssueRepository issueRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
