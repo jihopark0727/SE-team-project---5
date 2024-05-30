@@ -105,8 +105,6 @@ public class IssueController implements IIssueController {
     public ResponseDto<?> updateIssuePriority(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Map<String, String> request){
         String priority = request.get("priority");
         String userId = request.get("userId");
-        String userType = request.get("userType");
-        IUserIssueService service = factory.getIssueService(userType);
-        return service.updatePriority(issueId, priority);
+        return plService.updatePriority(userId, issueId, priority);
     }
 }

@@ -9,5 +9,4 @@ import java.util.List;
 public interface IUserIssueService {
     ResponseDto<?> updateStatus(Long issueId, String newStatus, String userID);
     ResponseDto<List<Issue>> browseIssue(Long projectId, SearchCondition condition);
-    ResponseDto<?> updatePriority(Long issueId, String priority);
 }

@@ -60,17 +60,4 @@ public abstract class UserIssueService implements IUserIssueService {
         }
         return ResponseDto.setFailed("failed");
     }
-    @Override
-    public ResponseDto<?> updatePriority(Long issueId, String priority) {
-        Issue issue = issueRepository.findById(issueId).orElse(null);
-
-        if(issue == null) {
-            return ResponseDto.setFailed("Cannot find issue with id " + issueId);
-        } else {
-            issue.setPriority(priority);
-            issue.setLast_modified_time(new Date());
-            issueRepository.save(issue);
-            return ResponseDto.setSuccess("success");
-        }
-    }
 }
