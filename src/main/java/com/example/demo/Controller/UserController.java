@@ -4,8 +4,6 @@ import com.example.demo.Controller.Interface.IUserController;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.User;
 import com.example.demo.Service.Interface.IUserService;
-import com.example.demo.Service.IssueService; // 추가
-import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

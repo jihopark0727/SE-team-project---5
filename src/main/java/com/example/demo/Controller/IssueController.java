@@ -5,22 +5,16 @@ import com.example.demo.DTO.IssueDto;
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.SearchCondition;
-import com.example.demo.Entity.User;
-import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.Factory.IssueServiceFactory;
 import com.example.demo.Service.Interface.IPLIssueService;
 import com.example.demo.Service.Interface.ITesterIssueService;
 import com.example.demo.Service.Interface.IUserIssueService;
-import com.example.demo.Service.Interface.IUserService;
-import com.example.demo.Service.IssueService;
-import com.example.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
