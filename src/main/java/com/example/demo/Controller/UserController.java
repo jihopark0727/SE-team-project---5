@@ -45,4 +45,9 @@ public class UserController implements IUserController {
         return userService.getDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
+    @Override
+    @GetMapping("/{projectId}/devs/{issueId}")
+    public List<User> getRecommendDevs(@PathVariable Long projectId, @PathVariable Long issueId){
+        return userService.getRecommendDevs(projectId, issueId);
+    }
 }

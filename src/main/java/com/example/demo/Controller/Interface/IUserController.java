@@ -11,4 +11,5 @@ public interface IUserController {
     List<User> getAllUsers();
     ResponseEntity<?> getUserProfile(HttpSession session);
     List<User> getDevsByProjectId(Long projectId);
+    List<User> getRecommendDevs(Long projectId, Long issueId);
 }

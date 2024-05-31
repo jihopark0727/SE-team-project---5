@@ -32,11 +32,6 @@ public class AuthService implements IAuthService {
             return ResponseDto.setFailed("데이터베이스 연결에 실패하였습니다.");
         }
 
-        // password 중복 확인
-        if(!password.equals(confirmPassword)) {
-            return ResponseDto.setFailed("비밀번호가 일치하지 않습니다.");
-        }
-
         // UserEntity 생성
         User userEntity = new User(dto);
 

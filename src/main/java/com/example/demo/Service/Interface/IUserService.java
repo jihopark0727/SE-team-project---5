@@ -9,4 +9,5 @@ public interface IUserService {
     boolean isUserPL(String userId);
     List<User> getAllUsers();
     List<User> getDevsByProjectIdOrderByCareerDesc(Long projectId);
+    List<User> getRecommendDevs(Long projectId, Long issueId);
 }

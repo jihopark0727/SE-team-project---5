@@ -514,13 +514,18 @@
     }
 
     function renderBestCandidates(devs) {
-        const topDevs = devs.slice(0, 3);
-        const bestCandidatesList = document.getElementById('dev-recommend');
-        bestCandidatesList.innerHTML = '';
+        fetch(`/api/users/${projectId}/devs/${currentIssueId}`)
+            .then(response => response.json())
+            .then(date => {
+                const topDevs = date.slice(0, 3);
+                const bestCandidatesList = document.getElementById('dev-recommend');
+                bestCandidatesList.innerHTML = '';
 
-        // 상위 3명의 개발자를 콤마로 구분하여 문자열로 생성
-        const topDevsText = topDevs.map(dev => `${dev.name}`).join(', ');
-        bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
+                // 상위 3명의 개발자를 콤마로 구분하여 문자열로 생성
+                const topDevsText = topDevs.map(dev => `${dev.name}`).join(', ');
+                bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
+            })
+            .catch(error => console.error('Error load devs: ', error));
     }
 
     function openFixerModal(issueId, issueTitle) {
