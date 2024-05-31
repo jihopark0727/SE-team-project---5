@@ -507,14 +507,17 @@
         document.getElementById('newIssueDesc').value = '';
     }
 
-
-
     function openAssignModal(issueId, issueTitle, projectId) {
         currentIssueId = issueId; // Set the current issue ID
         currentIssueTitle = issueTitle; // Set the current issue title
         openModal('assignDev');
-        fetch(`/api/users/${projectId}/devs`)
-            .then(response => response.json())
+        fetch(`/api/users/${projectId}/issues/${issueId}/recommendDevs`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch developers');
+                }
+                return response.json();
+            })
             .then(data => {
                 devs = data; // Save devs data
                 renderBestCandidates(devs); // 추천 개발자 표시
@@ -522,6 +525,8 @@
             })
             .catch(error => console.error('Error loading devs:', error));
     }
+
+
 
     function renderBestCandidates(devs) {
         const topDevs = devs.slice(0, 3);

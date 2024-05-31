@@ -1,7 +1,6 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Controller.Interface.IUserController;
-import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.User;
 import com.example.demo.Service.Interface.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,11 @@ public class UserController implements IUserController {
     @Autowired
     private IUserService userService;
 
-
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @Override
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
@@ -33,19 +30,16 @@ public class UserController implements IUserController {
         if (userId == null || userType == null) {
             return ResponseEntity.status(401).body("No active session found");
         }
-        // JSON 형태로 응답
         return ResponseEntity.ok().body(Map.of("id", userId, "user_type", userType));
     }
 
-    @Override
     @GetMapping("/{projectId}/devs")
     public List<User> getDevsByProjectId(@PathVariable Long projectId) {
         return userService.getDevsByProjectIdOrderByCareerDesc(projectId);
     }
 
-    @Override
-    @GetMapping("/{projectId}/devs/{issueId}")
-    public List<User> getRecommendDevs(@PathVariable Long projectId, @PathVariable Long issueId){
+    @GetMapping("/{projectId}/issues/{issueId}/recommendDevs")
+    public List<User> getRecommendDevs(@PathVariable Long projectId, @PathVariable Long issueId) {
         return userService.getRecommendDevs(projectId, issueId);
     }
 }
