@@ -24,8 +24,19 @@
             cursor: pointer;
         }
 
-        .issue-table th.priority, .issue-table td.priority {
-            width: 80px;
+        .issue-table th.title, .issue-table td.title {
+            width: 300px;
+        }
+        .issue-table th.issueType, .issue-table td.issueType {
+            width: 120px;
+        }
+        .issue-table th.priority,
+        .issue-table td.priority,
+        .issue-table th.status,
+        .issue-table td.status,
+        .issue-table th.time,
+        .issue-table td.time {
+            width: 100px;
         }
 
         #issueBrowseArea {
@@ -38,7 +49,7 @@
             padding: 5px;
         }
         #reporterFilter {
-           width: 100px;
+            width: 100px;
         }
         #assigneeFilter {
             width: 100px;
@@ -65,7 +76,7 @@
         }
         #addIssueModal-content {
             width: 40%;
-            height: 60%;
+            height: 65%;
         }
 
         .changeModal-content {
@@ -84,6 +95,10 @@
         }
         .changeModal-select {
             margin-top: 10px;
+        }
+        #issue-title{
+            text-decoration-line: none;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -165,13 +180,11 @@
         <thead>
         <tr>
             <th class="table-id">ID</th>
-            <th>Type</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Reported</th>
-            <th>Updated</th>
-            <th>Status</th>
+            <th class="issueType">Type</th>
+            <th class="title">Title</th>
             <th class="priority">Priority</th>
+            <th class="status">Status</th>
+            <th class="time">Reported</th>
             <th>Reporter ID</th>
             <th>Assignee ID</th>
             <th>Fixer ID</th>
@@ -382,12 +395,10 @@
                         tableContent += `<tr>
                         <td class="table-id">${issue.id}</td>
                         <td class="issueType ${issueTypeClass}" data-issue-id="${issue.id}">${issue.issueType}</td>
-                        <td><a href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
-                        <td>${issue.description}</td>
-                        <td>${formatDate(issue.reported_time).substring(0, 10)}</td>
-                        <td>${formatDate(issue.last_modified_time).substring(0, 10)}</td>
-                        <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
+                        <td class="title"><a id="issue-title" href="#" onclick="selectIssue(${issue.id})">${issue.title}</a></td>
                         <td class="priority ${priorityClass}" data-issue-id="${issue.id}">${issue.priority}</td>
+                        <td class="status ${statusClass}" data-issue-id="${issue.id}" data-issue-status="${issue.status}">${issue.status}</td>
+                        <td class="time">${formatDate(issue.reported_time).substring(0, 10)}</td>
                         <td>${issue.reporterId}</td>
                         <td class="assignee ${assigneeClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.assigneeId === null ? 'not assigned' : issue.assigneeId}</td>
                         <td class="fixer ${fixerClass}" data-issue-id="${issue.id}" data-issue-title="${issue.title}">${issue.fixerId === null ? 'not assigned' : issue.fixerId}</td>
@@ -395,7 +406,7 @@
                     });
                 } else {
                     // 데이터가 없는 경우의 처리
-                    tableContent = `<tr><td colspan="11">No issues found</td></tr>`;
+                    tableContent = `<tr><td colspan="9">No issues found</td></tr>`;
                 }
 
                 document.getElementById('issueTableBody').innerHTML = tableContent;
@@ -452,7 +463,6 @@
         const projectId = getSelectedProject().id;  // 선택된 프로젝트 ID 추출
         const priority = document.getElementById('priority').value;
         const issueType = document.getElementById('issueType').value;
-        console.log(issueType);
         const issue = {
             title: issueTitle,
             description: issueDescription,
@@ -514,18 +524,13 @@
     }
 
     function renderBestCandidates(devs) {
-        fetch(`/api/users/${projectId}/devs/${currentIssueId}`)
-            .then(response => response.json())
-            .then(date => {
-                const topDevs = date.slice(0, 3);
-                const bestCandidatesList = document.getElementById('dev-recommend');
-                bestCandidatesList.innerHTML = '';
+        const topDevs = devs.slice(0, 3);
+        const bestCandidatesList = document.getElementById('dev-recommend');
+        bestCandidatesList.innerHTML = '';
 
-                // 상위 3명의 개발자를 콤마로 구분하여 문자열로 생성
-                const topDevsText = topDevs.map(dev => `${dev.name}`).join(', ');
-                bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
-            })
-            .catch(error => console.error('Error load devs: ', error));
+        // 상위 3명의 개발자를 콤마로 구분하여 문자열로 생성
+        const topDevsText = topDevs.map(dev => `${dev.name}`).join(', ');
+        bestCandidatesList.textContent = `Best candidates: ${topDevsText}`;
     }
 
     function openFixerModal(issueId, issueTitle) {

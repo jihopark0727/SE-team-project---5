@@ -44,6 +44,8 @@ function closeModal(content) {
         modal = 'changePriorityModal';
     } else if (content === 'changeIssueType') { // 추가된 부분
         modal = 'changeIssueTypeModal';
+    } else if (content === 'commentContent') {
+        modal = 'commentContentModal';
     }
     clearModal(content);
     document.getElementById(modal).style.display = 'none';

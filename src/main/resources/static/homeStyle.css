@@ -162,7 +162,10 @@ body {
     width: 50px;
 }
 .table th.table-content, .table td.table-content {
-    width: 600px;
+    width: 500px;
+}
+.table td.table-content {
+    height: 40px;
 }
 .table tr:hover {
     background-color: #f1f1f1;

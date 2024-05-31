@@ -14,7 +14,7 @@
         .issue-details p {
             margin: 5px 0;
         }
-        #addCommentModal-content {
+        #addCommentModal-content, #commentContentModal-content{
             width: 40%;
             height: 40%;
         }
@@ -24,6 +24,19 @@
 
         .comment-table tr:hover {
             background-color: #f1f1f1;
+        }
+
+        .comment-table th.time, .comment-table td.time {
+            width: 180px;
+        }
+        .comment-table th.userId, .comment-table td.userId {
+            width: 200px;
+        }
+        .comment-table th.userType, .comment-table td.userType {
+            width: 100px;
+        }
+        .comment-table td.table-content {
+            cursor: pointer;
         }
 
     </style>
@@ -83,8 +96,9 @@
         <tr>
             <th class="table-id">ID</th>
             <th class="table-content">Content</th>
-            <th>Creation Time</th>
-            <th>User ID</th>
+            <th class="time">Creation Time</th>
+            <th class="userId">User ID</th>
+            <th class="userType">User Type</th>
         </tr>
         </thead>
         <tbody id="commentTableBody">
@@ -106,7 +120,24 @@
     </div>
 </div>
 
+<!-- Comment Content Modal -->
+<div id="commentContentModal" class="modal">
+    <div class="modal-content" id="commentContentModal-content">
+        <span class="close" onclick="closeModal('commentContent')">&times;</span>
+        <h2>Comment Details</h2>
+        <p id="modalCommentContent"></p>
+    </div>
+</div>
+
 <script>
+    function openCommentModal(modalId, content = '') {
+        const modal = document.getElementById(modalId);
+        if (content) {
+            document.getElementById('modalCommentContent').innerText = content;
+        }
+        modal.style.display = 'block';
+    }
+
     function updateCommentTable() {
         const issueId = getSelectedIssue().id;
         const projectId = getSelectedProject().id;
@@ -116,27 +147,28 @@
         })
             .then(response => {
                 if (response.status === 204) {
-                    return [];  // No Content인 경우, 빈 배열 반환
+                    return [];
                 }
                 if (!response.ok) {
                     throw new Error(`Server responded with status: ${response.status}`);
                 }
-                return response.json();  // JSON 파싱은 응답이 OK이고, 상태 코드가 204가 아닐 때만 수행
+                return response.json();
             })
             .then(comments => {
                 let tableContent = '';
 
                 if (comments.length > 0) {
                     comments.forEach(comment => {
-                        tableContent += `<tr>
-                        <td class="table-id">${comment.id}</td>
-                        <td class="table-content">${comment.content}</td>
-                        <td>${formatDate(comment.creation_time)}</td>
-                        <td>${comment.user.id}</td>
+                        tableContent += `<tr onclick="openCommentModal('commentContentModal', '${comment.content.replace(/'/g, "\\'")}')">
+                    <td class="table-id">${comment.id}</td>
+                    <td class="table-content">${comment.content}</td>
+                    <td class="time">${formatDate(comment.creation_time)}</td>
+                    <td class="userId">${comment.user.id}</td>
+                    <td class="userType">${comment.user.user_type}</td>
                     </tr>`;
                     });
                 } else {
-                    tableContent = `<tr><td colspan="4">No comments found</td></tr>`;
+                    tableContent = `<tr><td colspan="5">No comments found</td></tr>`;
                 }
                 document.getElementById('commentTableBody').innerHTML = tableContent;
             })
