@@ -15,6 +15,13 @@
             text-decoration-line: none;
             font-weight: bold;
         }
+        #projectModal-content {
+            width: 40%;
+            height: 45%;
+        }
+        #newProjectDesc {
+            height: 60px;
+        }
     </style>
 </head>
 <body>
@@ -65,7 +72,7 @@
 
 <!-- The Modal -->
 <div id="addProjectModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="projectModal-content">
         <span class="close" onclick="closeModal('project')">&times;</span>
         <h2>Add New Project</h2>
         <div class="modal-input-wrap">
