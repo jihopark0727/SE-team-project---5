@@ -11,7 +11,10 @@
         .project-table th.project-id, .comment-table td.project-id {
             width: 50px;
         }
-
+        #project-name{
+            text-decoration-line: none;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -86,7 +89,7 @@
                 projects.forEach(project => {
                     tableContent += `<tr>
                     <td class="table-id"">${project.id}</td>
-                    <td><a href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
+                    <td><a id="project-name" href="#" onclick="selectProject(${project.id})">${project.name}</a></td>
                     <td class="table-content">${project.description}</td>
                     <td>${formatDate(project.creation_time)}</td>
                     <td>${formatDate(project.last_modified_time)}</td>
