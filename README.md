@@ -14,7 +14,8 @@ Issue Management System (IMS)은 프로젝트 이슈를 관리하기 위한 웹 
 
 2. **MySQL 데이터베이스 설정:**
 MySQL에 접속하여 데이터베이스와 사용자 계정을 생성합니다.
-CREATE TABLE user (
+
+ CREATE TABLE user (
     id varchar(255) NOT NULL PRIMARY KEY,
     name varchar(255),
     password varchar(255) NOT NULL,
