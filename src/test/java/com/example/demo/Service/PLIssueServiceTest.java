@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+
 import com.example.demo.DTO.ResponseDto;
 import com.example.demo.Entity.Issue;
 import com.example.demo.Entity.User;
@@ -13,151 +14,198 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
+
+import java.util.Date;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class PLIssueServiceTest {
 
-    @InjectMocks
-    private PLIssueService plIssueService;
-
-    @Mock
-    private IssueRepository issueRepository;
 
     @Mock
     private UserRepository userRepository;
 
+
+    @Mock
+    private IssueRepository issueRepository;
+
+
+    @InjectMocks
+    private PLIssueService plIssueService;
+
+
+    private Issue issue;
+    private User user;
+
+
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
 
-    @Test
-    public void testAssignIssue_Success() {
-        Long issueId = 1L;
-        String assigneeId = "assignee1";
 
-        Issue issue = new Issue();
+        user = new User();
+        user.setId("testUser");
+        user.setUser_type("pl");
+
+
+        issue = new Issue();
+        issue.setId(1L);
         issue.setStatus("new");
+        issue.setLast_modified_time(new Date());
+    }
 
-        when(issueRepository.findById(issueId)).thenReturn(Optional.of(issue));
 
-        ResponseDto<?> response = plIssueService.assignIssue(issueId, assigneeId);
+    @Test
+    public void testAssignIssueSuccess() {
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(issue));
+
+
+        ResponseDto<?> response = plIssueService.assignIssue(1L, "assigneeUser");
+
+
         assertEquals("Assignee updated successfully", response.getMessage());
+        verify(issueRepository, times(1)).save(issue);
     }
 
+
     @Test
-    public void testAssignIssue_IssueNotFound() {
-        Long issueId = 1L;
-        String assigneeId = "assignee1";
+    public void testAssignIssueNotFound() {
+        when(issueRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(issueRepository.findById(issueId)).thenReturn(Optional.empty());
 
-        ResponseDto<?> response = plIssueService.assignIssue(issueId, assigneeId);
+        ResponseDto<?> response = plIssueService.assignIssue(1L, "assigneeUser");
+
+
         assertEquals("Issue not found", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 
-    @Test
-    public void testAssignIssue_InvalidStatus() {
-        Long issueId = 1L;
-        String assigneeId = "assignee1";
 
-        Issue issue = new Issue();
+    @Test
+    public void testAssignIssueInvalidStatus() {
         issue.setStatus("closed");
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(issue));
 
-        when(issueRepository.findById(issueId)).thenReturn(Optional.of(issue));
 
-        ResponseDto<?> response = plIssueService.assignIssue(issueId, assigneeId);
+        ResponseDto<?> response = plIssueService.assignIssue(1L, "assigneeUser");
+
+
         assertEquals("Only issues with status 'new' or 'reopened' can be assigned an assignee", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 
+
     @Test
-    public void testUpdateStatus_Success() {
-        Long issueId = 1L;
-        String newStatus = "reopened";
-        String userId = "user1";
+    public void testUpdateStatusSuccess() {
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(issue));
 
-        Issue issue = new Issue();
 
-        when(issueRepository.findById(issueId)).thenReturn(Optional.of(issue));
+        ResponseDto<?> response = plIssueService.updateStatus(1L, "reopened", "testUser");
 
-        ResponseDto<?> response = plIssueService.updateStatus(issueId, newStatus, userId);
+
         assertEquals("Issue status updated successfully", response.getMessage());
+        verify(issueRepository, times(1)).save(issue);
     }
 
+
     @Test
-    public void testUpdateStatus_IssueNotFound() {
-        Long issueId = 1L;
-        String newStatus = "reopened";
-        String userId = "user1";
+    public void testUpdateStatusIssueNotFound() {
+        when(issueRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(issueRepository.findById(issueId)).thenReturn(Optional.empty());
 
-        ResponseDto<?> response = plIssueService.updateStatus(issueId, newStatus, userId);
+        ResponseDto<?> response = plIssueService.updateStatus(1L, "reopened", "testUser");
+
+
         assertEquals("Issue not found", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 
+
     @Test
-    public void testUpdatePriority_Success() {
-        String userId = "user1";
-        Long issueId = 1L;
-        String priority = "high";
+    public void testUpdatePrioritySuccess() {
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(issue));
 
-        User user = new User();
-        user.setUser_type("pl");
 
-        Issue issue = new Issue();
+        ResponseDto<?> response = plIssueService.updatePriority("testUser", 1L, "high");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(issueRepository.findById(issueId)).thenReturn(Optional.of(issue));
 
-        ResponseDto<?> response = plIssueService.updatePriority(userId, issueId, priority);
         assertEquals("success", response.getMessage());
+        verify(issueRepository, times(1)).save(issue);
     }
 
-    @Test
-    public void testUpdatePriority_UserNotPL() {
-        String userId = "user1";
-        Long issueId = 1L;
-        String priority = "high";
 
-        User user = new User();
+    @Test
+    public void testUpdatePriorityUserNotPL() {
         user.setUser_type("dev");
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        ResponseDto<?> response = plIssueService.updatePriority(userId, issueId, priority);
-        assertEquals("Priority can only changed by PL", response.getMessage());
+        ResponseDto<?> response = plIssueService.updatePriority("testUser", 1L, "high");
+
+
+        assertEquals("Priority can only be changed by PL", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 
+
     @Test
-    public void testUpdatePriority_UserNotFound() {
-        String userId = "user1";
-        Long issueId = 1L;
-        String priority = "high";
+    public void testUpdatePriorityIssueNotFound() {
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
+        when(issueRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        ResponseDto<?> response = plIssueService.updatePriority(userId, issueId, priority);
-        assertEquals("Cannot find user", response.getMessage());
+        ResponseDto<?> response = plIssueService.updatePriority("testUser", 1L, "high");
+
+
+        assertEquals("Cannot find issue with id 1", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 
+
     @Test
-    public void testUpdatePriority_IssueNotFound() {
-        String userId = "user1";
-        Long issueId = 1L;
-        String priority = "high";
+    public void testUpdateIssueTypeSuccess() {
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(issue));
 
-        User user = new User();
-        user.setUser_type("pl");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(issueRepository.findById(issueId)).thenReturn(Optional.empty());
+        ResponseDto<?> response = plIssueService.updateIssueType("testUser", 1L, "bug");
 
-        ResponseDto<?> response = plIssueService.updatePriority(userId, issueId, priority);
-        assertEquals("Cannot find issue with id " + issueId, response.getMessage());
+
+        assertEquals("success", response.getMessage());
+        verify(issueRepository, times(1)).save(issue);
+    }
+
+
+    @Test
+    public void testUpdateIssueTypeUserNotPL() {
+        user.setUser_type("dev");
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
+
+
+        ResponseDto<?> response = plIssueService.updateIssueType("testUser", 1L, "bug");
+
+
+        assertEquals("Issue Type can only be changed by PL", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
+    }
+
+
+    @Test
+    public void testUpdateIssueTypeIssueNotFound() {
+        when(userRepository.findById("testUser")).thenReturn(Optional.of(user));
+        when(issueRepository.findById(1L)).thenReturn(Optional.empty());
+
+
+        ResponseDto<?> response = plIssueService.updateIssueType("testUser", 1L, "bug");
+
+
+        assertEquals("Cannot find issue with id 1", response.getMessage());
+        verify(issueRepository, never()).save(any(Issue.class));
     }
 }
